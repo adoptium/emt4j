@@ -1,0 +1,43 @@
+digraph G {
+    compound=true;
+    ranksep = 1;
+    node [shape=record]
+    subgraph cluster_phase {
+        analysis [shape=box,label="Analysis"];
+        parser [shape=box,label="Parser"];
+
+
+        color = lightblue;
+        parser -> analysis;
+        parser -> target [label="read", style=dotted];
+        target [shape=octagon,label="Jar/Class/VM Option"];
+    }
+
+    subgraph cluster_model {
+        imme_file [shape=octagon,label="Immediate File"];
+        dependency [shape=octagon,label="Dependency"];
+    }
+
+    subgraph cluster_agent {
+        color = lightblue;
+        agent -> run_app [label="attatch", style=dotted];
+        agent [shape=box,label="Java Agent"];
+        run_app [shape=octagon,label="Running Application"];
+    }
+
+    subgraph cluster_output {
+        color = lightgray;
+        report -> report_file [label="write", style=dotted];
+        report_file [shape=octagon,label="Report File"];
+        report [shape=box,label="Report Generator"];
+    }
+
+    analysis -> imme_file [label = "read&write", style=dotted,color=red, lhead=cluster_model, ltail=cluster_phase];
+    agent -> imme_file[label = "read&write", style=dotted,color=red, lhead=cluster_model, ltail=cluster_agent];
+    agent -> rule [label = "read", style=dotted,color=blue];
+    analysis -> rule [label = "read",style=dotted,color=blue];
+    agent -> report;
+    analysis -> report;
+    report -> imme_file [label="read", style=dotted,color=blue, lhead=cluster_model];
+    rule [fillcolor = "#d9e7ee",shape=hexagon,label="Rules",style=filled];
+}

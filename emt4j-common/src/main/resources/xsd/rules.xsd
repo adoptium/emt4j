@@ -1,0 +1,100 @@
+<?xml version = "1.0"?>
+<!--
+    Copyright (c) 2022 Contributors to the Eclipse Foundation
+
+    See the NOTICE file(s) distributed with this work for additional
+    information regarding copyright ownership.
+
+    This program and the accompanying materials are made available under the
+    terms of the Apache License, Version 2.0 which is available at
+    https://www.apache.org/licenses/LICENSE-2.0.
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    SPDX-License-Identifier: Apache-2.0
+ -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="https://projects.eclipse.org/projects/adoptium.emt4j"
+           xmlns="https://projects.eclipse.org/projects/adoptium.emt4j" elementFormDefault="qualified">
+
+    <xs:element name="rules">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="rule" type="RuleType" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="PriorityType">
+        <xs:annotation>
+            <xs:documentation>
+                <p>Support priority</p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="p0"/>
+            <xs:enumeration value="p1"/>
+            <xs:enumeration value="p2"/>
+            <xs:enumeration value="p3"/>
+            <xs:enumeration value="p4"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ModeType">
+        <xs:annotation>
+            <xs:documentation>
+                <p>Support check mode</p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="agent"/>
+            <xs:enumeration value="class"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="MatchType">
+        <xs:annotation>
+            <xs:documentation>
+                <p>By package or by class</p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="by-package"/>
+            <xs:enumeration value="by-class"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="SupportModesType">
+        <xs:sequence>
+            <xs:element name="mode" type="ModeType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RuleType">
+        <xs:sequence>
+            <xs:element name="support-modes" type="SupportModesType"/>
+        </xs:sequence>
+        <xs:attribute name="desc" type="xs:string" use="required"/>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+        <xs:attribute name="result-code" type="xs:string" use="required"/>
+        <xs:attribute name="priority" type="PriorityType" use="required"/>
+        <xs:attribute name="package-list-file" type="xs:string"/>
+        <xs:attribute name="sub-result-code" type="xs:string"/>
+        <xs:attribute name="class-list-file" type="xs:string"/>
+        <xs:attribute name="packages-file" type="xs:string"/>
+        <xs:attribute name="module-to-package-file" type="xs:string"/>
+        <xs:attribute name="default-exports-file" type="xs:string"/>
+        <xs:attribute name="jvm-option-file" type="xs:string"/>
+        <xs:attribute name="method-list-file" type="xs:string"/>
+        <xs:attribute name="jar-rule-file" type="xs:string"/>
+        <xs:attribute name="must-contain-in-bytecode" type="xs:string"/>
+        <xs:attribute name="match-type" type="MatchType"/>
+        <xs:attribute name="class-package-file" type="xs:string"/>
+        <xs:attribute name="mvel2-rule-file" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>
+

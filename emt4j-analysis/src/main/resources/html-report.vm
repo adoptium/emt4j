@@ -1,0 +1,66 @@
+## Copyright (c) 2022 Contributors to the Eclipse Foundation
+##
+## See the NOTICE file(s) distributed with this work for additional
+## information regarding copyright ownership.
+##
+## This program and the accompanying materials are made available under the
+## terms of the Apache License, Version 2.0 which is available at
+## https://www.apache.org/licenses/LICENSE-2.0.
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+## SPDX-License-Identifier: Apache-2.0
+<html>
+<head>
+<title>Migration Report</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
+<body>
+#if($data.isEmpty())
+    <h1>$noIssue</h1>
+#else
+<h1><a name="top">$contentTitle</a></h1>
+<div>
+    <ul>
+    #foreach ($item in $content)
+    <li><a href="#${item.anchorId}">$item.title</a></li>
+    #end
+    <ul>
+</div>
+
+<h1>$detailTitle</h1>
+#foreach( $feature in $data )
+<h2>$feature.featureId $feature.featureDesc</h2>
+#foreach( $detail in $feature.resultDetailList)
+  <h3><a name="${detail.anchorId}"> ${feature.featureId}.${detail.detailId} ${detail.title}</a>  <a href="#top">${backToContent}</a> </h3>
+    <h4>${feature.featureId}.${detail.detailId}.1 ${detail.descriptionTitle}<h4>
+      <p>${detail.description}</p>
+    <h4>${feature.featureId}.${detail.detailId}.2 ${detail.solutionTitle}</h4>
+    #foreach ($solution in $detail.solution)
+      <p>$solution</p>
+    #end
+    <h4>${feature.featureId}.${detail.detailId}.3 ${detail.contextTitle}</h4>
+    #foreach ($context in $detail.context)
+      <ul>
+      #foreach ($contextDesc in $context.contextDesc)
+      <li>$contextDesc</li>
+      #end
+      </ul>
+      #if ($context.stackTrace.isEmpty())
+      #else
+           <pre>
+           #foreach ($stackTrace in $context.stackTrace)
+           $stackTrace
+           #end
+           </pre>
+      #end
+    #end
+#end
+#end
+#end
+</body>
+<html>

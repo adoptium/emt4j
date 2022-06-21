@@ -1,0 +1,23 @@
+@rem Copyright (c) 2022 Contributors to the Eclipse Foundation
+@rem
+@rem See the NOTICE file(s) distributed with this work for additional
+@rem information regarding copyright ownership.
+@rem
+@rem This program and the accompanying materials are made available under the
+@rem terms of the Apache License, Version 2.0 which is available at
+@rem https://www.apache.org/licenses/LICENSE-2.0.
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+@rem SPDX-License-Identifier: Apache-2.0
+
+@echo off
+set base_dir=%~dp0
+set "lib_dir=%base_dir%\..\lib\analysis"
+set "class_path=%lib_dir%\*"
+java -cp "%class_path%" org.eclipse.emt4j.analysis.AnalysisMain %*
+

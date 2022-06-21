@@ -1,0 +1,70 @@
+/********************************************************************************
+ * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ********************************************************************************/
+package org.eclipse.emt4j.analysis.analyzer;
+
+import org.eclipse.emt4j.common.DependTarget;
+import org.eclipse.emt4j.common.DependType;
+import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.classanalyze.ClassInspectorInstance;
+import org.eclipse.emt4j.common.ClassSymbol;
+import org.apache.commons.io.IOUtils;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.function.Consumer;
+
+/**
+ * Analysis class file.
+ */
+public class ClassAnalyzer {
+    public static void analyze(Path classFilePath, Consumer<Dependency> consumer) throws IOException {
+        try (InputStream inputStream = new FileInputStream(classFilePath.toFile())) {
+            byte[] classFileContent = IOUtils.toByteArray(inputStream);
+            processClass(classFileContent, classFilePath, consumer, classFilePath.toFile().getName());
+        }
+    }
+
+    protected static void processClass(byte[] classFileContent, Path containFile, Consumer<Dependency> consumer, String className) throws IOException {
+        ClassSymbol symbol = ClassInspectorInstance.getInstance().getSymbolInClass(classFileContent);
+        for (String type : symbol.getTypeSet()) {
+            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), new DependTarget.Class(type, DependType.CLASS), null));
+        }
+        for (DependTarget.Method method : symbol.getCallMethodSet()) {
+            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), method, null));
+        }
+
+        Dependency wholeClass = new Dependency(containFile.toFile().toURI().toURL(),
+                new DependTarget.Class(className, DependType.WHOLE_CLASS), null);
+        wholeClass.setClassSymbol(symbol);
+        consumer.accept(wholeClass);
+
+        consumer.accept(new Dependency(null, new DependTarget.Location(containFile.toUri().toURL()), null));
+    }
+
+    protected static String toClassName(String jarEntryName) {
+        return normalize(jarEntryName.substring(0, jarEntryName.length() - ".class".length()));
+    }
+
+
+    private static String normalize(String internalName) {
+        return internalName.replace('/', '.').replace('$', '.');
+    }
+}
