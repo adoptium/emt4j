@@ -125,12 +125,49 @@ Maven plugin options:
 ### Main workflow
 ![workflow](workflow.png)
 ### How to Build
-1. Set the JDK home in toolchains.xml, which is located at ${HOME}/.m2.
-2. Run with: 
+1. To build emt4j successfully, need install both JDK 8 and JDK 11.
+2. Configure JDK 8 and JDK 11 in toolchains.xml of Maven,this is a sample file:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains>
+    <!-- JDK toolchains -->
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>8</version>
+            <vendor>openjdk</vendor>
+        </provides>
+        <configuration>
+            <jdkHome>/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home</jdkHome>
+        </configuration>
+    </toolchain>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>11</version>
+            <vendor>openjdk</vendor>
+        </provides>
+        <configuration>
+            <jdkHome>/Library/Java/JavaVirtualMachines/jdk-11.0.9.jdk/Contents/Home</jdkHome>
+        </configuration>
+    </toolchain>
+    <toolchain>
+        <type>jdk</type>
+        <provides>
+            <version>17</version>
+            <vendor>openjdk</vendor>
+        </provides>
+        <configuration>
+            <jdkHome>/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home</jdkHome>
+        </configuration>
+    </toolchain>
+</toolchains>
+```
+3. Run with: 
 ```
 mvn clean package -Prelease
 ```
-3. After that the emt4j-${version}.zip will be generated at emt4j-assembly/target.
+4. After that the emt4j-${version}.zip will be generated at emt4j-assembly/target.
 
 ### How to run the system integration test cases
 ```
