@@ -32,8 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 /**
@@ -41,6 +43,7 @@ import java.util.Optional;
  */
 public class AnalysisMain {
     private static final String DEFAULT_FILE = "analysis_output";
+    private static Set<String> analysisTargetClassPaths = new HashSet<>();
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
         Progress root = new Progress(0, 0, "ROOT");
@@ -82,6 +85,7 @@ public class AnalysisMain {
                     DependencySource ds = getSource(v).get();
                     if (ds.needAnalysis()) {
                         analysisExecutor.add(ds);
+                        analysisTargetClassPaths.add(ds.getFile().getAbsolutePath());
                     } else {
                         reportConfig.getInputFiles().add(ds.getFile());
                     }
@@ -166,5 +170,9 @@ public class AnalysisMain {
 
         System.err.println("files can be class, jar,directory or java source file.");
         System.exit(1);
+    }
+
+    public static Set<String> getAnalysisTargetClassPaths() {
+        return analysisTargetClassPaths;
     }
 }
