@@ -36,7 +36,7 @@ public class SingleClassSource extends DependencySource {
     @Override
     public void parse(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException {
         new DependencyAnalyzer(Collections.singletonList(getFile().toPath())).iterateDo(consumer, sourceProgress);
-        consumer.accept(new Dependency(null, new DependTarget.Location(getFile().toURI().toURL()), null));
+        consumer.accept(new Dependency(null, new DependTarget.Location(getFile().toURI().toURL()), null, getFile().getAbsolutePath()));
     }
 
     @Override

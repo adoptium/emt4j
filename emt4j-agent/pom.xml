@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.eclipse.emt4j</groupId>
         <artifactId>emt4j-parent</artifactId>
-        <version>0.1</version>
+        <version>0.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-agent</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <modules>
         <module>emt4j-agent-jdk8</module>
         <module>emt4j-agent-jdk11</module>

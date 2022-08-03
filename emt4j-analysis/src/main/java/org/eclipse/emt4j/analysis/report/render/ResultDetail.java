@@ -37,6 +37,7 @@ public class ResultDetail {
     String contextTitle;
     Set<IssueContext> context = new HashSet<>();
     String anchorId;
+    String priority;
 
     public int getDetailId() {
         return detailId;
@@ -124,5 +125,13 @@ public class ResultDetail {
 
     public void setAnchorId(String anchorId) {
         this.anchorId = anchorId;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }

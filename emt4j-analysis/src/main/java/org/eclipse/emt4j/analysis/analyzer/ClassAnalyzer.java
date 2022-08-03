@@ -45,18 +45,19 @@ public class ClassAnalyzer {
     protected static void processClass(byte[] classFileContent, Path containFile, Consumer<Dependency> consumer, String className) throws IOException {
         ClassSymbol symbol = ClassInspectorInstance.getInstance().getSymbolInClass(classFileContent);
         for (String type : symbol.getTypeSet()) {
-            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), new DependTarget.Class(type, DependType.CLASS), null));
+            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), new DependTarget.Class(type, DependType.CLASS), null,
+                    containFile.toFile().getAbsolutePath()));
         }
         for (DependTarget.Method method : symbol.getCallMethodSet()) {
-            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), method, null));
+            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), method, null, containFile.toFile().getAbsolutePath()));
         }
 
         Dependency wholeClass = new Dependency(containFile.toFile().toURI().toURL(),
-                new DependTarget.Class(className, DependType.WHOLE_CLASS), null);
+                new DependTarget.Class(className, DependType.WHOLE_CLASS), null, containFile.toFile().getAbsolutePath());
         wholeClass.setClassSymbol(symbol);
         consumer.accept(wholeClass);
 
-        consumer.accept(new Dependency(null, new DependTarget.Location(containFile.toUri().toURL()), null));
+        consumer.accept(new Dependency(null, new DependTarget.Location(containFile.toUri().toURL()), null, containFile.toFile().getAbsolutePath()));
     }
 
     protected static String toClassName(String jarEntryName) {

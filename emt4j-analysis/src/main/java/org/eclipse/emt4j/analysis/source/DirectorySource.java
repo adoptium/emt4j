@@ -43,7 +43,7 @@ public class DirectorySource extends DependencySource {
     public void parse(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException {
         List<Path> files = walk();
         for (Path f : files) {
-            consumer.accept(new Dependency(null, new DependTarget.Location(f.toFile().toURI().toURL()), null));
+            consumer.accept(new Dependency(null, new DependTarget.Location(f.toFile().toURI().toURL()), null,f.toFile().getAbsolutePath()));
         }
         new DependencyAnalyzer(files).iterateDo(consumer, sourceProgress);
     }
