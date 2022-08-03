@@ -34,7 +34,7 @@ public class ClassURL {
         try {
             // why already call registerUrlProtoclHandler, there is new Handler explicitly?
             // The reason is when run as maven plugin, maven plugin has different classloader hierarchy, it cannot load the 'org.eclipse.emt4j.common.util.refclass.Handler'
-            return new URL(CLASS_PROTOCOL, null, -1, "//" + emptyIfNull(file) + "/" + className + "/" + emptyIfNull(methodName), new Handler());
+            return new URL(CLASS_PROTOCOL, null, -1, emptyIfNull(file) + "!/" + className + "!/" + emptyIfNull(methodName), new Handler());
         } catch (MalformedURLException e) {
             return null;
         }

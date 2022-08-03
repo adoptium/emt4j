@@ -25,6 +25,7 @@ import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.util.ClassURL;
 
 import java.net.URL;
+import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,13 @@ import java.util.stream.Collectors;
 public class DependencyBuilder {
 
     public static Dependency buildJvmOption(List<String> arguments) {
-        return new Dependency(null, new DependTarget.VMOption(join(arguments)), null);
+        return new Dependency(null, new DependTarget.VMOption(join(arguments)), null, null);
     }
 
     public static Dependency buildLoadClass(String className, StackTraceElement[] stacktrace, ProtectionDomain protectionDomain) {
-        Dependency dependency = new Dependency(getJar(protectionDomain),
-                new DependTarget.Class(className, DependType.CLASS), stacktrace);
+        URL url = getJar(protectionDomain);
+        Dependency dependency = new Dependency(url, new DependTarget.Class(className, DependType.CLASS), stacktrace,
+                url != null ? url.getFile() : null);
         return dependency;
     }
 
@@ -53,20 +55,36 @@ public class DependencyBuilder {
     }
 
     public static Dependency buildCodeSource(URL location) {
-        return new Dependency(null, new DependTarget.Location(location), null);
+        return new Dependency(null, new DependTarget.Location(location), null, location.getFile());
     }
 
     public static Dependency buildMethod(CallerInfo callerInfo, String className, String method) {
         Dependency dependency = new Dependency(ClassURL.create(callerInfo.getCallerClass().getName(), callerInfo.getCallerMethod()),
-                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace());
+                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
         dependency.setCallerClass(callerInfo.getCallerClass());
         dependency.setCallerMethod(callerInfo.getCallerMethod());
         return dependency;
     }
 
+    private static String getFile(Class callerClass) {
+        if (callerClass != null) {
+            ProtectionDomain pd = callerClass.getProtectionDomain();
+            if (pd != null) {
+                CodeSource cs = pd.getCodeSource();
+                if (cs != null) {
+                    URL url = cs.getLocation();
+                    if (url != null) {
+                        return url.getFile();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static Dependency buildMethod(CallerInfo callerInfo, String className, String method, Map<String, Object> context) {
         Dependency dependency = new Dependency(ClassURL.create(callerInfo.getCallerClass().getName(), callerInfo.getCallerMethod()),
-                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace());
+                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
         dependency.setCallerClass(callerInfo.getCallerClass());
         dependency.setCallerMethod(callerInfo.getCallerMethod());
         dependency.setContext(context);
@@ -75,7 +93,7 @@ public class DependencyBuilder {
 
     public static Dependency buildDeepReflection(CallerInfo callerInfo, String className, StackTraceElement[] stackTrace) {
         return new Dependency(ClassURL.create(callerInfo.getCallerClass().getName(), callerInfo.getCallerMethod()),
-                new DependTarget.Class(className, DependType.METHOD_TO_CLASS_DEEP_REFLECTION), stackTrace);
+                new DependTarget.Class(className, DependType.METHOD_TO_CLASS_DEEP_REFLECTION), stackTrace, getFile(callerInfo.getCallerClass()));
     }
 
     private static String join(List<String> arguments) {

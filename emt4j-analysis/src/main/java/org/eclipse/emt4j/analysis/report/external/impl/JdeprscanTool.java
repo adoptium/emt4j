@@ -76,11 +76,11 @@ public class JdeprscanTool extends CodeSourceAsCheckTargetTool {
             int k = jdeprOutput.indexOf('(', j + CLASS_METHOD_SEPARATOR.length());
             if (i != -1 && k != -1) {
                 br.setDependency(new Dependency(ClassURL.create(jarOrClass.getFile(), className, null),
-                        new DependTarget.Method(jdeprOutput.substring(i, j), jdeprOutput.substring(j + CLASS_METHOD_SEPARATOR.length(), k), DependType.METHOD), null));
+                        new DependTarget.Method(jdeprOutput.substring(i, j), jdeprOutput.substring(j + CLASS_METHOD_SEPARATOR.length(), k), DependType.METHOD), null, jarOrClass.getFile()));
             }
         } else {
             br.setDependency(new Dependency(ClassURL.create(jarOrClass.getFile(), className, null),
-                    new DependTarget.Method(null, jdeprOutput, DependType.METHOD), null));
+                    new DependTarget.Method(null, jdeprOutput, DependType.METHOD), null, jarOrClass.getFile()));
         }
 
         ReportCheckResult checkResult = new ReportCheckResult(false);

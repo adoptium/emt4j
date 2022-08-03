@@ -49,6 +49,6 @@ class JarAnalyzer extends ClassAnalyzer {
                 }
             }
         }
-        consumer.accept(new Dependency(null, new DependTarget.Location(jarFilePath.toUri().toURL()), null));
+        consumer.accept(new Dependency(null, new DependTarget.Location(jarFilePath.toUri().toURL()), null,jarFilePath.toFile().getAbsolutePath()));
     }
 }

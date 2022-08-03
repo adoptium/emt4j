@@ -87,7 +87,7 @@ public class AgentReferenceClassRule extends ReferenceClassRule {
             Set<String> classSet = ClassInspectorInstance.getInstance().getReferenceClassSet(dependency.getCurrClassBytecode());
             classSet.retainAll(classPackageSet);
             return classSet.stream().map((c) -> new Dependency(ClassURL.create(dependency.getLocationExternalForm(), dependency.getTarget().asClass().getClassName(), null),
-                    new DependTarget.Class(c, DependType.CLASS), null)).collect(Collectors.toList());
+                    new DependTarget.Class(c, DependType.CLASS), null,dependency.getTargetFilePath())).collect(Collectors.toList());
         } else {
             return super.propagate(dependency);
         }

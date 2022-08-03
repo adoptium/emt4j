@@ -18,23 +18,21 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.report.render;
 
-public class Content {
-    private String title;
-    private String anchorId;
-    private String priority;
-    private int total;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Content(String title, String anchorId) {
-        this.title = title;
-        this.anchorId = anchorId;
+public class CategorizedResult {
+    String desc;
+    String anchorId;
+    int id;
+    List<ResultDetail> resultDetailList = new ArrayList<>();
+
+    public String getDesc() {
+        return desc;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     public String getAnchorId() {
@@ -45,19 +43,19 @@ public class Content {
         this.anchorId = anchorId;
     }
 
-    public String getPriority() {
-        return priority;
+    public List<ResultDetail> getResultDetailList() {
+        return resultDetailList;
     }
 
-    public void setPriority(String priority) {
-        this.priority = priority;
+    public void setResultDetailList(List<ResultDetail> resultDetailList) {
+        this.resultDetailList = resultDetailList;
     }
 
-    public int getTotal() {
-        return total;
+    public int getId() {
+        return id;
     }
 
-    public void setTotal(int total) {
-        this.total = total;
+    public void setId(int id) {
+        this.id = id;
     }
 }

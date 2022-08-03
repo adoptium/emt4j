@@ -69,7 +69,7 @@ public class JdepTool extends CodeSourceAsCheckTargetTool {
     private BodyRecord createRecord(File jarOrClass, String problemClass, String suggestion) throws MalformedURLException {
         BodyRecord br = new BodyRecord();
         br.setFeature(Feature.DEFAULT.getId());
-        br.setDependency(new Dependency(jarOrClass.toURI().toURL(), new DependTarget.Class(problemClass, DependType.CLASS), null));
+        br.setDependency(new Dependency(jarOrClass.toURI().toURL(), new DependTarget.Class(problemClass, DependType.CLASS), null, jarOrClass.getAbsolutePath()));
 
         ReportCheckResult checkResult = new ReportCheckResult(false);
         checkResult.setResultCode("JDK_INTERNAL");

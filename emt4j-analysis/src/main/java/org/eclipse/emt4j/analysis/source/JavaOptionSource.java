@@ -43,7 +43,7 @@ public class JavaOptionSource extends DependencySource {
         try {
             List<String> lines = FileUtils.readLines(getFile(), "UTF-8");
             lines.stream().filter((l) -> StringUtils.isNotEmpty(l))
-                    .map((l) -> new Dependency(null, new DependTarget.VMOption(l), null))
+                    .map((l) -> new Dependency(null, new DependTarget.VMOption(l), null,null))
                     .forEach((d) -> consumer.accept(d));
         } catch (IOException e) {
             e.printStackTrace();

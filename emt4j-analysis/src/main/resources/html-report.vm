@@ -27,23 +27,29 @@
 <div>
     <ul>
     #foreach ($item in $content)
-    <li><a href="#${item.anchorId}">$item.title</a></li>
+    <li>$item.title
+        <ul>
+            #foreach ($subitem in $item.subContents)
+                <li><a href="#${subitem.anchorId}">$subitem.title</a>(${subitem.priority})(${subitem.total})</li>
+            #end
+        </ul>
+    </li>
     #end
     <ul>
 </div>
 
 <h1>$detailTitle</h1>
-#foreach( $feature in $data )
-<h2>$feature.featureId $feature.featureDesc</h2>
-#foreach( $detail in $feature.resultDetailList)
-  <h3><a name="${detail.anchorId}"> ${feature.featureId}.${detail.detailId} ${detail.title}</a>  <a href="#top">${backToContent}</a> </h3>
-    <h4>${feature.featureId}.${detail.detailId}.1 ${detail.descriptionTitle}<h4>
+#foreach( $subdata in $data )
+<h2>$subdata.id $subdata.desc</h2>
+#foreach( $detail in $subdata.resultDetailList)
+  <h3><a name="${detail.anchorId}">${subdata.id}.${detail.detailId} ${detail.title}</a>  <a href="#top">${backToContent}</a> </h3>
+    <h4>${subdata.id}.${detail.detailId}.1 ${detail.descriptionTitle}<h4>
       <p>${detail.description}</p>
-    <h4>${feature.featureId}.${detail.detailId}.2 ${detail.solutionTitle}</h4>
+    <h4>${subdata.id}.${detail.detailId}.2 ${detail.solutionTitle}</h4>
     #foreach ($solution in $detail.solution)
       <p>$solution</p>
     #end
-    <h4>${feature.featureId}.${detail.detailId}.3 ${detail.contextTitle}</h4>
+    <h4>${subdata.id}.${detail.detailId}.3 ${detail.contextTitle}</h4>
     #foreach ($context in $detail.context)
       <ul>
       #foreach ($contextDesc in $context.contextDesc)

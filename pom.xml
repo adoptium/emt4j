@@ -23,13 +23,13 @@
     <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.1</version>
+    <version>0.2</version>
     <name>emt4j</name>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <emt4j.version>0.1</emt4j.version>
+        <emt4j.version>0.2</emt4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>

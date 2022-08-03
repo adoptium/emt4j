@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <code>Dependency</code> is the core model of JDK migration tool.
@@ -30,6 +31,7 @@ import java.util.Map;
 public class Dependency implements Serializable {
     private String locationExternalForm;
     private DependTarget target;
+    private String targetFilePath;
 
     private transient Class callerClass;
     private String callerMethod;
@@ -39,12 +41,13 @@ public class Dependency implements Serializable {
     private transient byte[] currClassBytecode;
     private transient ClassSymbol classSymbol;
 
-    public Dependency(URL location, DependTarget target, StackTraceElement[] stacktrace) {
+    public Dependency(URL location, DependTarget target, StackTraceElement[] stacktrace, String targetFilePath) {
         this.target = target;
         this.stacktrace = stacktrace;
         if (location != null) {
             locationExternalForm = location.toExternalForm();
         }
+        this.targetFilePath = targetFilePath;
     }
 
     public Dependency() {
@@ -99,6 +102,7 @@ public class Dependency implements Serializable {
         cloned.callerClass = callerClass;
         cloned.callerMethod = callerMethod;
         cloned.locationExternalForm = locationExternalForm;
+        cloned.targetFilePath = targetFilePath;
         return cloned;
     }
 
@@ -134,38 +138,28 @@ public class Dependency implements Serializable {
         this.classSymbol = classSymbol;
     }
 
+    public String getTargetFilePath() {
+        return targetFilePath;
+    }
+
+    public void setTargetFilePath(String targetFilePath) {
+        this.targetFilePath = targetFilePath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Dependency that = (Dependency) o;
-
-        if (locationExternalForm != null ? !locationExternalForm.equals(that.locationExternalForm) : that.locationExternalForm != null)
-            return false;
-        if (target != null ? !target.equals(that.target) : that.target != null) return false;
-        if (callerClass != null ? !callerClass.equals(that.callerClass) : that.callerClass != null) return false;
-        if (callerMethod != null ? !callerMethod.equals(that.callerMethod) : that.callerMethod != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass)) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(stacktrace, that.stacktrace)) return false;
-        if (context != null ? !context.equals(that.context) : that.context != null) return false;
-        if (!Arrays.equals(currClassBytecode, that.currClassBytecode)) return false;
-        return classSymbol != null ? classSymbol.equals(that.classSymbol) : that.classSymbol == null;
+        return Objects.equals(locationExternalForm, that.locationExternalForm) && Objects.equals(target, that.target) && Objects.equals(targetFilePath, that.targetFilePath) && Objects.equals(callerClass, that.callerClass) && Objects.equals(callerMethod, that.callerMethod) && Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass) && Arrays.equals(stacktrace, that.stacktrace) && Objects.equals(context, that.context) && Arrays.equals(currClassBytecode, that.currClassBytecode) && Objects.equals(classSymbol, that.classSymbol);
     }
 
     @Override
     public int hashCode() {
-        int result = locationExternalForm != null ? locationExternalForm.hashCode() : 0;
-        result = 31 * result + (target != null ? target.hashCode() : 0);
-        result = 31 * result + (callerClass != null ? callerClass.hashCode() : 0);
-        result = 31 * result + (callerMethod != null ? callerMethod.hashCode() : 0);
+        int result = Objects.hash(locationExternalForm, target, targetFilePath, callerClass, callerMethod, context, classSymbol);
         result = 31 * result + Arrays.hashCode(nonJdkCallerClass);
         result = 31 * result + Arrays.hashCode(stacktrace);
-        result = 31 * result + (context != null ? context.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(currClassBytecode);
-        result = 31 * result + (classSymbol != null ? classSymbol.hashCode() : 0);
         return result;
     }
 
@@ -174,6 +168,7 @@ public class Dependency implements Serializable {
         return "Dependency{" +
                 "locationExternalForm='" + locationExternalForm + '\'' +
                 ", target=" + target +
+                ", targetFilePath='" + targetFilePath + '\'' +
                 ", callerClass=" + callerClass +
                 ", callerMethod='" + callerMethod + '\'' +
                 ", nonJdkCallerClass=" + Arrays.toString(nonJdkCallerClass) +
