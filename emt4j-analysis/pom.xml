@@ -22,13 +22,13 @@
     <parent>
         <groupId>org.eclipse.emt4j</groupId>
         <artifactId>emt4j-parent</artifactId>
-        <version>0.3</version>
+        <version>${emt4j.version}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-analysis</artifactId>
-    <version>0.3</version>
+    <version>${emt4j.version}</version>
     <name>emt4j-analysis</name>
     <description>Analysis of emt4j</description>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>

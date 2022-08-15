@@ -23,7 +23,7 @@
     <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.3</version>
+    <version>${emt4j.version}</version>
     <name>emt4j</name>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
     <properties>
