@@ -54,7 +54,7 @@ public class CLDRDateFormatRule extends ExecutableRule {
 
     @Override
     public CheckResult check(Dependency dependency) {
-        if (Stream.of(callMethods).noneMatch((m) -> m.getMethodIdentifier().equals(dependency.getTarget().asMethod().toMethodIdentifier()))) {
+        if (Stream.of(callMethods).noneMatch((m) -> m.getMethodIdentifierNoDesc().equals(dependency.getTarget().asMethod().toMethodIdentifierNoDesc()))) {
             return CheckResult.PASS;
         } else {
             return CheckResult.FAIL;

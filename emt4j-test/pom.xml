@@ -23,14 +23,14 @@
     <parent>
         <artifactId>emt4j-parent</artifactId>
         <groupId>org.eclipse.emt4j</groupId>
-        <version>0.2</version>
+        <version>0.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>emt4j-test</artifactId>
     <packaging>pom</packaging>
-    <version>0.2</version>
+    <version>0.3</version>
     <modules>
         <module>emt4j-test-common</module>
         <module>emt4j-test-jdk8</module>

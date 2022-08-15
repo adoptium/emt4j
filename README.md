@@ -119,7 +119,11 @@ Maven plugin options:
 * `excludes` : the file list to be excluded from check.
 * `includes` : the file list to be included for examination(all files will be examined by default).
 * `verbose` : the verbose output.
-   
+
+If run from command line,run the command like this:
+```shell
+mvn org.eclipse.emt4j:emt4j-maven-plugin:0.2:check  -DfromVersion=8 -DtoVersion=11 -DprojectBuildDir=/home/admin/app/libs -DoutputFile=/home/admin/report.html -DoutputFormat=html
+```
 # Development Guide
 ## Preparation
 ### Main workflow

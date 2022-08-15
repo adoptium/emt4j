@@ -95,6 +95,7 @@ public class AnalysisMain {
 
         if (analysisExecutor.hasSource()) {
             File tempFile = File.createTempFile(DEFAULT_FILE, ".dat");
+            tempFile.deleteOnExit();
             try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(tempFile))) {
                 analysisExecutor.setAnalysisOutputConsumer(new BinaryFileOutputConsumer(out));
                 analysisExecutor.execute(featureList, progress);

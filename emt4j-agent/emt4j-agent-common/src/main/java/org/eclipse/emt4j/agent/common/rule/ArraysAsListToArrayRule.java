@@ -53,7 +53,7 @@ public class ArraysAsListToArrayRule extends ExecutableRule {
 
     @Override
     public CheckResult check(Dependency dependency) {
-        if (dependency.getTarget().asMethod().toMethodIdentifier().equals(callMethod.getMethodIdentifier())) {
+        if (dependency.getTarget().asMethod().toMethodIdentifierNoDesc().equals(callMethod.getMethodIdentifierNoDesc())) {
             if (dependency.getCallerClass() != null && dependency.getCallerMethod() != null) {
                 // if the caller's bytecode not contain CHECKCAST Object[] instruction
                 // it may be a problem.

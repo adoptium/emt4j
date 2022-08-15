@@ -22,6 +22,7 @@ import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.analysis.source.DependencySource;
 import org.eclipse.emt4j.common.CheckConfig;
 import org.eclipse.emt4j.common.DependType;
+import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.ExecutableRule;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
@@ -101,7 +102,13 @@ public class AnalysisExecutor {
                             if (rule.accept(d)) {
                                 ReportCheckResult checkResult = rule.execute(d);
                                 if (!checkResult.isPass()) {
-                                    analysisOutputConsumer.onNewRecord(d, checkResult, rule);
+                                    if (checkResult.getPropagated().isEmpty()) {
+                                        analysisOutputConsumer.onNewRecord(d, checkResult, rule);
+                                    } else {
+                                        for (Dependency newDependency : checkResult.getPropagated()) {
+                                            analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule);
+                                        }
+                                    }
                                     recorded = true;
                                 }
                             }
@@ -135,6 +142,7 @@ public class AnalysisExecutor {
             "org.eclipse.emt4j.common.rule.impl.JvmOptionRule",
             "org.eclipse.emt4j.common.rule.impl.ReferenceClassRule",
             "org.eclipse.emt4j.common.rule.impl.TouchedMethodRule",
-            "org.eclipse.emt4j.common.rule.impl.WholeClassRule"
+            "org.eclipse.emt4j.common.rule.impl.WholeClassRule",
+            "org.eclipse.emt4j.common.rule.impl.DeprecatedAPIRule"
     };
 }

@@ -18,8 +18,12 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule.model;
 
+import org.eclipse.emt4j.common.Dependency;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CheckResult implements Serializable {
@@ -27,6 +31,7 @@ public class CheckResult implements Serializable {
     private Map<String, Object> context;
     public static final CheckResult PASS = new CheckResult(true);
     public static final CheckResult FAIL = new CheckResult(false);
+    public transient List<Dependency> propagated = new ArrayList<>();
 
     public CheckResult(boolean pass, Map<String, Object> context) {
         this.pass = pass;
@@ -82,5 +87,13 @@ public class CheckResult implements Serializable {
 
     public static CheckResult fail(Map<String, Object> context) {
         return new CheckResult(false, context);
+    }
+
+    public List<Dependency> getPropagated() {
+        return propagated;
+    }
+
+    public void setPropagated(List<Dependency> propagated) {
+        this.propagated = propagated;
     }
 }

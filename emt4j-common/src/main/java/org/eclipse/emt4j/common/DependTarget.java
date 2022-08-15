@@ -56,11 +56,14 @@ public abstract class DependTarget implements Serializable {
     public static class Method extends DependTarget {
         private final String className;
         private final String methodName;
+        private final String desc;
+        public static final String ANY_DESC = "*";
 
-        public Method(String className, String methodName, DependType type) {
+        public Method(String className, String methodName, String desc, DependType type) {
             super(type);
             this.className = className;
             this.methodName = methodName;
+            this.desc = desc;
         }
 
         public String getClassName() {
@@ -71,6 +74,10 @@ public abstract class DependTarget implements Serializable {
             return methodName;
         }
 
+        public String getDesc() {
+            return desc;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -79,18 +86,24 @@ public abstract class DependTarget implements Serializable {
             Method method = (Method) o;
 
             if (className != null ? !className.equals(method.className) : method.className != null) return false;
-            return methodName != null ? methodName.equals(method.methodName) : method.methodName == null;
+            if (methodName != null ? !methodName.equals(method.methodName) : method.methodName != null) return false;
+            return desc != null ? desc.equals(method.desc) : method.desc == null;
         }
 
         @Override
         public int hashCode() {
             int result = className != null ? className.hashCode() : 0;
             result = 31 * result + (methodName != null ? methodName.hashCode() : 0);
+            result = 31 * result + (desc != null ? desc.hashCode() : 0);
             return result;
         }
 
         public String toMethodIdentifier() {
-            return ClassUtil.buildMethodIdentifier(className, methodName);
+            return ClassUtil.buildMethodIdentifier(className, methodName, desc);
+        }
+
+        public String toMethodIdentifierNoDesc() {
+            return ClassUtil.buildMethodIdentifierNoDesc(className, methodName);
         }
 
         @Override

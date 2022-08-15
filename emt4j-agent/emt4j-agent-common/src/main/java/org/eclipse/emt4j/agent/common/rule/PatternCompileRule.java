@@ -53,7 +53,7 @@ public class PatternCompileRule extends ExecutableRule {
 
     @Override
     public CheckResult check(Dependency dependency) {
-        return callMethod.getMethodIdentifier().equals(dependency.getTarget().asMethod().toMethodIdentifier()) ? CheckResult.FAIL : CheckResult.PASS;
+        return callMethod.getMethodIdentifierNoDesc().equals(dependency.getTarget().asMethod().toMethodIdentifierNoDesc()) ? CheckResult.FAIL : CheckResult.PASS;
     }
 
     @Override

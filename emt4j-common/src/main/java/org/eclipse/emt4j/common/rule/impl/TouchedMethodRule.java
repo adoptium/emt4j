@@ -63,7 +63,7 @@ public class TouchedMethodRule extends ExecutableRule {
 
     @Override
     public CheckResult check(Dependency dependency) {
-        return callMethods.stream().noneMatch((m) -> m.getMethodIdentifier().equals(dependency.getTarget().asMethod().toMethodIdentifier()))
+        return callMethods.stream().noneMatch((m) -> m.getMethodIdentifierNoDesc().equals(dependency.getTarget().asMethod().toMethodIdentifierNoDesc()))
                 ? CheckResult.PASS : CheckResult.FAIL;
     }
 

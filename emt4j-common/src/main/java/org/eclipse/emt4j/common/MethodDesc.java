@@ -31,13 +31,15 @@ public class MethodDesc {
     String methodName;
     String desc;
     String methodIdentifier;
+    String methodIdentifierNoDesc;
 
     public MethodDesc(String internalClassName, String className, String methodName, String desc) {
         this.internalClassName = internalClassName;
         this.className = className;
         this.methodName = methodName;
         this.desc = desc;
-        this.methodIdentifier = ClassUtil.buildMethodIdentifier(className, methodName);
+        this.methodIdentifier = ClassUtil.buildMethodIdentifier(className, methodName, desc);
+        this.methodIdentifierNoDesc = ClassUtil.buildMethodIdentifierNoDesc(className, methodName);
     }
 
     public String getInternalClassName() {
@@ -76,8 +78,8 @@ public class MethodDesc {
         return methodIdentifier;
     }
 
-    public void setMethodIdentifier(String methodIdentifier) {
-        this.methodIdentifier = methodIdentifier;
+    public String getMethodIdentifierNoDesc() {
+        return methodIdentifierNoDesc;
     }
 
     @Override

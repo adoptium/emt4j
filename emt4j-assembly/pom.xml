@@ -23,12 +23,12 @@
     <parent>
         <artifactId>emt4j-parent</artifactId>
         <groupId>org.eclipse.emt4j</groupId>
-        <version>0.2</version>
+        <version>0.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <emt4j.version>0.2</emt4j.version>
+        <emt4j.version>0.3</emt4j.version>
         <build.agent.dir>${project.build.directory}/agent</build.agent.dir>
         <build.analysis.dir>${project.build.directory}/analysis</build.analysis.dir>
         <build.maven.plugin.dir>${project.build.directory}/maven-plugin</build.maven.plugin.dir>
@@ -63,17 +63,17 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-common</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk8</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk11</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

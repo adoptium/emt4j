@@ -123,7 +123,13 @@ public class ReportRecorder implements Recorder {
             if (rule.accept(dependency)) {
                 ReportCheckResult checkResult = rule.execute(dependency);
                 if (!checkResult.isPass()) {
-                    checkResultFileWriter.write(dependency, checkResult, rule);
+                    if (checkResult.getPropagated().isEmpty()) {
+                        checkResultFileWriter.write(dependency, checkResult, rule);
+                    } else {
+                        for (Dependency newDependency : checkResult.getPropagated()) {
+                            checkResultFileWriter.write(newDependency, checkResult, rule);
+                        }
+                    }
                 }
                 List<Dependency> more = rule.propagate(dependency);
                 if (!more.isEmpty()) {
@@ -140,7 +146,13 @@ public class ReportRecorder implements Recorder {
                 if (rule.accept(dependency)) {
                     ReportCheckResult checkResult = rule.execute(dependency);
                     if (!checkResult.isPass()) {
-                        checkResultFileWriter.write(dependency, checkResult, rule);
+                        if (checkResult.getPropagated().isEmpty()) {
+                            checkResultFileWriter.write(dependency, checkResult, rule);
+                        } else {
+                            for (Dependency newDependency : checkResult.getPropagated()) {
+                                checkResultFileWriter.write(newDependency, checkResult, rule);
+                            }
+                        }
                     }
                 }
             }

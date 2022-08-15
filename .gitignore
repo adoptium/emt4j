@@ -1,0 +1,14 @@
+
+target/
+
+# Mac specific files
+.DS_Store
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# maven shade plugin temp files
+dependency-reduced-pom.xml

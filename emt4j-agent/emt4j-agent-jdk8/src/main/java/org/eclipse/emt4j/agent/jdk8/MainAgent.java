@@ -114,6 +114,7 @@ public class MainAgent {
             "org.eclipse.emt4j.agent.common.rule.GetJavaVersionRule",
             "org.eclipse.emt4j.agent.common.rule.PatternCompileRule",
             "org.eclipse.emt4j.agent.common.rule.SystemClassLoaderRule",
-            "org.eclipse.emt4j.agent.common.rule.SecurityClassGetDeclareFieldRule"
+            "org.eclipse.emt4j.agent.common.rule.SecurityClassGetDeclareFieldRule",
+            "org.eclipse.emt4j.common.rule.impl.DeprecatedAPIRule"
     };
 }

@@ -23,9 +23,14 @@ import java.util.Set;
 
 public class ClassUtil {
 
-    public static String buildMethodIdentifier(String className, String methodName) {
+    public static String buildMethodIdentifier(String className, String methodName, String desc) {
+        return className + "." + methodName + desc;
+    }
+
+    public static String buildMethodIdentifierNoDesc(String className, String methodName) {
         return className + "." + methodName;
     }
+
 
     public static Optional<String> maxLongMatch(String className, Set<String> allPackages) {
         if (null == className || "".equals(className)) {

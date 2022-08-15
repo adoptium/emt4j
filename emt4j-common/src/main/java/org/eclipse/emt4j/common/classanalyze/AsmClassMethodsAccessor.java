@@ -193,7 +193,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
             //So we use the stack trace to get the intercepted method,but in stack trace we only get method name.
             //For simply,we omit the descriptor of method all in jdk migration tool.
             //Omit the descriptor have no problem for functional.
-            callMethodSet.add(new DependTarget.Method(normalize(owner), name, DependType.METHOD));
+            callMethodSet.add(new DependTarget.Method(normalize(owner), name, descriptor, DependType.METHOD));
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
 

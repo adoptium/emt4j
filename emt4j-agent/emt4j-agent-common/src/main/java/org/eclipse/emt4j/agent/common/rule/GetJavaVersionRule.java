@@ -48,7 +48,7 @@ public class GetJavaVersionRule extends ExecutableRule {
 
     @Override
     public CheckResult check(Dependency dependency) {
-        return dependency.getTarget().asMethod().toMethodIdentifier().equals(callMethod.getMethodIdentifier()) ? CheckResult.FAIL : CheckResult.PASS;
+        return dependency.getTarget().asMethod().toMethodIdentifierNoDesc().equals(callMethod.getMethodIdentifierNoDesc()) ? CheckResult.FAIL : CheckResult.PASS;
     }
 
     @Override

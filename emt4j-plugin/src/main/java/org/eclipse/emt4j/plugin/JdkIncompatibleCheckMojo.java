@@ -71,18 +71,22 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private int toVersion;
 
-    @Parameter
-    private String targetJdkHome;
-
     @Parameter(defaultValue = "${project.build.directory}")
     private String projectBuildDir;
 
     @Parameter
     private String verbose;
 
+    @Parameter
+    private String outputFormat;
+
+    @Parameter
+    private String outputFile;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         MavenProject project = (MavenProject) getPluginContext().get("project");
+        selectParameters();
         boolean verbose = "true".equals(this.verbose);
         if (verbose) {
             getLog().info("Target directory: " + projectBuildDir);
@@ -94,41 +98,63 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
             getLog().error("Project build directory is empty,so skip this project!");
             return;
         }
-        if (StringUtils.isEmpty(targetJdkHome)) {
-            throw new JdkMigrationException("targetJdkHome parameter can not be empty!");
-        }
         if (fromVersion >= toVersion) {
             throw new JdkMigrationException("fromVersion should less than toVersion");
         }
 
         try {
-            if (JdkUtil.searchTargetJdk(targetJdkHome, toVersion, verbose) == null) {
-                throw new JdkMigrationException("The java version at location by parameter targetJdkHome:" + targetJdkHome
-                        + " not equal to the java version of parameter toVersion: " + toVersion);
-            }
-            File tmpOutput = File.createTempFile("jdk-incompatible-plugin-check", ".txt");
-            tmpOutput.deleteOnExit();
-            AnalysisMain.main(buildArgs(tmpOutput));
-            List<String> lines = FileUtils.readLines(tmpOutput, "UTF-8");
-            if (lines.size() > 0) {
-                getLog().warn(String.join("\n", lines));
+            if (isEmpty(outputFile)) {
+                File tmpOutput = File.createTempFile("jdk-incompatible-plugin-check", ".txt");
+                tmpOutput.deleteOnExit();
+                AnalysisMain.main(buildArgs(tmpOutput, "txt"));
+                List<String> lines = FileUtils.readLines(tmpOutput, "UTF-8");
+                if (lines.size() > 0) {
+                    getLog().warn(String.join("\n", lines));
+                }
+            } else {
+                AnalysisMain.main(buildArgs(new File(outputFile), outputFormat));
             }
         } catch (Exception e) {
             getLog().error(e);
         }
     }
 
-    private String[] buildArgs(File tmpOutput) {
+    private void selectParameters() {
+        this.verbose = selectValue(this.verbose, "verbose");
+        this.fromVersion = selectValue(this.fromVersion, "fromVersion");
+        this.toVersion = selectValue(this.toVersion, "toVersion");
+        this.outputFile = selectValue(this.outputFile, "outputFile");
+        this.projectBuildDir = selectValue(this.projectBuildDir, "projectBuildDir");
+        this.outputFormat = selectValue(this.outputFormat, "outputFormat");
+    }
+
+    private int selectValue(int value, String propertyKey) {
+        String propertyValue = System.getProperty(propertyKey);
+        return isEmpty(propertyValue) ? value : Integer.valueOf(propertyValue);
+    }
+
+    private String selectValue(String value, String propertyKey) {
+        String propertyValue = System.getProperty(propertyKey);
+        return isEmpty(propertyValue) ? value : propertyValue;
+    }
+
+    private boolean isEmpty(String value) {
+        return null == value || "".equals(value);
+    }
+
+    private String[] buildArgs(File output, String format) {
         List<String> args = new ArrayList<>();
         param(args, "-f", String.valueOf(fromVersion));
         param(args, "-t", String.valueOf(toVersion));
-        param(args, "-j", targetJdkHome);
-        param(args, "-p", "txt");
-        param(args, "-o", tmpOutput.getAbsolutePath());
+        param(args, "-p", format);
+        param(args, "-o", output.getAbsolutePath());
         if ("true".equals(verbose)) {
             args.add("-v");
         }
-        args.add(projectBuildDir);
+        String[] checkTargets = projectBuildDir.split(":");
+        for (String checkTarget : checkTargets) {
+            args.add(checkTarget);
+        }
         return args.toArray(new String[args.size()]);
     }
 

@@ -76,6 +76,7 @@ public abstract class ExecutableRule {
             reportCheckResult.setContext(checkResult.getContext());
             reportCheckResult.setResultCode(evalIfNeed(confRuleItem.getResultCode(), checkResult.getContext()));
             reportCheckResult.setSubResultCode(evalIfNeed(confRuleItem.getSubResultCode(), checkResult.getContext()));
+            reportCheckResult.setPropagated(checkResult.getPropagated());
             return reportCheckResult;
         }
     }

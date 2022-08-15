@@ -75,9 +75,9 @@ public class TestClassMethodsAccessor {
         assertTrue(symbol.getConstantPoolSet().contains("yyyy"));
         assertTrue(symbol.getConstantPoolSet().contains("nashorn"));
 
-        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("java.lang.Class", "forName", DependType.METHOD)));
-        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("java.util.Queue", "size", DependType.METHOD)));
-        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("javax.script.ScriptEngineManager", "getEngineByName", DependType.METHOD)));
+        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("java.lang.Class", "forName", "(Ljava/lang/String;)Ljava/lang/Class;", DependType.METHOD)));
+        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("java.util.Queue", "size", "()I", DependType.METHOD)));
+        assertTrue(symbol.getCallMethodSet().contains(new DependTarget.Method("javax.script.ScriptEngineManager", "getEngineByName", "(Ljava/lang/String;)Ljavax/script/ScriptEngine;", DependType.METHOD)));
     }
 
     private File foo(BufferedWriter a, AtomicBoolean b) throws ClassNotFoundException {

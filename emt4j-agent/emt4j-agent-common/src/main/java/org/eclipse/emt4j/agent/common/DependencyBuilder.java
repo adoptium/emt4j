@@ -60,7 +60,7 @@ public class DependencyBuilder {
 
     public static Dependency buildMethod(CallerInfo callerInfo, String className, String method) {
         Dependency dependency = new Dependency(ClassURL.create(callerInfo.getCallerClass().getName(), callerInfo.getCallerMethod()),
-                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
+                new DependTarget.Method(className, method, DependTarget.Method.ANY_DESC, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
         dependency.setCallerClass(callerInfo.getCallerClass());
         dependency.setCallerMethod(callerInfo.getCallerMethod());
         return dependency;
@@ -84,7 +84,7 @@ public class DependencyBuilder {
 
     public static Dependency buildMethod(CallerInfo callerInfo, String className, String method, Map<String, Object> context) {
         Dependency dependency = new Dependency(ClassURL.create(callerInfo.getCallerClass().getName(), callerInfo.getCallerMethod()),
-                new DependTarget.Method(className, method, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
+                new DependTarget.Method(className, method, DependTarget.Method.ANY_DESC, DependType.METHOD), callerInfo.getStacktrace(), getFile(callerInfo.getCallerClass()));
         dependency.setCallerClass(callerInfo.getCallerClass());
         dependency.setCallerMethod(callerInfo.getCallerMethod());
         dependency.setContext(context);

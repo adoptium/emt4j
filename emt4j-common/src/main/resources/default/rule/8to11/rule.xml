@@ -19,6 +19,16 @@
  -->
 <rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="https://projects.eclipse.org/projects/adoptium.emt4j">
+
+    <rule desc="JDK internal API" type="reference-class" match-type="by-package" class-package-file="jdk_internals.cfg"
+          result-code="JDK_INTERNAL"
+          must-contain-in-bytecode="true" sub-result-code="@{subResultCode}" priority="p4">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
     <rule desc="System classloader not instance of URLClassLoader " type="system-classloader-not-a-urlclassloader"
           result-code="SYSTEM_CLASSLOADER_TO_URLCLASSLOADER" priority="p1">
         <support-modes>
@@ -124,6 +134,15 @@
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
+        </support-modes>
+    </rule>
+
+
+    <rule desc="Deprecated API" type="deprecated-api" class-list-file="deprecated_api_jdk11.cfg"
+          result-code="DEPRECATED_API" priority="p4">
+        <support-modes>
+            <mode>class</mode>
+            <mode>agent</mode>
         </support-modes>
     </rule>
 

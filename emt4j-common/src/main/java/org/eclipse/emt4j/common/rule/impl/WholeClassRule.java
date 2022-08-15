@@ -68,7 +68,7 @@ public class WholeClassRule extends ExecutableRule {
         if (callMethodSet == null || callMethodSet.isEmpty()) {
             return Collections.emptySet();
         } else {
-            return callMethodSet.stream().map((m) -> m.toMethodIdentifier()).collect(Collectors.toSet());
+            return callMethodSet.stream().map((m) -> m.toMethodIdentifierNoDesc()).collect(Collectors.toSet());
         }
     }
 

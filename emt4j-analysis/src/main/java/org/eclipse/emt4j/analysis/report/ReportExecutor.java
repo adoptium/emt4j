@@ -22,9 +22,6 @@ import org.eclipse.emt4j.analysis.common.ReportInputProvider;
 import org.eclipse.emt4j.analysis.common.model.ExternalToolParam;
 import org.eclipse.emt4j.analysis.common.util.JdkUtil;
 import org.eclipse.emt4j.analysis.common.util.Progress;
-import org.eclipse.emt4j.analysis.report.external.Tool;
-import org.eclipse.emt4j.analysis.report.external.impl.JdepTool;
-import org.eclipse.emt4j.analysis.report.external.impl.JdeprscanTool;
 import org.eclipse.emt4j.analysis.report.render.*;
 import org.eclipse.emt4j.common.CheckResultContext;
 import org.eclipse.emt4j.common.DependType;
@@ -61,12 +58,14 @@ public class ReportExecutor {
         new Progress(parentProgress, "Read dependency records").printTitle();
         List<BodyRecord> recordList = reportInputProvider.getRecords();
 
-        log("Prepare for invoking external tools.");
+        //If there are too many jars(>3000), run external tools take a long time
+        //We implement a mini version but enough to use.so comment following code.
+        /*log("Prepare for invoking external tools.");
         new Progress(parentProgress, "Prepare for external tools").printTitle();
         ExternalToolParam etp = prepareExternalToolParam(recordList, reportInputProvider.getHeader());
         Progress runExternalProgress = new Progress(parentProgress, "Run external tools");
         runExternalProgress.printTitle();
-        recordList.addAll(decorateWithExternalTools(etp, runExternalProgress));
+        recordList.addAll(decorateWithExternalTools(etp, runExternalProgress));*/
 
         this.render = createRender();
         new Progress(parentProgress, "Write result to report file").printTitle();
@@ -118,6 +117,9 @@ public class ReportExecutor {
     private Map<String, List<CheckResultContext>> prepare(List<BodyRecord> recordList) {
         Map<String, List<CheckResultContext>> resultMap = new HashMap<>();
         for (BodyRecord record : recordList) {
+            if (null == record.getCheckResult()) {
+                continue;
+            }
             String feature = record.getFeature();
             CheckResultContext checkResultContext = new CheckResultContext(record.getCheckResult(), record.getDependency());
             if (resultMap.containsKey(feature)) {
@@ -144,24 +146,6 @@ public class ReportExecutor {
         } else {
             throw new RuntimeException("Unsupported report format :" + format);
         }
-    }
-
-    private List<BodyRecord> decorateWithExternalTools(ExternalToolParam etp, Progress parentProgress) {
-        List<BodyRecord> list = new ArrayList<>();
-        for (Tool tool : getTools()) {
-            try {
-                Progress progress = new Progress(parentProgress, "Run tool " + tool.name());
-                list.addAll(tool.analysis(etp, reportConfig, progress));
-            } catch (Exception e) {
-                //ignore exception. After all ,external tool is only icing on the cake
-                e.printStackTrace();
-            }
-        }
-        return list;
-    }
-
-    private Tool[] getTools() {
-        return new Tool[]{new JdeprscanTool(), new JdepTool()};
     }
 
     public Render getRender() {
