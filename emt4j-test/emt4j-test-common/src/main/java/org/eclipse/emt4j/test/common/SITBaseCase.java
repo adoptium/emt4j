@@ -22,6 +22,7 @@ import org.eclipse.emt4j.common.JsonReport;
 import org.eclipse.emt4j.common.JdkMigrationException;
 import org.eclipse.emt4j.common.MainResultDetail;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,13 @@ public abstract class SITBaseCase {
      * Add codes that are incompatible with JDK.
      */
     public abstract void run() throws Exception;
+
+    /**
+     * when the target jar/class is dynamic, sub class should implement this.
+     */
+    public void prepareDynamicTestTarget(String workDir) throws IOException {
+        throw new JdkMigrationException("Not implemented!");
+    }
 
     protected void assertTrue(boolean condition) {
         if (!condition) {

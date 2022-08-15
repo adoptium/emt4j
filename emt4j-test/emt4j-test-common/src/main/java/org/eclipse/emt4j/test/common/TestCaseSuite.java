@@ -37,6 +37,7 @@ import static org.eclipse.emt4j.test.common.RunJavaUtil.runProcess;
 class TestCaseSuite {
     public static final String JDK_VERSION_RUN_ANALYSIS = "8";
     public static final String ANALYSIS_MAIN = "org.eclipse.emt4j.analysis.AnalysisMain";
+    public static final String DYNAMIC_TARGET_MAIN = "org.eclipse.emt4j.test.common.RunWithDynamicTestTargetMain";
     File testcaseJar;
     List<TestCase> testCaseList;
 
@@ -66,6 +67,9 @@ class TestCaseSuite {
                         case CLASS:
                             runWithClass(testParam, testCase, testcasePlayground, unzipJarDir);
                             break;
+                        case DYNAMIC:
+                            runWithDynamic(testParam, testCase, testcasePlayground);
+                            break;
                         default:
                             throw new RuntimeException("Not support mode for TestConf annotation!" + mode);
                     }
@@ -94,6 +98,35 @@ class TestCaseSuite {
         }
     }
 
+    private void runWithDynamic(RunningTestParam testParam, TestCase testCase, File testcasePlayground) throws IOException, InterruptedException {
+        //1. generate dynamic test target
+        File dynamicWorkDir = new File(testcasePlayground, "dynamic-test-target");
+        if (!dynamicWorkDir.exists() && !dynamicWorkDir.mkdirs()) {
+            throw new RuntimeException("Cannot create directory : " + dynamicWorkDir.getCanonicalPath());
+        }
+        runProcess(buildCallDynamicTarget(testParam, testCase, dynamicWorkDir));
+
+        //2. run analysis
+        File reportOutput = new File(testcasePlayground, "class-report.json");
+        runProcess(buildAnalysisParamForClass(testParam, testCase, reportOutput, dynamicWorkDir.getCanonicalPath()));
+
+        //3.run checker
+        runProcess(buildCheckParam(testParam, testCase, reportOutput));
+    }
+
+    private List<String> buildCallDynamicTarget(RunningTestParam testParam, TestCase testCase, File dynamicWorkDir) throws IOException {
+        List<String> arguments = new ArrayList<>();
+        arguments.add(getJavaExePath(testParam, JDK_VERSION_RUN_ANALYSIS));
+        arguments.add("-cp");
+        arguments.add(testParam.testCommonClassPath + File.pathSeparator + testParam.analysisLibDir + File.separator + "*" + File.pathSeparator + testcaseJar);
+        arguments.add(DYNAMIC_TARGET_MAIN);
+        //args[0]
+        arguments.add(testCase.className);
+        //args[1]
+        arguments.add(dynamicWorkDir.getCanonicalPath());
+        return arguments;
+    }
+
     private File unzip(File testcaseJar, File playground) throws IOException, InterruptedException {
         File jarTmpDir = new File(playground, "tmp-classes");
         if (!jarTmpDir.mkdirs()) {
@@ -111,7 +144,8 @@ class TestCaseSuite {
     private void runWithClass(RunningTestParam testParam, TestCase testCase, File testcasePlayground, File unzipJarDir) throws IOException, InterruptedException {
         //1.run the analysis
         File reportOutput = new File(testcasePlayground, "class-report.json");
-        runProcess(buildAnalysisParamForClass(testParam, testCase, reportOutput, unzipJarDir));
+        String targetFile = unzipJarDir.getAbsolutePath() + File.separator + toClassFile(testCase.className);
+        runProcess(buildAnalysisParamForClass(testParam, testCase, reportOutput, targetFile));
         //2.run checker
         runProcess(buildCheckParam(testParam, testCase, reportOutput));
     }
@@ -161,7 +195,7 @@ class TestCaseSuite {
         return arguments;
     }
 
-    private List<String> buildAnalysisParamForClass(RunningTestParam testParam, TestCase testCase, File output, File unzipJarDir) {
+    private List<String> buildAnalysisParamForClass(RunningTestParam testParam, TestCase testCase, File output, String targetFile) {
         List<String> arguments = new ArrayList<>();
         arguments.add(getJavaExePath(testParam, JDK_VERSION_RUN_ANALYSIS));
         arguments.add("-cp");
@@ -186,7 +220,7 @@ class TestCaseSuite {
         });
 
         //param
-        arguments.add(unzipJarDir.getAbsolutePath() + File.separator + toClassFile(testCase.className));
+        arguments.add(targetFile);
         return arguments;
     }
 

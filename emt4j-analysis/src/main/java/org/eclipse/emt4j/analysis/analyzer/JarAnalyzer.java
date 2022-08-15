@@ -18,37 +18,116 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.analyzer;
 
+import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 import org.eclipse.emt4j.common.DependTarget;
 import org.eclipse.emt4j.common.Dependency;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 /**
  * Analysis all classes in a given jar.
  */
 class JarAnalyzer extends ClassAnalyzer {
+    private static final String CLASS = ".class";
+    private static final String JAR = ".jar";
+    public static final String SEPARATOR = "!/";
+
     public static void analyze(Path jarFilePath, Consumer<Dependency> consumer) throws IOException {
         JarFile jarFile = new JarFile(jarFilePath.toFile());
         Enumeration<JarEntry> entries = jarFile.entries();
+        boolean fatJar = true;
         while (entries.hasMoreElements()) {
             JarEntry jarEntry = entries.nextElement();
-            if (jarEntry.getName().endsWith(".class")) {
+            if (jarEntry.getName().endsWith(CLASS)) {
                 try (InputStream input = jarFile.getInputStream(jarEntry)) {
                     byte[] classFileContent = IOUtils.toByteArray(input);
-                    processClass(classFileContent, jarFilePath, consumer, toClassName(jarEntry.getName()));
+                    processClass(classFileContent, new URL(jarFilePath.toUri().toURL() + SEPARATOR + jarEntry.getName()), jarFilePath.toFile().getAbsolutePath(), consumer, toClassName(jarEntry.getName()));
+                } catch (Exception e) {
+                    // we don't want an error interrupt the analysis process
+                    e.printStackTrace();
+                }
+            } else if (jarEntry.getName().endsWith(JAR)) {
+                fatJar = true;
+            }
+        }
+        consumer.accept(new Dependency(null, new DependTarget.Location(jarFilePath.toUri().toURL()), null, jarFilePath.toFile().getAbsolutePath()));
+
+        //if this jar is a fat jar.Unzip to temporary files,scan each jars recursively.
+        if (fatJar) {
+            File tmp = Files.createTempDirectory("emt4j-unzip").toFile();
+            ZipUtil.unzipTo(jarFilePath, tmp.toPath());
+            Path unzipPath = tmp.toPath();
+
+            List<Path> subJars = Files.walk(unzipPath).filter((path -> path.getFileName().toString().endsWith(JAR))).collect(Collectors.toList());
+            for (Path subJar : subJars) {
+                analyze(jarFilePath, unzipPath, subJar, consumer);
+            }
+            deleteFiles(tmp);
+        }
+    }
+
+    private static void analyze(Path parentJar, Path unzipTempDir, Path subJar, Consumer<Dependency> consumer) throws IOException {
+        Path relativePath = unzipTempDir.relativize(subJar);
+        URL location = new URL(parentJar.toUri().toURL().toExternalForm() + SEPARATOR + relativePath);
+        String targetFilePath = parentJar.toFile().getAbsolutePath() + SEPARATOR + relativePath;
+
+        JarFile jarFile = new JarFile(subJar.toFile());
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry jarEntry = entries.nextElement();
+            if (jarEntry.getName().endsWith(CLASS)) {
+                try (InputStream input = jarFile.getInputStream(jarEntry)) {
+                    byte[] classFileContent = IOUtils.toByteArray(input);
+                    processClass(classFileContent, new URL(location + SEPARATOR + jarEntry.getName()), targetFilePath, consumer, toClassName(jarEntry.getName()));
                 } catch (Exception e) {
                     // we don't want an error interrupt the analysis process
                     e.printStackTrace();
                 }
             }
         }
-        consumer.accept(new Dependency(null, new DependTarget.Location(jarFilePath.toUri().toURL()), null,jarFilePath.toFile().getAbsolutePath()));
+        consumer.accept(new Dependency(null, new DependTarget.Location(location), null, targetFilePath));
+    }
+
+    private static void deleteFiles(File f) {
+        if (f.exists()) {
+            if (f.isFile()) {
+                if (!f.delete()) {
+                    throw new Error("Clean up temporary file : " + f.getName() + " failed!");
+                }
+            } else if (f.isDirectory()) {
+                try {
+                    Files.walkFileTree(f.toPath(), new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            Files.delete(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                } catch (IOException e) {
+                    throw new Error("Clean up temporary directory: " + f.getName() + " failed!", e);
+                }
+            }
+        }
     }
 }

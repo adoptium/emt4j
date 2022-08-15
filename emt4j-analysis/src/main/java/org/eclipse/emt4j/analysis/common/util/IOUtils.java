@@ -16,41 +16,26 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.emt4j.test.common;
+package org.eclipse.emt4j.analysis.common.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.*;
 
-/**
- * Only a Test class contains a annotation TestConf regard as SIT Testcase.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface TestConf {
-    ModeEnum[] mode();
-
-    RELEASE from();
-
-    RELEASE to();
-
-    String option() default "";
-
-    enum ModeEnum {
-        AGENT, CLASS, DYNAMIC
+public class IOUtils {
+    public static long copy(InputStream input, OutputStream output, int bufferSize) throws IOException {
+        return copyLarge(input, output, new byte[bufferSize]);
     }
 
-    enum RELEASE {
-        JDK8("8"), JDK11("11"), JDK17("17");
-        private String value;
+    public static long copy(InputStream input, OutputStream output) throws IOException {
+        return copy(input, output, 4096);
+    }
 
-        RELEASE(String value) {
-            this.value = value;
+    public static long copyLarge(InputStream input, OutputStream output, byte[] buffer) throws IOException {
+        long count;
+        int n;
+        for (count = 0L; -1 != (n = input.read(buffer)); count += (long) n) {
+            output.write(buffer, 0, n);
         }
 
-        public String getValue() {
-            return value;
-        }
+        return count;
     }
 }

@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -38,26 +39,23 @@ public class ClassAnalyzer {
     public static void analyze(Path classFilePath, Consumer<Dependency> consumer) throws IOException {
         try (InputStream inputStream = new FileInputStream(classFilePath.toFile())) {
             byte[] classFileContent = IOUtils.toByteArray(inputStream);
-            processClass(classFileContent, classFilePath, consumer, classFilePath.toFile().getName());
+            processClass(classFileContent, classFilePath.toUri().toURL(), classFilePath.toFile().getAbsolutePath(), consumer, classFilePath.toFile().getName());
         }
     }
 
-    protected static void processClass(byte[] classFileContent, Path containFile, Consumer<Dependency> consumer, String className) throws IOException {
+    protected static void processClass(byte[] classFileContent, URL location, String targetFilePath, Consumer<Dependency> consumer, String className) throws IOException {
         ClassSymbol symbol = ClassInspectorInstance.getInstance().getSymbolInClass(classFileContent);
         for (String type : symbol.getTypeSet()) {
-            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), new DependTarget.Class(type, DependType.CLASS), null,
-                    containFile.toFile().getAbsolutePath()));
+            consumer.accept(new Dependency(location, new DependTarget.Class(type, DependType.CLASS), null, targetFilePath));
         }
         for (DependTarget.Method method : symbol.getCallMethodSet()) {
-            consumer.accept(new Dependency(containFile.toFile().toURI().toURL(), method, null, containFile.toFile().getAbsolutePath()));
+            consumer.accept(new Dependency(location, method, null, targetFilePath));
         }
 
-        Dependency wholeClass = new Dependency(containFile.toFile().toURI().toURL(),
-                new DependTarget.Class(className, DependType.WHOLE_CLASS), null, containFile.toFile().getAbsolutePath());
+        Dependency wholeClass = new Dependency(location,
+                new DependTarget.Class(className, DependType.WHOLE_CLASS), null, targetFilePath);
         wholeClass.setClassSymbol(symbol);
         consumer.accept(wholeClass);
-
-        consumer.accept(new Dependency(null, new DependTarget.Location(containFile.toUri().toURL()), null, containFile.toFile().getAbsolutePath()));
     }
 
     protected static String toClassName(String jarEntryName) {
