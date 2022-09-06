@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,6 +29,16 @@ public class ClassSymbol {
     private Set<String> typeSet;
     private Set<DependTarget.Method> callMethodSet;
     private Set<String> constantPoolSet;
+    private Map<String, Set<String>> invokeMap;
+    private String className; // Internal class name
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public Set<String> getTypeSet() {
         return typeSet;
@@ -51,5 +62,13 @@ public class ClassSymbol {
 
     public void setConstantPoolSet(Set<String> constantPoolSet) {
         this.constantPoolSet = constantPoolSet;
+    }
+
+    public Map<String, Set<String>> getInvokeMap() {
+        return invokeMap;
+    }
+
+    public void setInvokeMap(Map<String, Set<String>> invokeMap) {
+        this.invokeMap = invokeMap;
     }
 }
