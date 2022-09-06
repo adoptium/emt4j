@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.objectweb.asm.Opcodes.ASM9;
@@ -36,6 +37,8 @@ import static org.objectweb.asm.Opcodes.ASM9;
  * If for a class, read the class's bytecode first, then use ASM to parse it.
  */
 public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
+
+    static AtomicReference<String> currentMethod = new AtomicReference<>();
 
     @Override
     public void visitGivenMethodList(Class targetClass, List<String> methodNameList, MethodVisitor methodVisitor) {
@@ -63,17 +66,86 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
         }
     }
 
-    private void visit(byte[] bytecode, List<String> methodNameList, MethodVisitor methodVisitor) {
+    private String visit(byte[] bytecode, List<String> methodNameList, MethodVisitor methodVisitor) {
         ClassReader cr = new ClassReader(bytecode);
         cr.accept(new ClassVisitor(ASM9) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+                String resultingParams = retrieveParameters(descriptor);
+                String methodFullName;
+                if (resultingParams.isEmpty()) {
+                    methodFullName = name;
+                } else {
+                    methodFullName = name + "(" + resultingParams + ")";
+                }
+                currentMethod.set(methodFullName);
                 if (null == methodNameList || methodNameList.contains(name)) {
                     return methodVisitor;
                 }
                 return super.visitMethod(access, name, descriptor, signature, exceptions);
             }
         }, 0);
+        return cr.getClassName();
+    }
+
+    private static String retrieveParameters(String descriptor) {
+        int endPos = descriptor.lastIndexOf(")");
+        String params = descriptor.substring(1, endPos);
+        int paraStartPos = 0;
+        int paraEndPos;
+        StringBuilder resultingParams = new StringBuilder();
+        int dimension = 0;
+        while (paraStartPos < params.length()) {
+            if (params.charAt(paraStartPos) == 'L') {
+                paraEndPos = params.indexOf(";", paraStartPos);
+                String param = params.substring(paraStartPos + 1, paraEndPos).replace('/', '.');
+                resultingParams.append(param);
+                paraStartPos = paraEndPos + 1;
+            } else {
+                char primitiveType = params.charAt(paraStartPos++);
+                switch (primitiveType) {
+                    case 'Z':
+                        resultingParams.append("boolean");
+                        break;
+                    case 'I':
+                        resultingParams.append("int");
+                        break;
+                    case 'F':
+                        resultingParams.append("float");
+                        break;
+                    case 'D':
+                        resultingParams.append("double");
+                        break;
+                    case 'C':
+                        resultingParams.append("char");
+                        break;
+                    case 'B':
+                        resultingParams.append("byte");
+                        break;
+                    case 'J':
+                        resultingParams.append("long");
+                        break;
+                    case 'S':
+                        resultingParams.append("short");
+                        break;
+                    case '[':
+                        dimension++;
+                        continue;
+                    default:
+                        throw new RuntimeException("Unknown type " + primitiveType + " in parameter types descriptor " + descriptor);
+                }
+            }
+            while (dimension > 0) {
+                resultingParams.append("[]");
+                dimension--;
+            }
+            resultingParams.append(";");
+        }
+        // delete the last ';'
+        if (resultingParams.length() > 0) {
+            resultingParams.deleteCharAt(resultingParams.length() - 1);
+        }
+        return resultingParams.toString();
     }
 
     @Override
@@ -98,10 +170,16 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
         readClass(targetClass, (b) -> {
             visit(b, null, methodVisitor);
         });
+        return createClassSymbol(methodVisitor, targetClass.getName());
+    }
+
+    private static ClassSymbol createClassSymbol(RecordSymbolMethodVisitor methodVisitor, String className) {
         ClassSymbol classSymbol = new ClassSymbol();
         classSymbol.setCallMethodSet(methodVisitor.callMethodSet);
         classSymbol.setConstantPoolSet(methodVisitor.constantPoolSet);
         classSymbol.setTypeSet(methodVisitor.typeSet);
+        classSymbol.setInvokeMap(methodVisitor.invokeMap);
+        classSymbol.setClassName(className);
         return classSymbol;
     }
 
@@ -109,6 +187,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
         Set<String> typeSet = new HashSet<>();
         Set<DependTarget.Method> callMethodSet = new HashSet<>();
         Set<String> constantPoolSet = new HashSet<>();
+        Map<String, Set<String>> invokeMap = new HashMap<>();
 
         public RecordSymbolMethodVisitor() {
             super(ASM9);
@@ -196,7 +275,17 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
             //So we use the stack trace to get the intercepted method,but in stack trace we only get method name.
             //For simply,we omit the descriptor of method all in jdk migration tool.
             //Omit the descriptor have no problem for functional.
-            callMethodSet.add(new DependTarget.Method(normalize(owner), name, descriptor, DependType.METHOD));
+            DependTarget.Method dependTarget = new DependTarget.Method(normalize(owner), name, descriptor, DependType.METHOD);
+            callMethodSet.add(dependTarget);
+            String method = currentMethod.get();
+            invokeMap.compute(method, (k, v) -> {
+                        if (v == null) {
+                            v = new HashSet<>();
+                        }
+                        v.add(dependTarget.toMethodIdentifierNoDesc());
+                        return v;
+                    }
+            );
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
 
@@ -315,11 +404,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
     @Override
     public ClassSymbol getSymbolInClass(byte[] bytecode) {
         RecordSymbolMethodVisitor methodVisitor = new RecordSymbolMethodVisitor();
-        visit(bytecode, null, methodVisitor);
-        ClassSymbol classSymbol = new ClassSymbol();
-        classSymbol.setCallMethodSet(methodVisitor.callMethodSet);
-        classSymbol.setConstantPoolSet(methodVisitor.constantPoolSet);
-        classSymbol.setTypeSet(methodVisitor.typeSet);
-        return classSymbol;
+        String className = visit(bytecode, null, methodVisitor);
+        return createClassSymbol(methodVisitor, className);
     }
 }
