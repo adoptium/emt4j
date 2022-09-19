@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Analysis all classes in a given jar.
@@ -70,14 +71,19 @@ class JarAnalyzer extends ClassAnalyzer {
         //if this jar is a fat jar.Unzip to temporary files,scan each jars recursively.
         if (fatJar) {
             File tmp = Files.createTempDirectory("emt4j-unzip").toFile();
-            ZipUtil.unzipTo(jarFilePath, tmp.toPath());
-            Path unzipPath = tmp.toPath();
+            try {
+                ZipUtil.unzipTo(jarFilePath, tmp.toPath());
+                Path unzipPath = tmp.toPath();
 
-            List<Path> subJars = Files.walk(unzipPath).filter((path -> path.getFileName().toString().endsWith(JAR))).collect(Collectors.toList());
-            for (Path subJar : subJars) {
-                analyze(jarFilePath, unzipPath, subJar, consumer);
+                try (Stream<Path> pathStream = Files.walk(unzipPath)) {
+                    List<Path> subJars = pathStream.filter((path -> path.getFileName().toString().endsWith(JAR))).collect(Collectors.toList());
+                    for (Path subJar : subJars) {
+                        analyze(jarFilePath, unzipPath, subJar, consumer);
+                    }
+                }
+            } finally {
+                deleteFiles(tmp);
             }
-            deleteFiles(tmp);
         }
     }
 
@@ -86,17 +92,18 @@ class JarAnalyzer extends ClassAnalyzer {
         URL location = new URL(parentJar.toUri().toURL().toExternalForm() + SEPARATOR + relativePath);
         String targetFilePath = parentJar.toFile().getAbsolutePath() + SEPARATOR + relativePath;
 
-        JarFile jarFile = new JarFile(subJar.toFile());
-        Enumeration<JarEntry> entries = jarFile.entries();
-        while (entries.hasMoreElements()) {
-            JarEntry jarEntry = entries.nextElement();
-            if (jarEntry.getName().endsWith(CLASS)) {
-                try (InputStream input = jarFile.getInputStream(jarEntry)) {
-                    byte[] classFileContent = IOUtils.toByteArray(input);
-                    processClass(classFileContent, new URL(location + SEPARATOR + jarEntry.getName()), targetFilePath, consumer, toClassName(jarEntry.getName()));
-                } catch (Exception e) {
-                    // we don't want an error interrupt the analysis process
-                    e.printStackTrace();
+        try (JarFile jarFile = new JarFile(subJar.toFile())) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry jarEntry = entries.nextElement();
+                if (jarEntry.getName().endsWith(CLASS)) {
+                    try (InputStream input = jarFile.getInputStream(jarEntry)) {
+                        byte[] classFileContent = IOUtils.toByteArray(input);
+                        processClass(classFileContent, new URL(location + SEPARATOR + jarEntry.getName()), targetFilePath, consumer, toClassName(jarEntry.getName()));
+                    } catch (Exception e) {
+                        // we don't want an error interrupt the analysis process
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -106,8 +113,10 @@ class JarAnalyzer extends ClassAnalyzer {
     private static void deleteFiles(File f) {
         if (f.exists()) {
             if (f.isFile()) {
-                if (!f.delete()) {
-                    throw new Error("Clean up temporary file : " + f.getName() + " failed!");
+                try {
+                    Files.delete(f.toPath());
+                } catch (IOException e) {
+                    throw new Error("Clean up temporary file : " + f.getName() + " failed!", e);
                 }
             } else if (f.isDirectory()) {
                 try {
