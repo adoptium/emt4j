@@ -97,7 +97,6 @@ public class AnalysisExecutor {
                 try {
                     int hashCode = d.hashCode();
                     if (!alreadyChecked.contains(hashCode)) {
-                        boolean recorded = false;
                         for (ExecutableRule rule : InstanceRuleManager.getRuleInstanceList()) {
                             if (rule.accept(d)) {
                                 ReportCheckResult checkResult = rule.execute(d);
@@ -109,15 +108,12 @@ public class AnalysisExecutor {
                                             analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule);
                                         }
                                     }
-                                    recorded = true;
                                 }
                             }
                         }
                         alreadyChecked.add(hashCode);
-                        if (!recorded) {
-                            if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
-                                analysisOutputConsumer.onNewRecord(d, null, null);
-                            }
+                        if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
+                            analysisOutputConsumer.onNewRecord(d, null, null);
                         }
                     }
                 } catch (Exception e) {
