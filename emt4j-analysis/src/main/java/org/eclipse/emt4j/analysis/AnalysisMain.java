@@ -138,6 +138,12 @@ public class AnalysisMain {
         if (option != null) {
             System.err.println(option + " is invalid!");
         }
+        String osName = System.getProperties().getProperty("os.name");
+        if (osName.equals("Linux")) {
+            System.err.print("Usage:analysis.sh ");
+        } else {
+            System.err.print("Usage:analysis.bat ");
+        }
         System.err.println("Usage:analysis.sh [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-v] <files>");
         System.err.println("-f From which JDK version,default is 8");
         System.err.println("-t To which JDK version,default is 11");
