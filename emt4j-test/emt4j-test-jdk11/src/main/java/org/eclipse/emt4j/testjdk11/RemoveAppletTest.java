@@ -27,8 +27,14 @@ import java.applet.Applet;
 @TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK11, to = TestConf.RELEASE.JDK17)
 public class RemoveAppletTest extends SITBaseCase {
     public void run() {
-        Applet applet = new Applet();
-        int height = applet.getHeight();
+        try {
+            Applet applet = new Applet();
+            int height = applet.getHeight();
+        } catch (Exception e) {
+            //Ignore this exception:
+            //Caused by: java.awt.HeadlessException:
+            //No X11 DISPLAY variable was set, but this program performed an operation which requires it.
+        }
     }
 
     @Override
