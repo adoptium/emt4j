@@ -96,6 +96,10 @@ class TestCaseSuite {
         for (String s : failSummary) {
             ColorPrint.printRed(s);
         }
+
+        if (!failSummary.isEmpty()) {
+            throw new RuntimeException("Some testcases execute failed!");
+        }
     }
 
     private void runWithDynamic(RunningTestParam testParam, TestCase testCase, File testcasePlayground) throws IOException, InterruptedException {

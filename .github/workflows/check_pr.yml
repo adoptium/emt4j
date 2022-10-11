@@ -31,5 +31,6 @@ jobs:
             11
       - name: build EMT4J
         run: |
+          java PrepareToolchain.java
           mvn clean package -Prelease
           mvn clean verify -Ptest
