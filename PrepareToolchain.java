@@ -1,3 +1,8 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 /********************************************************************************
  * Copyright (c) 2022 Contributors to the Eclipse Foundation
  *
@@ -17,7 +22,41 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 public class PrepareToolchain {
-    public static void main(String[] args) {
-        System.getenv().forEach((k, v) -> System.out.println(k + "==>" + v));
+    private static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<toolchains>\n";
+    private static final String BODY_TEMPLATE = "    <toolchain>\n" +
+            "        <type>jdk</type>\n" +
+            "        <provides>\n" +
+            "            <version>%s</version>\n" +
+            "            <vendor>openjdk</vendor>\n" +
+            "        </provides>\n" +
+            "        <configuration>\n" +
+            "            <jdkHome>%s</jdkHome>\n" +
+            "        </configuration>\n" +
+            "    </toolchain>\n";
+    private static final String FOOTER = "</toolchains>";
+
+    public static void main(String[] args) throws IOException {
+        final String varTag = "JAVA_HOME_";
+        StringBuffer sb = new StringBuffer();
+        sb.append(HEADER);
+        System.getenv().forEach((k, v) -> {
+            //JAVA_HOME_11_X64
+            //JAVA_HOME_8_X64
+            if (k.startsWith(varTag)) {
+                String[] versionArch = k.substring(varTag.length()).split("_");
+                if (versionArch.length == 2) {
+                    sb.append(String.format(BODY_TEMPLATE, versionArch[0], v));
+                }
+            }
+        });
+        sb.append(FOOTER);
+
+        String destFile = System.getenv("HOME") + File.separator + ".m2" + File.separator + "toolchains.xml";
+        System.out.println("Generate " + " content of file : " + destFile);
+        System.out.println(sb);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(destFile))) {
+            bw.write(sb.toString());
+        }
     }
 }
