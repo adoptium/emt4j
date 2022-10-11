@@ -138,7 +138,11 @@ public class AnalysisMain {
         if (option != null) {
             System.err.println(option + " is invalid!");
         }
-        System.err.println("Usage:analysis.sh [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-v] <files>");
+
+        String osName = System.getProperty("os.name");
+        boolean windows = osName != null && osName.toLowerCase().indexOf("windows") != -1;
+        String launcher = windows ? "analysis.bat" : "analysis.sh";
+        System.err.println("Usage:" + launcher + " [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-v] <files>");
         System.err.println("-f From which JDK version,default is 8");
         System.err.println("-t To which JDK version,default is 11");
         System.err.println("-p The report format.Can be TXT or JSON or HTML.Default is HTML");
