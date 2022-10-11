@@ -232,4 +232,4 @@ Suppose the result code is "BAR", add a new resource bundle named "BAR" at "emt4
 2. The test case class name must end with "Test" and extend 'org.eclipse.emt4j.test.common.SITBaseCase', then implement the 'run' and 'verify' methods.
     1. The "run" method contains the code that has an incompatible problem.
     2. The "verify" method test if the check result matches the expected.
-3. Add "org.eclipse.emt4j.test.common.TestConf" annotation for the new test case.
+3. Add "org.eclipse.emt4j.test.common.TestConf" annotation for the new test case. 
