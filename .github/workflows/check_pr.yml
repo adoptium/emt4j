@@ -30,7 +30,7 @@ jobs:
             8
             11
       - name: print toolchains
-        run: cat /home/runner/.m2/toolchains.xml
+        run: cat ~/.m2/toolchains.xml
       - name: build EMT4J
         run: |
           mvn clean package -Prelease
