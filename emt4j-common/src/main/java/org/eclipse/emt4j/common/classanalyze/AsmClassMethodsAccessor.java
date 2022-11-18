@@ -45,7 +45,10 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
     }
 
     private void readClass(Class targetClass, Consumer<byte[]> consumer) {
-        try (InputStream in = targetClass.getResourceAsStream(targetClass.getSimpleName() + ".class")) {
+        String name = targetClass.getName();
+        // also works well for non-package classes
+        name = name.substring(name.lastIndexOf(".") + 1);
+        try (InputStream in = targetClass.getResourceAsStream(name + ".class")) {
             if (in != null) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(4096);
                 byte[] buffer = new byte[4096];
