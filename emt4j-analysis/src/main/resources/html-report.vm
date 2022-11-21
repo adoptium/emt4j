@@ -60,7 +60,7 @@
       #else
            <pre>
            #foreach ($stackTrace in $context.stackTrace)
-           $stackTrace
+           $stackTrace.replaceAll("<", "&lt;")
            #end
            </pre>
       #end
