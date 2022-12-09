@@ -43,6 +43,7 @@ public class TestJdkCompatibleCheckFacade {
         request.setFromVersion(8);
         request.setToVersion(11);
         request.setReportLocale(Locale.CHINA);
+        request.setExternalToolHome(System.getProperty("user.home") + "/emt4j-external");
         List<ToCheckTarget> toCheckTargetList = new ArrayList<>();
         ToCheckTarget toCheckTarget = new ToCheckTarget();
         toCheckTarget.setTargetType(CheckTargetTypeEnum.JAR);

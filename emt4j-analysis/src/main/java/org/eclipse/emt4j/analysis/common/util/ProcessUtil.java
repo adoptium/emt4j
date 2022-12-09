@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.common.util;
 
 import java.io.*;
+import java.util.List;
 
 public class ProcessUtil {
     public static String run(String... commands) throws IOException {
@@ -38,5 +39,20 @@ public class ProcessUtil {
             sb.append(s).append('\n');
         }
         return sb.toString();
+    }
+
+    /**
+     * To avoid process blocking due to too many console output
+     * @param commands
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public static int noBlockingRun(List<String> commands) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command(commands);
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        return pb.start().waitFor();
     }
 }

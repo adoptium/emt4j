@@ -74,6 +74,8 @@ public class AnalysisMain {
             checkConfig.setVerbose(true);
             reportConfig.setVerbose(true);
         }));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-e", (v) -> new File(v).exists()
+                && new File(v).isDirectory(), (v) -> reportConfig.setExternalToolRoot(v)));
         optionProcessor.addOption(Option.buildDefaultOption((v) -> getSource(v).isPresent(),
                 (v) -> {
                     DependencySource ds = getSource(v).get();
@@ -142,12 +144,13 @@ public class AnalysisMain {
         String osName = System.getProperty("os.name");
         boolean windows = osName != null && osName.toLowerCase().indexOf("windows") != -1;
         String launcher = windows ? "analysis.bat" : "analysis.sh";
-        System.err.println("Usage:" + launcher + " [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-v] <files>");
+        System.err.println("Usage:" + launcher + " [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-e external tool home] [-v] <files>");
         System.err.println("-f From which JDK version,default is 8");
         System.err.println("-t To which JDK version,default is 11");
         System.err.println("-p The report format.Can be TXT or JSON or HTML.Default is HTML");
         System.err.println("-o Write analysis to output file. Default is " + DEFAULT_FILE);
-        System.err.println("-j target jdk home.Provide target jdk home can help to find more compatible problems.");
+        System.err.println("-j Target JDK home. Provide target jdk home can help to find more compatible problems.");
+        System.err.println("-e The root directory of external tools.");
         System.err.println("-v Show verbose information.");
         System.err.println("files can be combination of following types :");
         final String[] allSupportFiles = new String[]{
