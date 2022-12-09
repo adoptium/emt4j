@@ -35,6 +35,16 @@ public class ReportConfig {
 
     private String targetJdkHome;
 
+    public String getExternalToolRoot() {
+        return externalToolRoot;
+    }
+
+    public void setExternalToolRoot(String externalToolRoot) {
+        this.externalToolRoot = externalToolRoot;
+    }
+
+    private String externalToolRoot;
+
     public List<File> getInputFiles() {
         return inputFiles;
     }

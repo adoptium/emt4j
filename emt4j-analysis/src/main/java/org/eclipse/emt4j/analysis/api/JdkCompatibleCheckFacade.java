@@ -66,6 +66,7 @@ public final class JdkCompatibleCheckFacade {
         reportConfig.setLocale(request.getReportLocale());
         reportConfig.setTargetJdkHome(request.getTargetJdkHome());
         reportConfig.setVerbose(request.isVerbose());
+        reportConfig.setExternalToolRoot(request.getExternalToolHome());
         ReportExecutor reportExecutor = new ReportExecutor(reportConfig);
         reportExecutor.execute(outputConsumer.getInputProvider(), progress);
 

@@ -83,6 +83,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private String outputFile;
 
+    @Parameter
+    private String externalToolHome;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         MavenProject project = (MavenProject) getPluginContext().get("project");
@@ -126,6 +129,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         this.outputFile = selectValue(this.outputFile, "outputFile");
         this.projectBuildDir = selectValue(this.projectBuildDir, "projectBuildDir");
         this.outputFormat = selectValue(this.outputFormat, "outputFormat");
+        this.externalToolHome = selectValue(this.externalToolHome, "externalToolHome");
     }
 
     private int selectValue(int value, String propertyKey) {
@@ -148,6 +152,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         param(args, "-t", String.valueOf(toVersion));
         param(args, "-p", format);
         param(args, "-o", output.getAbsolutePath());
+        param(args, "-e", externalToolHome);
         if ("true".equals(verbose)) {
             args.add("-v");
         }

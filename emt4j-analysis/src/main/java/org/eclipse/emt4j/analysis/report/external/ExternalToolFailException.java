@@ -16,20 +16,19 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.emt4j.analysis.common.model;
+package org.eclipse.emt4j.analysis.report.external;
 
-import lombok.Data;
+public class ExternalToolFailException extends RuntimeException{
 
-import java.util.List;
-import java.util.Locale;
+    public ExternalToolFailException(Throwable cause) {
+        super(cause);
+    }
 
-@Data
-public class JdkCheckCompatibleRequest {
-    private int fromVersion;
-    private int toVersion;
-    private Locale reportLocale;
-    private List<ToCheckTarget> toCheckTargetList;
-    private String targetJdkHome;
-    private boolean verbose;
-    private String externalToolHome;
+    public ExternalToolFailException(String msg){
+        super(msg);
+    }
+
+    public ExternalToolFailException(String msg, Throwable cause){
+        super(msg, cause);
+    }
 }
