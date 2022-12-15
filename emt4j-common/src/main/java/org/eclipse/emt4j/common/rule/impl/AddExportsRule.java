@@ -68,36 +68,69 @@ public class AddExportsRule extends ExecutableRule {
     @Override
     public CheckResult check(Dependency dependency) {
         String className = dependency.getTarget().asClass().getClassName();
-        if (!JdkClassUtil.isJdkClass(className)) {
-            return CheckResult.PASS;
-        }
         Optional<String> packageName = ClassUtil.getPackage(className);
-        if (packageName.isPresent()) {
-
-            //if the package that already export to unnamed,we no need --add-export again
-            if (jdkDefaultExportToUnnamed.contains(packageName.get())) {
-                return CheckResult.PASS;
-            }
-
-            String[] modulePackage = matchModule(packageName.get());
-            if (modulePackage == null) {
-                return CheckResult.PASS;
-            } else {
-                if ("java.base".equals(modulePackage[0]) || !packageSet.contains(modulePackage[1])) {
-                    //java.base is default export to all module.so no need --add-exports
-                    return CheckResult.PASS;
-                } else {
-                    return buildAddExportOption(modulePackage[0], modulePackage[1]);
-                }
-            }
-        } else {
+        if (!packageName.isPresent()) {
             return CheckResult.PASS;
         }
+
+        if (packageName.get().startsWith("com.sun.proxy")) {
+            return CheckResult.PASS;
+        }
+
+        if (matchModule(packageName.get()) != null) {
+            // skip check for normal module classes now
+            return CheckResult.PASS;
+        }
+
+        Set<String> typeSet = dependency.getClassSymbol().getTypeSet();
+        Set<String> shouldExports = new HashSet<>();
+        for (String type : typeSet) {
+            packageName = ClassUtil.getPackage(type);
+            if (!packageName.isPresent()) {
+                continue;
+            }
+            if (jdkDefaultExportToUnnamed.contains(packageName.get())) {
+                continue;
+            }
+            String[] modAndPkg = matchModule(packageName.get());
+            if (modAndPkg == null) {
+                continue;
+            }
+            if ("java.base".equals(modAndPkg[0]) || !packageSet.contains(modAndPkg[1])) {
+                continue;
+            }
+
+            shouldExports.add(modAndPkg[0] + "/" + modAndPkg[1]);
+        }
+
+        if (shouldExports.isEmpty()) {
+            return CheckResult.PASS;
+        }
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("shouldExports", shouldExports);
+        // strip class load frames
+        StackTraceElement[] stacktrace = dependency.getStacktrace();
+        int index = -1;
+        for (int i = stacktrace.length - 1; i >= 0; i--) {
+            if("java.lang.ClassLoader".equals(stacktrace[i].getClassName()) && "loadClass".equals(stacktrace[i].getMethodName())) {
+                index = i;
+                break;
+            }
+            if("java.lang.Class".equals(stacktrace[i].getClassName()) && "forName".equals(stacktrace[i].getMethodName())) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            dependency.setStacktrace(Arrays.copyOfRange(stacktrace, index + 1, stacktrace.length));
+        }
+        return CheckResult.fail(context);
     }
 
     @Override
     public boolean accept(Dependency dependency) {
-        return DependType.CLASS == dependency.getDependType();
+        return DependType.WHOLE_CLASS== dependency.getDependType();
     }
 
     private String[] matchModule(String packageName) {
