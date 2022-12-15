@@ -29,7 +29,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <emt4j.version>0.6-SNAPSHOT</emt4j.version>
+        <emt4j.version>0.6.0</emt4j.version>
     </properties>
     <dependencyManagement>
         <dependencies>
