@@ -24,8 +24,11 @@ import org.eclipse.emt4j.agent.common.file.ReportRecorder;
 import org.eclipse.emt4j.agent.common.jdkdependent.CallerProvider;
 import org.eclipse.emt4j.agent.common.jdkdependent.GuessCallerInfo;
 import org.eclipse.emt4j.common.CheckConfig;
-import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.DependTarget;
+import org.eclipse.emt4j.common.DependType;
 import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.classanalyze.ClassInspectorInstance;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
 import org.eclipse.emt4j.common.util.ClassURL;
 
@@ -147,6 +150,11 @@ public class AgentFacade {
             Dependency dependency = DependencyBuilder.buildLoadClass(className, callerInfo.isPresent() ? callerInfo.get().getStacktrace() : null, protectionDomain);
             dependency.setNonJdkCallerClass(callerInfo.get().getCallerClasses());
             dependency.setCurrClassBytecode(classContent);
+            recorder.record(dependency);
+
+            dependency = dependency.clone();
+            dependency.setTarget(new DependTarget.Class(className, DependType.WHOLE_CLASS));
+            dependency.setClassSymbol(ClassInspectorInstance.getInstance().getSymbolInClass(classContent));
             recorder.record(dependency);
         }
     }
