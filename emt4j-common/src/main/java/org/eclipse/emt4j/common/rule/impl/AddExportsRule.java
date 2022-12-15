@@ -112,14 +112,16 @@ public class AddExportsRule extends ExecutableRule {
         // strip class load frames
         StackTraceElement[] stacktrace = dependency.getStacktrace();
         int index = -1;
-        for (int i = stacktrace.length - 1; i >= 0; i--) {
-            if("java.lang.ClassLoader".equals(stacktrace[i].getClassName()) && "loadClass".equals(stacktrace[i].getMethodName())) {
-                index = i;
-                break;
-            }
-            if("java.lang.Class".equals(stacktrace[i].getClassName()) && "forName".equals(stacktrace[i].getMethodName())) {
-                index = i;
-                break;
+        if (stacktrace != null) {
+            for (int i = stacktrace.length - 1; i >= 0; i--) {
+                if ("java.lang.ClassLoader".equals(stacktrace[i].getClassName()) && "loadClass".equals(stacktrace[i].getMethodName())) {
+                    index = i;
+                    break;
+                }
+                if ("java.lang.Class".equals(stacktrace[i].getClassName()) && "forName".equals(stacktrace[i].getMethodName())) {
+                    index = i;
+                    break;
+                }
             }
         }
         if (index != -1) {
