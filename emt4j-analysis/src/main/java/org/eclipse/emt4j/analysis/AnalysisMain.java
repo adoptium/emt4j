@@ -66,6 +66,7 @@ public class AnalysisMain {
         optionProcessor.addOption(Option.buildParamWithValueOption("-o", null, (v) -> reportConfig.setOutputFile(v)));
         optionProcessor.addOption(Option.buildParamWithValueOption("-f", (v) -> StringUtils.isNumeric(v), (v) -> checkConfig.setFromVersion(Integer.valueOf(v))));
         optionProcessor.addOption(Option.buildParamWithValueOption("-t", (v) -> StringUtils.isNumeric(v), (v) -> checkConfig.setToVersion(Integer.valueOf(v))));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-priority", null, p -> checkConfig.setPriority(p)));
         optionProcessor.addOption(Option.buildParamWithValueOption("-p",
                 (v) -> "txt".equalsIgnoreCase(v) || "json".equalsIgnoreCase(v) || "html".equalsIgnoreCase(v), (v) -> reportConfig.setOutputFormat(v.toLowerCase())));
         optionProcessor.addOption(Option.buildParamWithValueOption("-j", (v) -> new File(v).exists()

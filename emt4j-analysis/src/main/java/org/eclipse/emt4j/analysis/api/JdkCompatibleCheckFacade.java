@@ -94,6 +94,7 @@ public final class JdkCompatibleCheckFacade {
         checkConfig.setCheckMode(Feature.DEFAULT);
         checkConfig.setToVersion(request.getToVersion());
         checkConfig.setFromVersion(request.getFromVersion());
+        checkConfig.setPriority(request.getPriority());
         checkConfig.setVerbose(request.isVerbose());
         return checkConfig;
     }

@@ -27,6 +27,7 @@ import java.util.Locale;
 public class JdkCheckCompatibleRequest {
     private int fromVersion;
     private int toVersion;
+    private String priority;
     private Locale reportLocale;
     private List<ToCheckTarget> toCheckTargetList;
     private String targetJdkHome;

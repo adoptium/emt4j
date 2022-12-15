@@ -49,7 +49,7 @@ public class InstanceRuleManager {
      * @param fromVersion
      * @param toVersion
      */
-    public synchronized static void init(String[] classList, String[] features, String[] modes, int fromVersion, int toVersion) {
+    public synchronized static void init(String[] classList, String[] features, String[] modes, int fromVersion, int toVersion, String priority) {
         if (hasInit) {
             return;
         }
@@ -57,8 +57,12 @@ public class InstanceRuleManager {
             List<ExecutableRule> instanceList = new ArrayList<>();
             List<ConfRules> confRulesList = ConfRuleFacade.load(features, modes, fromVersion, toVersion);
             Map<String, Class> ruleMap = RuleSelector.select(classList);
+            int priorityLimit = toIntPriority(priority);
             for (ConfRules confRules : confRulesList) {
                 for (ConfRuleItem ruleItem : confRules.getRuleItems()) {
+                    if (toIntPriority(ruleItem.getPriority()) > priorityLimit) {
+                        continue;
+                    }
                     Class c = ruleMap.get(ruleItem.getType());
                     if (null == c) {
                         throw new JdkMigrationException("Cannot found rule implementation for type : " + ruleItem.getType());
@@ -121,5 +125,16 @@ public class InstanceRuleManager {
 
     public static List<ExecutableRule> getRuleInstanceList() {
         return ruleInstanceList;
+    }
+
+    private static int toIntPriority(String priority) {
+        if (priority == null) {
+            return Integer.MAX_VALUE;
+        }
+        try {
+            return Integer.parseInt(priority.substring(1));
+        } catch (Throwable t) {
+            return Integer.MAX_VALUE;
+        }
     }
 }

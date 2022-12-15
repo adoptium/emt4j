@@ -57,6 +57,7 @@ Agent options:
 * `file` : the output file path.Default file pattern: `emt4j-${yyyyMMddHHmmss}.dat` in the current working directory.
 * `to` : the target JDK version you are willing to upgrade to 
 (11/17 supported)
+* `priority` : specify the minimum rule priority, e.g. `p2` will only enable the rule with p1 or p2 priority, default is no limit
 
 ## Use the command-line tool(statically scan)
 The EMT4J can statically scan class or jar files, and the directories containing 
@@ -83,6 +84,7 @@ sh bin/analysis.sh -f 8 -t 17 /home/admin/tocheck/jvm.cfg
 All command-line options:
 * `-f` : the base JDK version (8/11 supported).
 * `-t` : the target JDK version you are willing to migrate to (11/17 supported).
+* `-priority` : specify the minimum rule priority, e.g. `-priority p2` will only enable the rule with p1 or p2 priority, default is no limit
 * `-p` : the report format, TXT, HTML (default), JSON are supported.
 * `-o` : the output file name (the default name is 'report')
 * `-j` : the target JDK home. The emt4j integrates the output of JDK built-in tools: jdeprscan and jdeps. The 'jdeprscan' scans a jar file or a class for uses of deprecated API. The 'jdeps' scans a jar file or a class for uses of internal API.  
@@ -115,6 +117,7 @@ The plugin will be called after the "compile" phase.
 Maven plugin options:
 * `fromVersion` : the base JDK version (8/11 supported).
 * `toVersion`  : the target JDK version you are willing to migrate to (11/17 supported).
+* `priority` : specify the minimum rule priority, e.g. `p2` will only enable the rule with p1 or p2 priority, default is no limit
 * `targetJdkHome` : the target JDK home. The emt4j integrates the output of JDK built-in tools.
 * `excludes` : the file list to be excluded from check.
 * `includes` : the file list to be included for examination(all files will be examined by default).

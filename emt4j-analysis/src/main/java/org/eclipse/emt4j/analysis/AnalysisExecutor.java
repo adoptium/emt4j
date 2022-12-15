@@ -87,7 +87,7 @@ public class AnalysisExecutor {
         ClassURL.registerUrlProtocolHandler();
         InstanceRuleManager.init(RULE_CLASS, featureList.stream().map((c) -> c.getId()).collect(Collectors.toList()).toArray(new String[featureList.size()]),
                 new String[]{"class", "source"},
-                checkConfig.getFromVersion(), checkConfig.getToVersion());
+                checkConfig.getFromVersion(), checkConfig.getToVersion(), checkConfig.getPriority());
         analysisOutputConsumer.onBegin(checkConfig, featureList);
         for (DependencySource source : sourceList) {
             log("\tBegin processing " + source.desc());

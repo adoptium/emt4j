@@ -71,6 +71,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private int toVersion;
 
+    @Parameter
+    private String priority;
+
     @Parameter(defaultValue = "${project.build.directory}")
     private String projectBuildDir;
 
@@ -126,6 +129,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         this.verbose = selectValue(this.verbose, "verbose");
         this.fromVersion = selectValue(this.fromVersion, "fromVersion");
         this.toVersion = selectValue(this.toVersion, "toVersion");
+        this.priority = selectValue(this.priority, "priority");
         this.outputFile = selectValue(this.outputFile, "outputFile");
         this.projectBuildDir = selectValue(this.projectBuildDir, "projectBuildDir");
         this.outputFormat = selectValue(this.outputFormat, "outputFormat");
@@ -155,6 +159,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         param(args, "-e", externalToolHome);
         if ("true".equals(verbose)) {
             args.add("-v");
+        }
+        if (priority != null) {
+            param(args, "-priority", priority);
         }
         String[] checkTargets = projectBuildDir.split(":");
         for (String checkTarget : checkTargets) {

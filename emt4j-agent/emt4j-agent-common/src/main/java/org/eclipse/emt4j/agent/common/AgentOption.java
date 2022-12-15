@@ -44,6 +44,13 @@ public class AgentOption {
     private int toVersion;
 
     /**
+     * only the rules whose priority <= this value will be used
+     * null or illegal value means enabling all rules
+     * e.g. p1
+     */
+    private String priority;
+
+    /**
      * Locale when writing the result to file
      */
     private Locale locale = Locale.ENGLISH;
@@ -78,6 +85,14 @@ public class AgentOption {
 
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public void check() {

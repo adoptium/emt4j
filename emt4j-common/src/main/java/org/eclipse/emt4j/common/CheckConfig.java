@@ -28,6 +28,13 @@ public class CheckConfig {
 
     private Feature checkMode = Feature.DEFAULT;
 
+    /**
+     * only the rules whose priority <= this value will be used
+     * null or illegal value means enabling all rules
+     * e.g. p1
+     */
+    private String priority;
+
     public int getToVersion() {
         return toVersion;
     }
@@ -65,5 +72,13 @@ public class CheckConfig {
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 }

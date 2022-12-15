@@ -81,6 +81,7 @@ public class AgentFacade {
         checkConfig.setCheckMode(Feature.DEFAULT);
         checkConfig.setFromVersion(agentOption.getFromVersion());
         checkConfig.setToVersion(agentOption.getToVersion());
+        checkConfig.setPriority(agentOption.getPriority());
         List<String> features = new ArrayList<>();
         //now agent only support arch independent check. so we set a default
         features.add(Feature.DEFAULT.getId());
@@ -98,7 +99,7 @@ public class AgentFacade {
 
     private static void initInstanceRules(String[] classList) {
         InstanceRuleManager.init(classList, new String[]{"default"}, new String[]{"agent"},
-                agentOption.getFromVersion(), agentOption.getToVersion());
+                agentOption.getFromVersion(), agentOption.getToVersion(), agentOption.getPriority());
     }
 
     private static void parseArgs(String args, int fromVersion) {
@@ -121,6 +122,9 @@ public class AgentFacade {
                             break;
                         case "locale":
                             agentOption.setLocale(new Locale(kv[1]));
+                            break;
+                        case "priority":
+                            agentOption.setPriority(kv[1]);
                             break;
                         default:
                             throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
