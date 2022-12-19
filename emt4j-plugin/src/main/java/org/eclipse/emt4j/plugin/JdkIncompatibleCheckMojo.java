@@ -18,19 +18,25 @@
  ********************************************************************************/
 package org.eclipse.emt4j.plugin;
 
-import org.eclipse.emt4j.analysis.AnalysisMain;
-import org.eclipse.emt4j.analysis.common.util.JdkUtil;
-import org.eclipse.emt4j.common.JdkMigrationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.emt4j.analysis.AnalysisMain;
+import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
+import org.eclipse.emt4j.analysis.common.util.ZipUtil;
+import org.eclipse.emt4j.common.JdkMigrationException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +53,8 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     private static final Set<MavenProject> proceeded = new HashSet<>();
     public static final int BATCH_SIZE = 10;
 
+    @Parameter(defaultValue = "${session}", required = true, readonly = true)
+    private MavenSession session;
     /**
      * Define files that need to exclude
      */
@@ -89,6 +97,24 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private String externalToolHome;
 
+    /**
+     * Specify a comma separated list of external tools in the form of maven coordinate. The specified external tools
+     * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
+     * external tool working home specified by {@link JdkIncompatibleCheckMojo#externalToolHome}.
+     * The external tool can be either jar or zip. Assume the external tool home is {@code EXT_HOME}. Specified external
+     * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
+     * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
+     * will be unzipped to {@code EXT_HOME/org2-artifact2-version-zip-classifier}.
+     *
+     * In summary, there are two constrains for this options:
+     * <ol>
+     *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
+     *     <li>{@link JdkIncompatibleCheckMojo#externalToolHome} must be set as well.</li>
+     * </ol>
+     */
+    @Parameter
+    private List<String> externalTools;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         MavenProject project = (MavenProject) getPluginContext().get("project");
@@ -106,6 +132,60 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         }
         if (fromVersion >= toVersion) {
             throw new JdkMigrationException("fromVersion should less than toVersion");
+        }
+
+        if (externalTools != null && !externalTools.isEmpty()) {
+            Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
+            if (externalToolHome == null && externalToolHome.length() == 0) {
+                throw new MojoFailureException("There is no available external tool home set." +
+                        " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
+            }
+            for (String externalTool : externalTools) {
+
+                Path externalToolHomePath = Paths.get(externalToolHome);
+                Path toolPath = externalToolHomePath.resolve(externalTool.replace(":", "-"));
+                try {
+                    if (Files.notExists(toolPath) || Files.list(toolPath).count() > 0) {
+                        List<String> command = new ArrayList<>();
+                        command.add("mvn");
+                        command.add("dependency:get");
+                        command.add("-Dartifact=" + externalTool);
+                        try {
+                            int ret = ProcessUtil.noBlockingRun(command);
+                            if (ret != 0) {
+                                throw new MojoFailureException("Fail to download required external tool:" + externalTool);
+                            }
+                        } catch (IOException | InterruptedException e) {
+                            throw new MojoFailureException("Fail to download required external tool" + externalTool, e);
+                        }
+                        String[] tokens = externalTool.split(":");
+                        String groupId = tokens[0];
+                        String artifactId = tokens[1];
+                        String version = tokens[2];
+                        String type = "jar";
+                        String classifier = null;
+                        if (tokens.length >= 4) {
+                            type = tokens[3];
+                        }
+                        if (tokens.length == 5) {
+                            classifier = tokens[4];
+                        }
+                        Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version)
+                                .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
+                        if (Files.exists(artifactPath)) {
+                            if (type.equals("jar")) {
+                                Files.copy(artifactPath, toolPath.resolve(artifactPath.getFileName()));
+                            } else if (type.equals("zip")) {
+                                ZipUtil.unzipTo(artifactPath, toolPath);
+                            }
+                        } else {
+                            throw new MojoExecutionException("The external tool " + artifactPath + " doesn't exist.");
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Failed when checking existed external tool directory.", e);
+                }
+            }
         }
 
         try {
@@ -134,6 +214,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         this.projectBuildDir = selectValue(this.projectBuildDir, "projectBuildDir");
         this.outputFormat = selectValue(this.outputFormat, "outputFormat");
         this.externalToolHome = selectValue(this.externalToolHome, "externalToolHome");
+        this.externalTools = selectValue(this.externalTools, "externalTools");
     }
 
     private int selectValue(int value, String propertyKey) {
@@ -144,6 +225,20 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     private String selectValue(String value, String propertyKey) {
         String propertyValue = System.getProperty(propertyKey);
         return isEmpty(propertyValue) ? value : propertyValue;
+    }
+
+    private List<String> selectValue(List<String> value, String propertyKey) {
+        String propertyValue = System.getProperty(propertyKey);
+        if (isEmpty(propertyValue)) {
+            return value;
+        } else {
+            String[] vals = propertyValue.split(",");
+            List<String> ret = new ArrayList<>(vals.length);
+            for (String val : vals) {
+                ret.add(val);
+            }
+            return ret;
+        }
     }
 
     private boolean isEmpty(String value) {
@@ -163,7 +258,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         if (priority != null) {
             param(args, "-priority", priority);
         }
-        String[] checkTargets = projectBuildDir.split(":");
+        String[] checkTargets = projectBuildDir.split(File.pathSeparator);
         for (String checkTarget : checkTargets) {
             args.add(checkTarget);
         }
