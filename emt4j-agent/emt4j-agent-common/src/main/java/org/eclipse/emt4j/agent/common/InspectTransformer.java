@@ -35,7 +35,8 @@ public class InspectTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         //anonymous class ?
-        if (className == null || className.startsWith(Constant.AGENT_PACKAGE_INNER) || className.startsWith(Constant.COMMON_PACKAGE_INNER)) {
+        if (className == null || className.startsWith(Constant.AGENT_PACKAGE_INNER) || className.startsWith(Constant.COMMON_PACKAGE_INNER)
+                || className.equals("jdk/jfr/internal/instrument/ThrowableTracer")) {
             return null;
         }
         try {
