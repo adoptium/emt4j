@@ -30,6 +30,9 @@ import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class HtmlRender extends VelocityTemplateRender {
@@ -53,6 +56,10 @@ public class HtmlRender extends VelocityTemplateRender {
         context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
         context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
 
+        Path outputPath = Paths.get(config.getOutputFile());
+        if (Files.notExists(outputPath)) {
+            Files.createDirectories(outputPath.getParent());
+        }
         try (OutputStream out = new FileOutputStream(config.getOutputFile())) {
             Template template = velocityEngine.getTemplate(getTemplate());
             final Writer writer = new OutputStreamWriter(out, "UTF-8");
@@ -130,7 +137,7 @@ public class HtmlRender extends VelocityTemplateRender {
         });
         list.sort(Comparator.comparing(CategorizedResult::getDesc));
         for (int i = 0; i < list.size(); i++) {
-            list.get(i).setId(i+1);
+            list.get(i).setId(i + 1);
         }
         return list;
     }
