@@ -25,8 +25,11 @@ import org.eclipse.emt4j.test.common.TestConf;
 @TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK8, to = TestConf.RELEASE.JDK11)
 public class RemoveAPITest extends SITBaseCase {
     public void run() {
-        Thread thread = new Thread();
-        thread.destroy();
+        try {
+            Thread thread = new Thread();
+            thread.destroy();
+        } catch (Throwable ignored) {
+        }
     }
 
     @Override
