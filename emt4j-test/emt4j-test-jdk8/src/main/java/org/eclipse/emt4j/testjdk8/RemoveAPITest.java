@@ -24,8 +24,9 @@ import org.eclipse.emt4j.test.common.TestConf;
 
 @TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK8, to = TestConf.RELEASE.JDK11)
 public class RemoveAPITest extends SITBaseCase {
-    public void run() throws NoSuchMethodException {
-        Runtime.runFinalizersOnExit(true);
+    public void run() {
+        Thread thread = new Thread();
+        thread.destroy();
     }
 
     @Override
