@@ -159,6 +159,8 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                         command.add(mvnPath.toString());
                         command.add("dependency:get");
                         command.add("-Dartifact=" + externalTool);
+                        command.add("-s");
+                        command.add(session.getRequest().getUserSettingsFile().toString());
                         try {
                             int ret = ProcessUtil.noBlockingRun(command);
                             if (ret != 0) {
