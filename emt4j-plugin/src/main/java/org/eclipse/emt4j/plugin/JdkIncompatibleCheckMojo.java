@@ -105,7 +105,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
      * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
      * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
      * will be unzipped to {@code EXT_HOME/org2-artifact2-version-zip-classifier}.
-     *
+     * <p>
      * In summary, there are two constrains for this options:
      * <ol>
      *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
@@ -147,7 +147,16 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                 try {
                     if (Files.notExists(toolPath) || Files.list(toolPath).count() > 0) {
                         List<String> command = new ArrayList<>();
-                        command.add("mvn");
+
+                        String mvnHome = System.getProperty("maven.home");
+                        if (mvnHome == null) {
+                            throw new MojoFailureException("System property maven.home is not set. This plugin should be called from mvn command line.");
+                        }
+                        Path mvnPath = Paths.get(mvnHome).resolve("bin").resolve("mvn");
+                        if (Files.notExists(mvnPath)) {
+                            throw new MojoFailureException("Can't find mvn executable file " + mvnPath);
+                        }
+                        command.add(mvnPath.toString());
                         command.add("dependency:get");
                         command.add("-Dartifact=" + externalTool);
                         try {
@@ -156,7 +165,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                                 throw new MojoFailureException("Fail to download required external tool:" + externalTool);
                             }
                         } catch (IOException | InterruptedException e) {
-                            throw new MojoFailureException("Fail to download required external tool" + externalTool, e);
+                            throw new MojoFailureException("Fail to download required external tool:" + externalTool, e);
                         }
                         String[] tokens = externalTool.split(":");
                         String groupId = tokens[0];
