@@ -32,7 +32,7 @@ analysis results in different formats, including a raw TEXT file, JSON file,
 or HTML report highlighting areas that need changes for migration.
 
 ## Download 
-[0.3](https://github.com/adoptium/emt4j/releases/download/v0.3/emt4j-0.3.zip)
+[Releases](https://github.com/adoptium/emt4j/releases)
 
 ## Use the EMT4J agent
 Attach the EMT4J agent jar in the command line to your target application:
