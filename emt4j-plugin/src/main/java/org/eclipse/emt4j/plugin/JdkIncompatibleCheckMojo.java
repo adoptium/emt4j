@@ -129,12 +129,25 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         if (proceeded.contains(project)) {
             return;
         }
-        if (StringUtils.isEmpty(projectBuildDir)) {
-            getLog().error("Project build directory is empty,so skip this project!");
-            return;
-        }
+
         if (fromVersion >= toVersion) {
             throw new JdkMigrationException("fromVersion should less than toVersion");
+        }
+
+        boolean targetExists = false;
+        if (projectBuildDir != null) {
+            String[] buildPaths = projectBuildDir.split(File.pathSeparator);
+            for (String buildPath : buildPaths) {
+                File file = new File(buildPath);
+                if (file.exists()) {
+                    targetExists = true;
+                    break;
+                }
+            }
+        }
+        if (!targetExists) {
+            getLog().info("Skip this project since there is no targets!");
+            return;
         }
 
         if (externalTools != null && !externalTools.isEmpty()) {
