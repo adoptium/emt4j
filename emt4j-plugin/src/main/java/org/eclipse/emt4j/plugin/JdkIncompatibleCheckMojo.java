@@ -18,31 +18,34 @@
  ********************************************************************************/
 package org.eclipse.emt4j.plugin;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.eclipse.emt4j.analysis.AnalysisMain;
 import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
 import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Implement a maven plugin that checks JDK compatible problems.
@@ -53,8 +56,8 @@ import java.util.Set;
 @Execute(phase = LifecyclePhase.PROCESS_CLASSES)
 public class JdkIncompatibleCheckMojo extends AbstractMojo {
 
-    private static final Set<MavenProject> proceeded = new HashSet<>();
-    public static final int BATCH_SIZE = 10;
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @Parameter(defaultValue = "${session}", required = true, readonly = true)
     private MavenSession session;
@@ -118,43 +121,49 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private List<String> externalTools;
 
+    @Component(hint = "default")
+    private DependencyGraphBuilder dependencyGraphBuilder;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        MavenProject project = (MavenProject) getPluginContext().get("project");
         selectParameters();
-        boolean verbose = "true".equals(this.verbose);
-        if (verbose) {
-            getLog().info("Target directory: " + projectBuildDir);
-        }
-        if (proceeded.contains(project)) {
-            return;
-        }
 
         if (fromVersion >= toVersion) {
             throw new JdkMigrationException("fromVersion should less than toVersion");
         }
 
-        boolean targetExists = false;
-        if (projectBuildDir != null) {
-            String[] buildPaths = projectBuildDir.split(File.pathSeparator);
-            for (String buildPath : buildPaths) {
-                File file = new File(buildPath);
-                if (file.exists()) {
-                    targetExists = true;
-                    break;
-                }
+        List<MavenProject> projects = session.getProjects();
+        boolean last = project.equals(projects.get(projects.size() - 1));
+        try {
+            initFiles();
+            if (project.equals(projects.get(0))) {
+                prepare();
+            } else {
+                load(true);
             }
+
+            ProjectBuildingRequest buildingRequest =
+                    new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+            buildingRequest.setProject(project);
+            DependencyNode root = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, artifact -> true);
+            addModule(root);
+
+            if (!last) {
+                return;
+            }
+            load(false);
+        } catch (IOException e) {
+            throw new MojoExecutionException("IOException", e);
+        } catch (DependencyGraphBuilderException e) {
+            throw new MojoExecutionException("Failed to build dependency", e);
         }
-        if (!targetExists) {
-            getLog().info("Skip this project since there is no targets!");
-            return;
-        }
+
 
         if (externalTools != null && !externalTools.isEmpty()) {
             Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
-            if (externalToolHome == null && externalToolHome.length() == 0) {
+            if (externalToolHome == null || externalToolHome.length() == 0) {
                 throw new MojoFailureException("There is no available external tool home set." +
-                        " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
+                                                       " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
             }
             for (String externalTool : externalTools) {
 
@@ -198,7 +207,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                             classifier = tokens[4];
                         }
                         Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version)
-                                .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
+                                                         .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
                         if (Files.exists(artifactPath)) {
                             if (type.equals("jar")) {
                                 Files.copy(artifactPath, toolPath.resolve(artifactPath.getFileName()));
@@ -216,20 +225,128 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         }
 
         try {
-            if (isEmpty(outputFile)) {
-                File tmpOutput = File.createTempFile("jdk-incompatible-plugin-check", ".txt");
-                tmpOutput.deleteOnExit();
-                AnalysisMain.main(buildArgs(tmpOutput, "txt"));
-                List<String> lines = FileUtils.readLines(tmpOutput, "UTF-8");
-                if (lines.size() > 0) {
-                    getLog().warn(String.join("\n", lines));
-                }
-            } else {
-                AnalysisMain.main(buildArgs(new File(outputFile), outputFormat));
-            }
+            AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
+        } catch (MojoExecutionException e) {
+            throw e;
         } catch (Exception e) {
             getLog().error(e);
         }
+    }
+
+    private File configFile;
+
+    private File modulesFile;
+
+    private File dependenciesFile;
+
+    private final List<String> modules = new ArrayList<>();
+
+    private final List<String> moduleClasses = new ArrayList<>();
+
+    private final List<String> dependencies = new ArrayList<>();
+
+    private final List<String> dependenciesPaths = new ArrayList<>();
+
+    private void initFiles() {
+        configFile = new File(session.getExecutionRootDirectory(), ".emt4j");
+        modulesFile = new File(configFile, "modules");
+        dependenciesFile = new File(configFile, "dependencies");
+    }
+
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "resource"})
+    private void prepare() throws IOException {
+        if (configFile.exists()) {
+            Files.walk(configFile.toPath())
+                 .sorted(Comparator.reverseOrder())
+                 .map(Path::toFile)
+                 .forEach(File::delete);
+        }
+        configFile.mkdir();
+        modulesFile.createNewFile();
+        dependenciesFile.createNewFile();
+    }
+
+    private void load(boolean onlyKey) throws IOException {
+        modules.clear();
+        moduleClasses.clear();
+        dependencies.clear();
+        dependenciesPaths.clear();
+        BufferedReader br = Files.newBufferedReader(modulesFile.toPath());
+        String str;
+        while ((str = br.readLine()) != null) {
+            String[] pair = str.split("=");
+            modules.add(pair[0]);
+            if (!onlyKey) {
+                moduleClasses.add(pair[1]);
+            }
+        }
+        br.close();
+        br = Files.newBufferedReader(dependenciesFile.toPath());
+        while ((str = br.readLine()) != null) {
+            String[] pair = str.split("=");
+            dependencies.add(pair[0]);
+            if (!onlyKey) {
+                dependenciesPaths.add(pair[1]);
+            }
+        }
+        br.close();
+    }
+
+    private String keyOf(Artifact artifact) {
+        return artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion();
+    }
+
+    private void addModule(DependencyNode root) throws IOException {
+        Artifact artifact = root.getArtifact();
+        String key = keyOf(artifact);
+        if (modules.contains(key)) {
+            return;
+        }
+        if (Paths.get(projectBuildDir, "classes").toFile().exists()) {
+            try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(modulesFile.toPath(), StandardOpenOption.APPEND)))) {
+                bw.write(key + "=" + new File(projectBuildDir, "classes").getAbsolutePath());
+                bw.newLine();
+            }
+        }
+        addDependencies(root);
+    }
+
+    private void addDependencies(DependencyNode root) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(dependenciesFile.toPath(), StandardOpenOption.APPEND)))) {
+            addDependencies(root, bw);
+        }
+    }
+
+    private void addDependencies(DependencyNode node, BufferedWriter bw) throws IOException {
+        List<DependencyNode> children = node.getChildren();
+        if (children == null) {
+            return;
+        }
+        for (DependencyNode child : children) {
+            Artifact artifact = child.getArtifact();
+            String key = keyOf(artifact);
+            if (dependencies.contains(key) || modules.contains(key)) {
+                continue;
+            }
+            ArtifactRepository localRepository = session.getLocalRepository();
+            bw.write(key + "=" + new File(localRepository.getBasedir(), localRepository.pathOf(artifact)).getAbsolutePath());
+            bw.newLine();
+            addDependencies(child, bw);
+        }
+    }
+
+    private File resolveOutputFile() throws MojoExecutionException {
+        if (outputFile != null) {
+            Path path = Paths.get(outputFile);
+            if (path.isAbsolute()) {
+                return new File(outputFile);
+            }
+        }
+        File dir = new File(session.getExecutionRootDirectory());
+        if (outputFile == null) {
+            outputFile = "report." + (outputFormat == null ? "html" : outputFormat);
+        }
+        return new File(dir, outputFile);
     }
 
     private void selectParameters() {
@@ -246,7 +363,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
 
     private int selectValue(int value, String propertyKey) {
         String propertyValue = System.getProperty(propertyKey);
-        return isEmpty(propertyValue) ? value : Integer.valueOf(propertyValue);
+        return isEmpty(propertyValue) ? value : Integer.parseInt(propertyValue);
     }
 
     private String selectValue(String value, String propertyKey) {
@@ -261,9 +378,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         } else {
             String[] vals = propertyValue.split(",");
             List<String> ret = new ArrayList<>(vals.length);
-            for (String val : vals) {
-                ret.add(val);
-            }
+            ret.addAll(Arrays.asList(vals));
             return ret;
         }
     }
@@ -285,11 +400,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         if (priority != null) {
             param(args, "-priority", priority);
         }
-        String[] checkTargets = projectBuildDir.split(File.pathSeparator);
-        for (String checkTarget : checkTargets) {
-            args.add(checkTarget);
-        }
-        return args.toArray(new String[args.size()]);
+        args.addAll(moduleClasses);
+        args.addAll(dependenciesPaths);
+        return args.toArray(new String[0]);
     }
 
     private void param(List<String> args, String k, String v) {

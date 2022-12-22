@@ -59,6 +59,11 @@
             <version>3.3.9</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-dependency-tree</artifactId>
+            <version>3.2.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
