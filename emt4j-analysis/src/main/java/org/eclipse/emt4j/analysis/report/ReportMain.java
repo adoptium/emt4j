@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
  */
 public class ReportMain {
     private static final String DEFAULT_REPORT_FILE = "report";
-    private static final String DEFAULT_FORMAT = "txt";
+    private static final String DEFAULT_FORMAT = "html";
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
         if (null == args || args.length == 0) {
@@ -57,6 +57,7 @@ public class ReportMain {
     }
 
     public static void run(ReportConfig reportConfig, Progress progress) throws InterruptedException, IOException, ClassNotFoundException, URISyntaxException {
+        resolveOutputFormat(reportConfig);
         if (reportConfig.getOutputFile() == null) {
             reportConfig.setOutputFile(DEFAULT_REPORT_FILE + '.' + reportConfig.getOutputFormat());
         }
@@ -66,13 +67,30 @@ public class ReportMain {
         System.out.println("Write report to " + reportConfig.getOutputFile() + " done.");
     }
 
+    private static void resolveOutputFormat(ReportConfig config) {
+        if (config.getOutputFormat() == null) {
+            String outputFile = config.getOutputFile();
+            config.setOutputFormat(DEFAULT_FORMAT);
+            if (outputFile == null) {
+                return;
+            }
+            if (outputFile.endsWith(".txt")) {
+                config.setOutputFormat("txt");
+            } else if (outputFile.endsWith(".json")) {
+                config.setOutputFormat("json");
+            } else if (outputFile.endsWith(".html")) {
+                config.setOutputFormat("html");
+            }
+        }
+    }
+
     private static void printUsage(String option) {
         if (option != null) {
             System.err.println(option + " is invalid!");
         }
-        System.err.println("Usage:report.sh -i input file1 -i input file2  [-f txt] [-o output file] [-l language] [-t target jdk home] [-v]");
+        System.err.println("Usage:report.sh -i input file1 -i input file2  [-f txt|json|html] [-o output file] [-l language] [-t target jdk home] [-v]");
         System.err.println("-i input-file. The input file is the output of analysis or agent.");
-        System.err.println("-f txt or json or html.Default is txt");
+        System.err.println("-f txt or json or html(default).");
         System.err.println("-o Write report to output file instead of default " + DEFAULT_REPORT_FILE + "." + DEFAULT_FORMAT);
         System.err.println("-t target jdk home.Provide target jdk home can help to find more compatible problems.");
         System.err.println("-v Show verbose information.");

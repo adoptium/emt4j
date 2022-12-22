@@ -29,7 +29,7 @@ public class ReportConfig {
     private String outputFile;
 
     private boolean verbose = false;
-    private String outputFormat = "html";
+    private String outputFormat;
 
     private Locale locale = Locale.getDefault();
 
