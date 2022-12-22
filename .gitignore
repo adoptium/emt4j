@@ -12,3 +12,5 @@ target/
 
 # maven shade plugin temp files
 dependency-reduced-pom.xml
+
+.flattened-pom.xml

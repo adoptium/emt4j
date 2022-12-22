@@ -23,7 +23,7 @@
     <parent>
         <artifactId>emt4j-parent</artifactId>
         <groupId>org.eclipse.emt4j</groupId>
-        <version>${emt4j.version}</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -62,17 +62,17 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-common</artifactId>
-            <version>${emt4j.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk8</artifactId>
-            <version>${emt4j.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk11</artifactId>
-            <version>${emt4j.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -196,7 +196,7 @@
                                         <argument>--analysis-lib-dir</argument>
                                         <argument>${build.analysis.dir}</argument>
                                         <argument>--agent-version</argument>
-                                        <argument>${emt4j.version}</argument>
+                                        <argument>${project.version}</argument>
                                     </arguments>
                                 </configuration>
                             </execution>

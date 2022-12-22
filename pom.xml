@@ -23,40 +23,40 @@
     <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-parent</artifactId>
     <packaging>pom</packaging>
-    <version>${emt4j.version}</version>
+    <version>${revision}</version>
     <name>emt4j</name>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <emt4j.version>0.7-SNAPSHOT</emt4j.version>
+        <revision>0.7-SNAPSHOT</revision>
     </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-agent-jdk8</artifactId>
-                <version>${emt4j.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-agent-jdk11</artifactId>
-                <version>${emt4j.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-analysis</artifactId>
-                <version>${emt4j.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-common</artifactId>
-                <version>${emt4j.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-maven-plugin</artifactId>
-                <version>${emt4j.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -137,7 +137,7 @@
                     <configuration>
                         <archive>
                             <manifestEntries>
-                                <Implementation-Version>${emt4j.version}</Implementation-Version>
+                                <Implementation-Version>${project.version}</Implementation-Version>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -149,5 +149,32 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

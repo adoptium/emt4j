@@ -23,7 +23,7 @@
     <parent>
         <artifactId>emt4j-test</artifactId>
         <groupId>org.eclipse.emt4j</groupId>
-        <version>${emt4j.version}</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-common</artifactId>
-            <version>${emt4j.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

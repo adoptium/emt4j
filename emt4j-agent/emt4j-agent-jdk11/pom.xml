@@ -23,12 +23,12 @@
     <parent>
         <artifactId>emt4j-agent</artifactId>
         <groupId>org.eclipse.emt4j</groupId>
-        <version>${emt4j.version}</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>emt4j-agent-jdk11</artifactId>
-    <version>${emt4j.version}</version>
     <groupId>org.eclipse.emt4j</groupId>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-agent-common</artifactId>
-            <version>${emt4j.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
