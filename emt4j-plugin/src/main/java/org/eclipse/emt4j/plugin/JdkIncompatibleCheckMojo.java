@@ -24,6 +24,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
@@ -47,7 +49,8 @@ import java.util.Set;
  * It scans java source files, then checks each file to whether contains incompatible problems.
  * If there is a problem, it will print a warning message.
  */
-@Mojo(name = "check")
+@Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
+@Execute(phase = LifecyclePhase.PROCESS_CLASSES)
 public class JdkIncompatibleCheckMojo extends AbstractMojo {
 
     private static final Set<MavenProject> proceeded = new HashSet<>();
