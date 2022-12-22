@@ -15,7 +15,7 @@
 ##
 ## SPDX-License-Identifier: Apache-2.0
 #if($data.isEmpty())
-    $data.noIssue
+    $noIssue
 #else
 #foreach( $feature in $data )
 $feature.featureId $feature.featureDesc
