@@ -20,7 +20,6 @@ package org.eclipse.emt4j.plugin;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,7 +36,11 @@ import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
 import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
