@@ -39,8 +39,8 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
     @Override
     public void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
-        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-        velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
+        velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
         VelocityContext context = new VelocityContext();
         List<FeatureResult> featureResultList = toFeatureResult(resultMap);
         context.put("data", featureResultList);

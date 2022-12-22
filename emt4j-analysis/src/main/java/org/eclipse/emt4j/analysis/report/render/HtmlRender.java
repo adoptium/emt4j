@@ -45,8 +45,8 @@ public class HtmlRender extends VelocityTemplateRender {
     @Override
     public void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
-        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-        velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
+        velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
         VelocityContext context = new VelocityContext();
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
         context.put("data", categorizedResultList);
