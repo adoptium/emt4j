@@ -59,6 +59,7 @@ import java.util.List;
  * It scans java source files, then checks each file to whether contains incompatible problems.
  * If there is a problem, it will print a warning message.
  */
+@SuppressWarnings("unused")
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
 @Execute(phase = LifecyclePhase.PROCESS_CLASSES)
 public class JdkIncompatibleCheckMojo extends AbstractMojo {
@@ -177,7 +178,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                 Path externalToolHomePath = Paths.get(externalToolHome);
                 Path toolPath = externalToolHomePath.resolve(externalTool.replace(":", "-"));
                 try {
-                    if (Files.notExists(toolPath) || Files.list(toolPath).count() > 0) {
+                    if (Files.notExists(toolPath) || Files.list(toolPath).findAny().isPresent()) {
                         List<String> command = new ArrayList<>();
 
                         String mvnHome = System.getProperty("maven.home");
