@@ -14,3 +14,4 @@ target/
 dependency-reduced-pom.xml
 
 .flattened-pom.xml
+.emt4j
