@@ -55,6 +55,6 @@ public class DependencyAnalyzer {
                 e.printStackTrace();
             }
         }
-        progress.cleanProgress();;
+        progress.cleanProgress();
     }
 }
