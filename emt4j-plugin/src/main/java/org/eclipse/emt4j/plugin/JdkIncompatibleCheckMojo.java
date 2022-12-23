@@ -409,7 +409,17 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
             param(args, "-priority", priority);
         }
         args.addAll(moduleClasses);
-        args.addAll(dependenciesPaths);
+        for (String path : dependenciesPaths) {
+            if (path.endsWith(".pom")) {
+                getLog().info("Skip pom: " + path);
+                continue;
+            }
+            if (new File(path).exists()) {
+                args.add(path);
+            } else {
+                getLog().warn(path + " doesn't exist");
+            }
+        }
         return args.toArray(new String[0]);
     }
 
