@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.common.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Progress {
@@ -42,7 +43,7 @@ public class Progress {
         for (int i = 1; i < level; i++) {
             sb.append("  ");
         }
-        sb.append(sequence).append('.').append(desc);
+        sb.append(sequence).append(". ").append(desc);
         return sb.toString();
     }
 
@@ -79,5 +80,12 @@ public class Progress {
         }
         int progress = (int) ((100.0f * (value - min)) / (max - min));
         System.out.print(title + "[" + progress + "%]\r");
+    }
+
+    public void cleanProgress() {
+        char[] cs = new char[title.length() + 7];
+        Arrays.fill(cs, ' ');
+        System.out.print(new String(cs));
+        System.out.print("\r");
     }
 }

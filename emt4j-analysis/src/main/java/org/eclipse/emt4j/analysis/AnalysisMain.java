@@ -108,7 +108,7 @@ public class AnalysisMain {
                 analysisExecutor.execute(featureList, progress);
             }
             reportConfig.getInputFiles().add(tempFile);
-            System.out.println("Write analysis temporary file to " + tempFile + " done.");
+            System.out.println("Write internal file to " + tempFile + " done.");
         }
         if (reportConfig.getInputFiles().isEmpty()) {
             printUsage(null);

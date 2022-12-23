@@ -64,7 +64,7 @@ public class ReportMain {
         ReportExecutor reportExecutor = new ReportExecutor(reportConfig);
         progress.printTitle();
         reportExecutor.execute(new BinaryFileInputProvider(reportConfig.getInputFiles()), progress);
-        System.out.println("Write report to " + reportConfig.getOutputFile() + " done.");
+        System.out.println("EMT4J's report: " + reportConfig.getOutputFile());
     }
 
     private static void resolveOutputFormat(ReportConfig config) {

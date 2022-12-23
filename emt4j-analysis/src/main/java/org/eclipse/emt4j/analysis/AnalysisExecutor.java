@@ -91,7 +91,7 @@ public class AnalysisExecutor {
         analysisOutputConsumer.onBegin(checkConfig, featureList);
         for (DependencySource source : sourceList) {
             log("\tBegin processing " + source.desc());
-            Progress sourceProgress = new Progress(parentProgress, "Analysis " + source.getFile().getName());
+            Progress sourceProgress = new Progress(parentProgress, "Analyzing " + source.getFile().getName());
             sourceProgress.printTitle();
             source.parse((d) -> {
                 try {
