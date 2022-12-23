@@ -52,7 +52,9 @@ public class MemoryHolderOutputConsumer implements AnalysisOutputConsumer {
         if (rule != null) {
             br.setFeature(rule.getConfRules().getFeature());
         }
-        recordList.add(br);
+        synchronized (this) {
+            recordList.add(br);
+        }
     }
 
     public ReportInputProvider getInputProvider() {

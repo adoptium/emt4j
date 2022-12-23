@@ -65,7 +65,7 @@ public class BinaryFileOutputConsumer implements AnalysisOutputConsumer {
     }
 
     @Override
-    public void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule) throws IOException {
+    public synchronized void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule) throws IOException {
         BodyRecord br = new BodyRecord();
         br.setCheckResult(checkResult);
         br.setDependency(dependency);

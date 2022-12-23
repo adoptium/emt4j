@@ -40,7 +40,10 @@ public class DependencyAnalyzer {
 
     public void iterateDo(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException {
         int i = 0;
-        Progress progress = new Progress(sourceProgress, 0, files.size(), "Analysis files");
+        Progress progress = null;
+        if (sourceProgress != null) {
+            progress = new Progress(sourceProgress, 0, files.size(), "Analysis files");
+        }
         for (Path file : files) {
             try {
                 i++;
@@ -50,11 +53,15 @@ public class DependencyAnalyzer {
                 } else if (fileStr.endsWith(".class")) {
                     ClassAnalyzer.analyze(file, consumer);
                 }
-                progress.printProgress(i);
+                if (progress != null) {
+                    progress.printProgress(i);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        progress.cleanProgress();
+        if (progress != null) {
+            progress.cleanProgress();
+        }
     }
 }

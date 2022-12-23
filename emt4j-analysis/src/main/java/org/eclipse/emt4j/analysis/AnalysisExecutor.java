@@ -31,9 +31,9 @@ import org.eclipse.emt4j.common.util.ClassURL;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 /**
@@ -49,10 +49,6 @@ public class AnalysisExecutor {
     private List<DependencySource> sourceList = new ArrayList<>();
     private AnalysisOutputConsumer analysisOutputConsumer;
 
-    /**
-     * avoid the duplicate dependencies
-     */
-    private Set<Integer> alreadyChecked = new HashSet<>();
     private CheckConfig checkConfig;
 
     public AnalysisExecutor(CheckConfig checkConfig) {
@@ -89,41 +85,55 @@ public class AnalysisExecutor {
                 new String[]{"class", "source"},
                 checkConfig.getFromVersion(), checkConfig.getToVersion(), checkConfig.getPriority());
         analysisOutputConsumer.onBegin(checkConfig, featureList);
-        for (DependencySource source : sourceList) {
-            log("\tBegin processing " + source.desc());
-            Progress sourceProgress = new Progress(parentProgress, "Analyzing " + source.getFile().getName());
-            sourceProgress.printTitle();
-            source.parse((d) -> {
-                try {
-                    int hashCode = d.hashCode();
-                    if (!alreadyChecked.contains(hashCode)) {
-                        for (ExecutableRule rule : InstanceRuleManager.getRuleInstanceList()) {
-                            if (rule.accept(d)) {
-                                ReportCheckResult checkResult = rule.execute(d);
-                                if (!checkResult.isPass()) {
-                                    if (checkResult.getPropagated().isEmpty()) {
-                                        analysisOutputConsumer.onNewRecord(d, checkResult, rule);
-                                    } else {
-                                        for (Dependency newDependency : checkResult.getPropagated()) {
-                                            analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule);
+
+        Set<Integer> alreadyChecked = new ConcurrentSkipListSet<>();
+
+        sourceList.parallelStream().forEach(
+                source -> {
+                    try {
+                        source.parse((d) -> {
+                            try {
+                                int hashCode = d.hashCode();
+                                if (alreadyChecked.contains(hashCode) || !alreadyChecked.add(hashCode)) {
+                                    return;
+                                }
+                                for (ExecutableRule rule : InstanceRuleManager.getRuleInstanceList()) {
+                                    if (rule.accept(d)) {
+                                        ReportCheckResult checkResult = rule.execute(d);
+                                        if (!checkResult.isPass()) {
+                                            if (checkResult.getPropagated().isEmpty()) {
+                                                analysisOutputConsumer.onNewRecord(d, checkResult, rule);
+                                            } else {
+                                                for (Dependency newDependency : checkResult.getPropagated()) {
+                                                    analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule);
+                                                }
+                                            }
                                         }
                                     }
                                 }
+                                if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
+                                    analysisOutputConsumer.onNewRecord(d, null, null);
+                                }
+                            } catch (Throwable t) {
+                                System.err.println("Failed to analyze " + source.getFile().getName());
+                                t.printStackTrace();
                             }
-                        }
-                        alreadyChecked.add(hashCode);
-                        if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
-                            analysisOutputConsumer.onNewRecord(d, null, null);
-                        }
+                        }, null);
+                        syncPrint("  Analyze " + source.getFile().getName() + " done");
+                    } catch (Throwable t) {
+                        System.err.println("Failed to analyze " + source.getFile().getName());
+                        t.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }, sourceProgress);
-            log("\tEnd processing " + source.desc());
-        }
+        );
         log("[End]Analysis");
         log("Done!");
+    }
+
+    private void syncPrint(String msg) {
+        synchronized (this) {
+            System.out.println(msg);
+        }
     }
 
     private void log(String msg) {
