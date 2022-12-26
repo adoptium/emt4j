@@ -49,6 +49,7 @@ public class HtmlRender extends VelocityTemplateRender {
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
         VelocityContext context = new VelocityContext();
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
+        context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "html.title"));
         context.put("data", categorizedResultList);
         context.put("content", getContent(categorizedResultList));
         context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
