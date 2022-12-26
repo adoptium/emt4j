@@ -102,6 +102,7 @@ class JarAnalyzer extends ClassAnalyzer {
                         processClass(classFileContent, new URL(location + SEPARATOR + jarEntry.getName()), targetFilePath, consumer, toClassName(jarEntry.getName()));
                     } catch (Exception e) {
                         // we don't want an error interrupt the analysis process
+                        System.err.println("Failed to analyze " + jarEntry.getName());
                         e.printStackTrace();
                     }
                 }
