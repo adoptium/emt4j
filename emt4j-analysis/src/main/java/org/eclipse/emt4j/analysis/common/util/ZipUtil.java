@@ -18,10 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.common.util;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
@@ -35,12 +32,19 @@ public class ZipUtil {
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 Path entryPath = unzipTo.resolve(entry.getName());
+                File file = entryPath.toFile();
                 if (entry.isDirectory()) {
+                    if (file.exists()) {
+                        continue;
+                    }
                     Files.createDirectories(entryPath);
                 } else {
+                    if (file.exists()) {
+                        continue;
+                    }
                     Files.createDirectories(entryPath.getParent());
                     try (InputStream in = zipFile.getInputStream(entry)) {
-                        try (OutputStream out = new FileOutputStream(entryPath.toFile())) {
+                        try (OutputStream out = Files.newOutputStream(file.toPath())) {
                             IOUtils.copy(in, out);
                         }
                     }
