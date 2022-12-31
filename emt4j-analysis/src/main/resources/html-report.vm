@@ -44,7 +44,7 @@
 <h2>$subdata.id $subdata.desc</h2>
 #foreach( $detail in $subdata.resultDetailList)
   <h3><a name="${detail.anchorId}">${subdata.id}.${detail.detailId} ${detail.title}</a>  <a href="#top">${backToContent}</a> </h3>
-    <h4>${subdata.id}.${detail.detailId}.1 ${detail.descriptionTitle}<h4>
+    <h4>${subdata.id}.${detail.detailId}.1 ${detail.descriptionTitle}</h4>
       <p>${detail.description}</p>
     <h4>${subdata.id}.${detail.detailId}.2 ${detail.solutionTitle}</h4>
     #foreach ($solution in $detail.solution)
