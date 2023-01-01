@@ -57,9 +57,9 @@ public class HtmlRender extends VelocityTemplateRender {
         context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
         context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
 
-        Path outputPath = Paths.get(config.getOutputFile());
-        if (Files.notExists(outputPath)) {
-            Files.createDirectories(outputPath.getParent());
+        File output = new File(config.getOutputFile()).getAbsoluteFile();
+        if (!output.getParentFile().exists()) {
+            Files.createDirectories(output.getParentFile().toPath().toAbsolutePath());
         }
         try (OutputStream out = new FileOutputStream(config.getOutputFile())) {
             Template template = velocityEngine.getTemplate(getTemplate());
