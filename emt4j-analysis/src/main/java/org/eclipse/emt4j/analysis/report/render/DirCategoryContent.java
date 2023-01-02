@@ -24,6 +24,11 @@ import java.util.List;
 public class DirCategoryContent {
     private String title;
     private int id;
+
+    private int total;
+
+    private List<String> descriptions = new ArrayList<>();
+
     private List<Content> subContents = new ArrayList<>();
 
     public DirCategoryContent(String title) {
@@ -42,6 +47,11 @@ public class DirCategoryContent {
         return subContents;
     }
 
+    void addContent(Content content) {
+        subContents.add(content);
+        total += content.getTotal();
+    }
+
     public void setSubContents(List<Content> subContents) {
         this.subContents = subContents;
     }
@@ -52,5 +62,17 @@ public class DirCategoryContent {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public List<String> getDescriptions() {
+        return descriptions;
+    }
+
+    void addDescription(String desc) {
+        descriptions.add(desc);
     }
 }

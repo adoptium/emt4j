@@ -31,8 +31,6 @@ import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class HtmlRender extends VelocityTemplateRender {
@@ -51,7 +49,17 @@ public class HtmlRender extends VelocityTemplateRender {
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
         context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "html.title"));
         context.put("data", categorizedResultList);
-        context.put("content", getContent(categorizedResultList));
+        List<DirCategoryContent> content = getContent(categorizedResultList);
+        context.put("content", content);
+        int total = 0;
+        for (DirCategoryContent dcc : content) {
+            total += dcc.getTotal();
+        }
+        context.put("total",
+                    String.format(
+                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.foundInTotal"),
+                            total,
+                            total > 1 ? "s" : ""));
         context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
         context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
         context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
@@ -78,8 +86,14 @@ public class HtmlRender extends VelocityTemplateRender {
                 Content content = new Content(detail.getTitle(), detail.getAnchorId());
                 content.setPriority(detail.priority);
                 content.setTotal(detail.getContext().size());
-                dcc.getSubContents().add(content);
+                dcc.addContent(content);
             }
+            dcc.addDescription(
+                    String.format(
+                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
+                                                             "issue.found"),
+                            dcc.getTotal(),
+                            dcc.getTotal() > 1 ? "s" : ""));
             dccList.add(dcc);
         }
         return dccList;
@@ -179,6 +193,9 @@ public class HtmlRender extends VelocityTemplateRender {
 
     @Override
     String getTemplate() {
+        if (Boolean.getBoolean("useOldTemplate")) {
+            return "html-report-old.vm";
+        }
         return "html-report.vm";
     }
 }
