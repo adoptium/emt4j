@@ -19,7 +19,6 @@
 package org.eclipse.emt4j.common.rule;
 
 import org.eclipse.emt4j.common.RuleImpl;
-import org.eclipse.emt4j.common.util.CollectionUtil;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -45,11 +44,8 @@ public class RuleSelector {
 
             if (annotation instanceof RuleImpl) {
                 RuleImpl ruleImplAnnotation = (RuleImpl) annotation;
-                if (typePriorityMap.containsKey(ruleImplAnnotation.type())) {
-                    typePriorityMap.get(ruleImplAnnotation.type()).put(ruleImplAnnotation.priority(), c);
-                } else {
-                    typePriorityMap.put(ruleImplAnnotation.type(), CollectionUtil.singleMap(ruleImplAnnotation.priority(), c));
-                }
+                typePriorityMap.computeIfAbsent(ruleImplAnnotation.type(), i -> new HashMap<>())
+                               .put(ruleImplAnnotation.priority(), c);
             }
         }
 

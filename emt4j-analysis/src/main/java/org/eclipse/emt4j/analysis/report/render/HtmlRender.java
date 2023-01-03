@@ -165,13 +165,7 @@ public class HtmlRender extends VelocityTemplateRender {
         resultMap.forEach((f, v) -> {
             v.forEach((c) -> {
                 String categoryDesc = getCategoryDesc(c);
-                if (dirCategoryMap.containsKey(categoryDesc)) {
-                    dirCategoryMap.get(categoryDesc).add(c);
-                } else {
-                    List<CheckResultContext> list = new ArrayList<>();
-                    list.add(c);
-                    dirCategoryMap.put(categoryDesc, list);
-                }
+                dirCategoryMap.computeIfAbsent(categoryDesc, i -> new ArrayList<>()).add(c);
             });
         });
         return dirCategoryMap;

@@ -23,9 +23,8 @@ import org.eclipse.emt4j.agent.common.InstrumentCodeCallback;
 import org.eclipse.emt4j.agent.common.jdkdependent.CallerInfo;
 import org.eclipse.emt4j.agent.common.methodvisitor.BaseEnterCallback;
 import org.eclipse.emt4j.agent.common.Constant;
-import org.eclipse.emt4j.common.util.CollectionUtil;
 
-
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.eclipse.emt4j.agent.common.DependencyBuilder.buildMethod;
@@ -37,7 +36,7 @@ public class GetDeclareFieldCallback extends BaseEnterCallback {
         if (callerClass.isPresent()) {
             Optional<CallerInfo> callerInfo = AgentFacade.getCallerProvider().getCallerInfo(callerClass.get(), Constant.CALLEE_INDEX);
             if (callerInfo.isPresent()) {
-                AgentFacade.record(buildMethod(callerInfo.get(), callerInfo.get().getCalleeClass(), callerInfo.get().getCalleeMethod(), CollectionUtil.singleMap("thisObject", thisObject)));
+                AgentFacade.record(buildMethod(callerInfo.get(), callerInfo.get().getCalleeClass(), callerInfo.get().getCalleeMethod(), Collections.singletonMap("thisObject", thisObject)));
             }
         }
     }

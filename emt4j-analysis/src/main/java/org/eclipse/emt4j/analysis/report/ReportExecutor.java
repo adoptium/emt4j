@@ -188,13 +188,7 @@ public class ReportExecutor {
             }
             String feature = record.getFeature();
             CheckResultContext checkResultContext = new CheckResultContext(record.getCheckResult(), record.getDependency());
-            if (resultMap.containsKey(feature)) {
-                resultMap.get(feature).add(checkResultContext);
-            } else {
-                List<CheckResultContext> resultList = new ArrayList<>();
-                resultList.add(checkResultContext);
-                resultMap.put(feature, resultList);
-            }
+            resultMap.computeIfAbsent(feature, i -> new ArrayList<>()).add(checkResultContext);
         }
         return resultMap;
     }
