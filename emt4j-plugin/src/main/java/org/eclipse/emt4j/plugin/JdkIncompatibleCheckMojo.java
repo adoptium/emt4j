@@ -111,6 +111,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     @Parameter
     private String externalToolHome;
 
+    @Parameter
+    private String targetJDKHome;
+
     /**
      * Specify a comma separated list of external tools in the form of maven coordinate. The specified external tools
      * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
@@ -171,7 +174,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
             Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
             if (externalToolHome == null || externalToolHome.length() == 0) {
                 throw new MojoFailureException("There is no available external tool home set." +
-                                                       " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
+                        " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
             }
             for (String externalTool : externalTools) {
 
@@ -215,7 +218,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
                             classifier = tokens[4];
                         }
                         Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version)
-                                                         .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
+                                .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
                         if (Files.exists(artifactPath)) {
                             if (type.equals("jar")) {
                                 Files.copy(artifactPath, toolPath.resolve(artifactPath.getFileName()));
@@ -265,9 +268,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     private void prepare() throws IOException {
         if (configFile.exists()) {
             Files.walk(configFile.toPath())
-                 .sorted(Comparator.reverseOrder())
-                 .map(Path::toFile)
-                 .forEach(File::delete);
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
         }
         configFile.mkdir();
         modulesFile.createNewFile();
@@ -367,6 +370,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         this.outputFormat = selectValue(this.outputFormat, "outputFormat");
         this.externalToolHome = selectValue(this.externalToolHome, "externalToolHome");
         this.externalTools = selectValue(this.externalTools, "externalTools");
+        this.targetJDKHome = selectValue(this.targetJDKHome, "targetJDKHome");
     }
 
     private int selectValue(int value, String propertyKey) {
@@ -402,6 +406,9 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         param(args, "-p", format);
         param(args, "-o", output.getAbsolutePath());
         param(args, "-e", externalToolHome);
+        if (targetJDKHome != null) {
+            param(args, "-j", targetJDKHome);
+        }
         if ("true".equals(verbose)) {
             args.add("-v");
         }
