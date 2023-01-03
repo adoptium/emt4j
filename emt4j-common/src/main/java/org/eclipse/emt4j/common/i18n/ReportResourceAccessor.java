@@ -95,7 +95,7 @@ public class ReportResourceAccessor {
     }
 
     private ResourceBundle selectResourceBundle(String baseName, String i18nBase) {
-        return ResourceBundle.getBundle(i18nBase + baseName, locale);
+        return ResourceBundle.getBundle(i18nBase + baseName, locale, ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT));
     }
 
     private ResourceBundle getResourceBundleLazily(String resultCode, String subResultCode, String i18nBase) {
