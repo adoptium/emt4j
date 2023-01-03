@@ -32,6 +32,10 @@ public abstract class DependencySource {
 
     private final File file;
 
+    private String name;
+
+    private boolean isDep;
+
     public DependencySource(File file) {
         this.file = file;
     }
@@ -56,5 +60,21 @@ public abstract class DependencySource {
      */
     public boolean needAnalysis() {
         return true;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isDep() {
+        return isDep;
+    }
+
+    public void setDep(boolean dep) {
+        isDep = dep;
     }
 }

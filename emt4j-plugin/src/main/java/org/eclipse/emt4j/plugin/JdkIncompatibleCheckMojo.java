@@ -150,7 +150,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
             if (project.equals(projects.get(0))) {
                 prepare();
             } else {
-                load(true);
+                load();
             }
 
             ProjectBuildingRequest buildingRequest =
@@ -162,7 +162,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
             if (!last) {
                 return;
             }
-            load(false);
+            load();
         } catch (IOException e) {
             throw new MojoExecutionException("IOException", e);
         } catch (DependencyGraphBuilderException e) {
@@ -252,11 +252,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
 
     private final List<String> modules = new ArrayList<>();
 
-    private final List<String> moduleClasses = new ArrayList<>();
-
     private final List<String> dependencies = new ArrayList<>();
-
-    private final List<String> dependenciesPaths = new ArrayList<>();
 
     private void initFiles() {
         configFile = new File(session.getExecutionRootDirectory(), ".emt4j");
@@ -277,28 +273,20 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         dependenciesFile.createNewFile();
     }
 
-    private void load(boolean onlyKey) throws IOException {
+    private void load() throws IOException {
         modules.clear();
-        moduleClasses.clear();
         dependencies.clear();
-        dependenciesPaths.clear();
         BufferedReader br = Files.newBufferedReader(modulesFile.toPath());
         String str;
         while ((str = br.readLine()) != null) {
             String[] pair = str.split("=");
             modules.add(pair[0]);
-            if (!onlyKey) {
-                moduleClasses.add(pair[1]);
-            }
         }
         br.close();
         br = Files.newBufferedReader(dependenciesFile.toPath());
         while ((str = br.readLine()) != null) {
             String[] pair = str.split("=");
             dependencies.add(pair[0]);
-            if (!onlyKey) {
-                dependenciesPaths.add(pair[1]);
-            }
         }
         br.close();
     }
@@ -415,18 +403,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         if (priority != null) {
             param(args, "-priority", priority);
         }
-        args.addAll(moduleClasses);
-        for (String path : dependenciesPaths) {
-            if (path.endsWith(".pom")) {
-                getLog().info("Skip pom: " + path);
-                continue;
-            }
-            if (new File(path).exists()) {
-                args.add(path);
-            } else {
-                getLog().warn(path + " doesn't exist");
-            }
-        }
+        args.add(configFile.getAbsolutePath());
         return args.toArray(new String[0]);
     }
 

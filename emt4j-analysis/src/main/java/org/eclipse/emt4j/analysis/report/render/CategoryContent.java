@@ -21,17 +21,17 @@ package org.eclipse.emt4j.analysis.report.render;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirCategoryContent {
+public class CategoryContent {
     private String title;
     private int id;
 
     private int total;
 
-    private List<String> descriptions = new ArrayList<>();
+    private final List<String> descriptions = new ArrayList<>();
 
     private List<Content> subContents = new ArrayList<>();
 
-    public DirCategoryContent(String title) {
+    public CategoryContent(String title) {
         this.title = title;
     }
 

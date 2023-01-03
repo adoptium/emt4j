@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,15 +81,10 @@ public class AnalysisMain {
         }));
         optionProcessor.addOption(Option.buildParamWithValueOption("-e", (v) -> new File(v).exists()
                 && new File(v).isDirectory(), (v) -> reportConfig.setExternalToolRoot(v)));
-        optionProcessor.addOption(Option.buildDefaultOption((v) -> getSource(v).isPresent(),
+        optionProcessor.addOption(Option.buildDefaultOption(
+                AnalysisMain::isSource,
                 (v) -> {
-                    DependencySource ds = getSource(v).get();
-                    if (ds.needAnalysis()) {
-                        analysisExecutor.add(ds);
-                        analysisTargetClassPaths.add(ds.getFile().getAbsolutePath());
-                    } else {
-                        reportConfig.getInputFiles().add(ds.getFile());
-                    }
+                    processSource(reportConfig, analysisExecutor, v);
                 }));
         optionProcessor.setShowUsage((s) -> printUsage(s));
         if (checkConfig.getFromVersion() >= checkConfig.getToVersion()) {
@@ -115,6 +111,61 @@ public class AnalysisMain {
         }
 
         return reportConfig;
+    }
+
+    private static void processSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
+        File file = new File(v);
+        if (file.isDirectory() && file.getName().equals(".emt4j")) {
+            try {
+                BufferedReader br = Files.newBufferedReader(new File(file, "modules").toPath());
+                String str;
+                while ((str = br.readLine()) != null) {
+                    String[] pair = str.split("=");
+                    DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, pair[1]);
+                    dependencySource.setName(pair[0]);
+                }
+                br.close();
+
+                br = Files.newBufferedReader(new File(file, "dependencies").toPath());
+                while ((str = br.readLine()) != null) {
+                    String[] pair = str.split("=");
+                    if (pair[1].endsWith(".pom")) {
+                        continue;
+                    }
+                    DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, pair[1]);
+                    dependencySource.setName(pair[0]);
+                    dependencySource.setDep(true);
+                }
+                br.close();
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+        } else {
+            doProcessSource(reportConfig, analysisExecutor, v);
+        }
+    }
+
+    private static DependencySource doProcessSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
+        DependencySource ds = getSource(v).get();
+        if (ds.needAnalysis()) {
+            analysisExecutor.add(ds);
+            analysisTargetClassPaths.add(ds.getFile().getAbsolutePath());
+        } else {
+            reportConfig.getInputFiles().add(ds.getFile());
+        }
+        return ds;
+    }
+
+    private static boolean isSource(String file) {
+        File f = new File(file);
+        if (!f.exists()) {
+            System.err.println(file + " not exist!");
+            return false;
+        }
+        if (f.isFile()) {
+            return file.endsWith(".class") || file.endsWith(".cfg") || file.endsWith(".jar") || file.endsWith(".dat");
+        }
+        return f.isDirectory();
     }
 
     private static Optional<DependencySource> getSource(String file) {

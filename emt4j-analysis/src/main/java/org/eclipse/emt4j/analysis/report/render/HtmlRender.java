@@ -24,6 +24,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
@@ -49,17 +50,19 @@ public class HtmlRender extends VelocityTemplateRender {
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
         context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "html.title"));
         context.put("data", categorizedResultList);
-        List<DirCategoryContent> content = getContent(categorizedResultList);
+        List<CategoryContent> content = getContent(categorizedResultList);
         context.put("content", content);
-        int total = 0;
-        for (DirCategoryContent dcc : content) {
-            total += dcc.getTotal();
+        if (!useOldTemplate()) {
+            int total = 0;
+            for (CategoryContent dcc : content) {
+                total += dcc.getTotal();
+            }
+            context.put("total",
+                        String.format(
+                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.foundInTotal"),
+                                total,
+                                total > 1 ? "s" : ""));
         }
-        context.put("total",
-                    String.format(
-                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.foundInTotal"),
-                            total,
-                            total > 1 ? "s" : ""));
         context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
         context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
         context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
@@ -77,10 +80,10 @@ public class HtmlRender extends VelocityTemplateRender {
         }
     }
 
-    private List<DirCategoryContent> getContent(List<CategorizedResult> categorizedResultList) {
-        List<DirCategoryContent> dccList = new ArrayList<>();
+    private List<CategoryContent> getContent(List<CategorizedResult> categorizedResultList) {
+        List<CategoryContent> dccList = new ArrayList<>();
         for (CategorizedResult cr : categorizedResultList) {
-            DirCategoryContent dcc = new DirCategoryContent(cr.desc);
+            CategoryContent dcc = new CategoryContent(cr.desc);
             dcc.setId(cr.getId());
             for (ResultDetail detail : cr.getResultDetailList()) {
                 Content content = new Content(detail.getTitle(), detail.getAnchorId());
@@ -88,12 +91,14 @@ public class HtmlRender extends VelocityTemplateRender {
                 content.setTotal(detail.getContext().size());
                 dcc.addContent(content);
             }
-            dcc.addDescription(
-                    String.format(
-                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
-                                                             "issue.found"),
-                            dcc.getTotal(),
-                            dcc.getTotal() > 1 ? "s" : ""));
+            if (!useOldTemplate()) {
+                dcc.addDescription(
+                        String.format(
+                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
+                                                                 "issue.found"),
+                                dcc.getTotal(),
+                                dcc.getTotal() > 1 ? "s" : ""));
+            }
             dccList.add(dcc);
         }
         return dccList;
@@ -101,20 +106,20 @@ public class HtmlRender extends VelocityTemplateRender {
 
     private List<CategorizedResult> toCategorizedResult(Map<String, List<CheckResultContext>> resultMap) {
         List<CategorizedResult> list = new ArrayList<>();
-        Map<String, List<CheckResultContext>> dirCategoryMap = classifyByDir(resultMap);
-        if (dirCategoryMap.isEmpty()) {
+        Collection<CheckResultContextHolder> holders = useOldTemplate() ? classifyByDir(resultMap) : classifyByName(resultMap);
+        if (holders.isEmpty()) {
             return list;
         }
-        dirCategoryMap.forEach((d, l) -> {
+        holders.forEach(holder -> {
             Map<String, List<CheckResultContext>> tmp = new HashMap<>();
-            tmp.put(Feature.DEFAULT.getId(), l);
+            tmp.put(Feature.DEFAULT.getId(), holder.contexts);
             CategorizedCheckResult categorizedCheckResult = categorize(tmp);
             if (!categorizedCheckResult.noResult()) {
                 for (String feature : categorizedCheckResult.getFeatures()) {
                     int detailId = 0;
                     CategorizedResult cr = new CategorizedResult();
-                    cr.desc = d;
-                    cr.anchorId = "cr-anchor" + d.hashCode();
+                    cr.desc = holder.name;
+                    cr.anchorId = "cr-anchor" + holder.name.hashCode();
                     String i18nBase = ConfRuleFacade.getFeatureI18nBase(feature);
                     for (TreeMap<String, TreeMap<String, List<CheckResultContext>>> map : categorizedCheckResult.getResult().get(feature)) {
                         Iterator<Map.Entry<String, TreeMap<String, List<CheckResultContext>>>> iter = map.entrySet().iterator();
@@ -157,18 +162,48 @@ public class HtmlRender extends VelocityTemplateRender {
         return list;
     }
 
-    private Map<String, List<CheckResultContext>> classifyByDir(Map<String, List<CheckResultContext>> resultMap) {
-        if (null == resultMap || resultMap.isEmpty()) {
-            return Collections.emptyMap();
+    static class CheckResultContextHolder {
+        String name;
+
+        List<CheckResultContext> contexts = new ArrayList<>();
+
+        public CheckResultContextHolder(String name) {
+            this.name = name;
         }
-        Map<String, List<CheckResultContext>> dirCategoryMap = new HashMap<>();
-        resultMap.forEach((f, v) -> {
-            v.forEach((c) -> {
-                String categoryDesc = getCategoryDesc(c);
-                dirCategoryMap.computeIfAbsent(categoryDesc, i -> new ArrayList<>()).add(c);
-            });
-        });
-        return dirCategoryMap;
+    }
+
+    private Collection<CheckResultContextHolder> classifyByDir(Map<String, List<CheckResultContext>> resultMap) {
+        if (null == resultMap || resultMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, CheckResultContextHolder> dirCategoryMap = new HashMap<>();
+        resultMap.forEach((f, v) -> v.forEach((c) -> {
+            String categoryDesc = getCategoryDesc(c);
+            dirCategoryMap.computeIfAbsent(categoryDesc, CheckResultContextHolder::new).contexts.add(c);
+        }));
+        return dirCategoryMap.values();
+    }
+
+    private Collection<CheckResultContextHolder> classifyByName(Map<String, List<CheckResultContext>> resultMap) {
+        if (null == resultMap || resultMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, CheckResultContextHolder> categoryMap = new HashMap<>();
+        CheckResultContextHolder dh = new CheckResultContextHolder(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
+        resultMap.forEach((f, v) -> v.forEach((c) -> {
+            Dependency dependency = c.getDependency();
+            if (c.getDependency().isDeps()) {
+                dh.contexts.add(c);
+            } else if (dependency.getName() != null){
+                categoryMap.computeIfAbsent(dependency.getName(), CheckResultContextHolder::new).contexts.add(c);
+            }
+        }));
+        if (dh.contexts.size() > 0) {
+            ArrayList<CheckResultContextHolder> list = new ArrayList<>(categoryMap.values());
+            list.add(dh);
+            return list;
+        }
+        return categoryMap.values();
     }
 
     private String getCategoryDesc(CheckResultContext c) {
@@ -187,9 +222,14 @@ public class HtmlRender extends VelocityTemplateRender {
 
     @Override
     String getTemplate() {
-        if (Boolean.getBoolean("useOldTemplate")) {
+        if (useOldTemplate()) {
             return "html-report-old.vm";
         }
         return "html-report.vm";
     }
+
+    private static boolean useOldTemplate() {
+        return Boolean.getBoolean("useOldTemplate");
+    }
+
 }

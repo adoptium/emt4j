@@ -41,4 +41,11 @@ public interface AnalysisOutputConsumer {
      * called when a new incompatible problem found
      */
     void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule) throws IOException;
+
+
+    default void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule, String name, boolean isDep) throws IOException {
+        dependency.setName(name);
+        dependency.setDeps(isDep);
+        onNewRecord(dependency, checkResult, rule);
+    }
 }

@@ -41,6 +41,10 @@ public class Dependency implements Serializable {
     private transient byte[] currClassBytecode;
     private transient ClassSymbol classSymbol;
 
+    private String name;
+
+    private boolean isDeps;
+
     public Dependency(URL location, DependTarget target, StackTraceElement[] stacktrace, String targetFilePath) {
         this.target = target;
         this.stacktrace = stacktrace;
@@ -144,6 +148,22 @@ public class Dependency implements Serializable {
 
     public void setTargetFilePath(String targetFilePath) {
         this.targetFilePath = targetFilePath;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isDeps() {
+        return isDeps;
+    }
+
+    public void setDeps(boolean deps) {
+        isDeps = deps;
     }
 
     @Override

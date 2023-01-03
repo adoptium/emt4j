@@ -102,17 +102,17 @@ public class AnalysisExecutor {
                                         ReportCheckResult checkResult = rule.execute(d);
                                         if (!checkResult.isPass()) {
                                             if (checkResult.getPropagated().isEmpty()) {
-                                                analysisOutputConsumer.onNewRecord(d, checkResult, rule);
+                                                analysisOutputConsumer.onNewRecord(d, checkResult, rule, source.getName(), source.isDep());
                                             } else {
                                                 for (Dependency newDependency : checkResult.getPropagated()) {
-                                                    analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule);
+                                                    analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule, source.getName(), source.isDep());
                                                 }
                                             }
                                         }
                                     }
                                 }
                                 if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
-                                    analysisOutputConsumer.onNewRecord(d, null, null);
+                                    analysisOutputConsumer.onNewRecord(d, null, null, source.getName(), source.isDep());
                                 }
                             } catch (Throwable t) {
                                 System.err.println("Failed to analyze " + source.getFile().getName());
