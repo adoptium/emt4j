@@ -155,7 +155,9 @@ public class HtmlRender extends VelocityTemplateRender {
                 }
             }
         });
-        list.sort(Comparator.comparing(CategorizedResult::getDesc));
+        if (useOldTemplate()) {
+            list.sort(Comparator.comparing(CategorizedResult::getDesc));
+        }
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setId(i + 1);
         }
