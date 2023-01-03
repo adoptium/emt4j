@@ -35,6 +35,7 @@
   .ceh { font-size: 16px; word-break: break-all }
   .ced { font-size: 14px; color: rgba(0,0,0,.45); }
   .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tag { display: inline-block; background-color: #fef0f0; border: 1px solid #fde2e2; border-radius: 4px; color: #f56c6c; padding: 0 10px; font-size: 12px; line-height: 26px; height: 28px; box-sizing: border-box }
   ul { padding-left: 2em; margin-top: 0; margin-bottom: 16px }
   h1, h2, h3, li { word-break: break-all }
 </style>
@@ -65,16 +66,18 @@
     <div id="me$foreach.index" style="padding: 5px 25px; display: #if ($foreach.index == 0) block #else none #end">
       <h1 style="margin-top: 0; padding-bottom: 7px; border-bottom: 1px solid hsla(210, 18%, 87%, 1);">$subdata.desc</h1>
       #foreach( $detail in $subdata.resultDetailList)
-      <h2>${detail.detailId}. ${detail.title} [${detail.priority}]</h2>
+      <h2>${detail.detailId}. ${detail.title}</h2>
       <div style="padding: 0 20px; position: relative;">
         <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 6px; background: #cfd1d0"></div>
         <h3>${detail.descriptionTitle}</h3>
+        <span class="tag">${priority}: ${detail.priority}</span>
+        <span class="tag" style="margin-left: 10px">${count}: ${detail.context.size()}</span>
         <p>${detail.description}</p>
         <h3>${detail.solutionTitle}</h3>
         #foreach ($solution in $detail.solution)
         <p>$solution</p>
         #end
-        <h3>${detail.contextTitle} [$detail.context.size()]</h3>
+        <h3>${detail.contextTitle}</h3>
         #foreach ($context in $detail.context)
         <ul>
         #foreach ($contextDesc in $context.contextDesc)

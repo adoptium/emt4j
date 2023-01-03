@@ -52,6 +52,10 @@ public class HtmlRender extends VelocityTemplateRender {
         context.put("data", categorizedResultList);
         List<CategoryContent> content = getContent(categorizedResultList);
         context.put("content", content);
+        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
+        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
+        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
+        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
         if (!useOldTemplate()) {
             int total = 0;
             for (CategoryContent dcc : content) {
@@ -62,11 +66,10 @@ public class HtmlRender extends VelocityTemplateRender {
                                 reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.foundInTotal"),
                                 total,
                                 total > 1 ? "s" : ""));
+
+            context.put("priority", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.priority"));
+            context.put("count", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.count"));
         }
-        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
-        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
-        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
-        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
 
         File output = new File(config.getOutputFile()).getAbsoluteFile();
         if (!output.getParentFile().exists()) {
