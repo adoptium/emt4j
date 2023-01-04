@@ -131,9 +131,13 @@ public class AnalysisMain {
                 String str;
                 while ((str = br.readLine()) != null) {
                     String[] pair = str.split("=");
-                    DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, pair[1]);
-                    if (dependencySource != null) {
-                        dependencySource.setInformation(buildSourceInformation(pair[0], false));
+                    String[] paths = pair[1].split(File.pathSeparator);
+                    SourceInformation info = buildSourceInformation(pair[0], false);
+                    for (String path : paths) {
+                        DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, path);
+                        if (dependencySource != null) {
+                            dependencySource.setInformation(info);
+                        }
                     }
                 }
                 br.close();

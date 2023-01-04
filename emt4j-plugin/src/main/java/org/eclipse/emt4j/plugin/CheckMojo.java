@@ -24,11 +24,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
@@ -60,11 +56,11 @@ import java.util.List;
  * If there is a problem, it will print a warning message.
  */
 @SuppressWarnings("unused")
-@Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
-@Execute(phase = LifecyclePhase.PROCESS_CLASSES)
-public class JdkIncompatibleCheckMojo extends AbstractMojo {
+@Mojo(name = "check", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
+@Execute(phase = LifecyclePhase.TEST_COMPILE)
+public class CheckMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
 
     @Parameter(defaultValue = "${session}", required = true, readonly = true)
@@ -117,7 +113,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
     /**
      * Specify a comma separated list of external tools in the form of maven coordinate. The specified external tools
      * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
-     * external tool working home specified by {@link JdkIncompatibleCheckMojo#externalToolHome}.
+     * external tool working home specified by {@link CheckMojo#externalToolHome}.
      * The external tool can be either jar or zip. Assume the external tool home is {@code EXT_HOME}. Specified external
      * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
      * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
@@ -126,7 +122,7 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
      * In summary, there are two constrains for this options:
      * <ol>
      *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
-     *     <li>{@link JdkIncompatibleCheckMojo#externalToolHome} must be set as well.</li>
+     *     <li>{@link CheckMojo#externalToolHome} must be set as well.</li>
      * </ol>
      */
     @Parameter
@@ -301,9 +297,21 @@ public class JdkIncompatibleCheckMojo extends AbstractMojo {
         if (modules.contains(key)) {
             return;
         }
-        if (Paths.get(projectBuildDir, "classes").toFile().exists()) {
+        StringBuilder outputs = new StringBuilder();
+        String outputDirectory = project.getBuild().getOutputDirectory();
+        if (new File(outputDirectory).exists()) {
+            outputs.append(outputDirectory);
+        }
+        String testOutputDirectory = project.getBuild().getTestOutputDirectory();
+        if (new File(testOutputDirectory).exists()) {
+            if (outputs.length()> 0) {
+                outputs.append(File.pathSeparatorChar);
+            }
+            outputs.append(testOutputDirectory);
+        }
+        if (outputs.length() > 0) {
             try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(modulesFile.toPath(), StandardOpenOption.APPEND)))) {
-                bw.write(key + "=" + new File(projectBuildDir, "classes").getAbsolutePath());
+                bw.write(key + "=" + outputs);
                 bw.newLine();
             }
         }
