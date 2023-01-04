@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,8 +20,6 @@ package org.eclipse.emt4j.plugin;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
@@ -36,11 +34,7 @@ import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
 import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,56 +52,15 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Mojo(name = "check", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
-public class CheckMojo extends AbstractMojo {
+public class CheckMojo extends BaseMojo {
 
-    @Parameter(defaultValue = "${project}", required = true, readonly = true)
-    private MavenProject project;
+    @Component(hint = "default")
+    private DependencyGraphBuilder dependencyGraphBuilder;
 
-    @Parameter(defaultValue = "${session}", required = true, readonly = true)
-    private MavenSession session;
-    /**
-     * Define files that need to exclude
-     */
-    @Parameter
-    private List<String> excludes;
-
-    /**
-     * Define files that need to include
-     */
-    @Parameter
-    private List<String> includes;
-
-    /**
-     * Define the from JDK version, now support: 8 and 11
-     */
-    @Parameter
-    private int fromVersion;
-
-    /**
-     * Define the target JDK version, now support 11 and 17
-     */
-    @Parameter
-    private int toVersion;
-
-    @Parameter
-    private String priority;
-
-    @Parameter(defaultValue = "${project.build.directory}")
-    private String projectBuildDir;
-
-    @Parameter
-    private String verbose;
-
-    @Parameter
-    private String outputFormat;
-
-    @Parameter
-    private String outputFile;
-
-    @Parameter
+    @Parameter(property = "externalToolHome")
     private String externalToolHome;
 
-    @Parameter
+    @Parameter(property = "targetJDKHome")
     private String targetJDKHome;
 
     /**
@@ -128,12 +81,12 @@ public class CheckMojo extends AbstractMojo {
     @Parameter
     private List<String> externalTools;
 
-    @Component(hint = "default")
-    private DependencyGraphBuilder dependencyGraphBuilder;
-
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        selectParameters();
+        String externalToolsProperty = System.getProperty("externalTools");
+        if (externalToolsProperty != null && !externalToolsProperty.isEmpty()) {
+            this.externalTools = Arrays.asList(externalToolsProperty.split(","));
+        }
 
         if (fromVersion >= toVersion) {
             throw new JdkMigrationException("fromVersion should less than toVersion");
@@ -356,45 +309,6 @@ public class CheckMojo extends AbstractMojo {
         return new File(dir, outputFile);
     }
 
-    private void selectParameters() {
-        this.verbose = selectValue(this.verbose, "verbose");
-        this.fromVersion = selectValue(this.fromVersion, "fromVersion");
-        this.toVersion = selectValue(this.toVersion, "toVersion");
-        this.priority = selectValue(this.priority, "priority");
-        this.outputFile = selectValue(this.outputFile, "outputFile");
-        this.projectBuildDir = selectValue(this.projectBuildDir, "projectBuildDir");
-        this.outputFormat = selectValue(this.outputFormat, "outputFormat");
-        this.externalToolHome = selectValue(this.externalToolHome, "externalToolHome");
-        this.externalTools = selectValue(this.externalTools, "externalTools");
-        this.targetJDKHome = selectValue(this.targetJDKHome, "targetJDKHome");
-    }
-
-    private int selectValue(int value, String propertyKey) {
-        String propertyValue = System.getProperty(propertyKey);
-        return isEmpty(propertyValue) ? value : Integer.parseInt(propertyValue);
-    }
-
-    private String selectValue(String value, String propertyKey) {
-        String propertyValue = System.getProperty(propertyKey);
-        return isEmpty(propertyValue) ? value : propertyValue;
-    }
-
-    private List<String> selectValue(List<String> value, String propertyKey) {
-        String propertyValue = System.getProperty(propertyKey);
-        if (isEmpty(propertyValue)) {
-            return value;
-        } else {
-            String[] vals = propertyValue.split(",");
-            List<String> ret = new ArrayList<>(vals.length);
-            ret.addAll(Arrays.asList(vals));
-            return ret;
-        }
-    }
-
-    private boolean isEmpty(String value) {
-        return null == value || "".equals(value);
-    }
-
     private String[] buildArgs(File output, String format) {
         List<String> args = new ArrayList<>();
         param(args, "-f", String.valueOf(fromVersion));
@@ -405,7 +319,7 @@ public class CheckMojo extends AbstractMojo {
         if (targetJDKHome != null) {
             param(args, "-j", targetJDKHome);
         }
-        if ("true".equals(verbose)) {
+        if (verbose) {
             args.add("-v");
         }
         if (priority != null) {
