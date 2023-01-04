@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -194,44 +195,8 @@ public class CheckMojo extends BaseCheckMojo {
         }
     }
 
-    private File resolveOutputFile() throws MojoExecutionException {
-        if (outputFile != null) {
-            Path path = Paths.get(outputFile);
-            if (path.isAbsolute()) {
-                return new File(outputFile);
-            }
-        }
-        File dir = new File(session.getExecutionRootDirectory());
-        if (outputFile == null) {
-            outputFile = "report." + (outputFormat == null ? "html" : outputFormat);
-        }
-        return new File(dir, outputFile);
-    }
-
-    private String[] buildArgs(File output, String format) {
-        List<String> args = new ArrayList<>();
-        param(args, "-f", String.valueOf(fromVersion));
-        param(args, "-t", String.valueOf(toVersion));
-        param(args, "-p", format);
-        param(args, "-o", output.getAbsolutePath());
-        param(args, "-e", externalToolHome);
-        if (targetJDKHome != null) {
-            param(args, "-j", targetJDKHome);
-        }
-        if (verbose) {
-            args.add("-v");
-        }
-        if (priority != null) {
-            param(args, "-priority", priority);
-        }
-        args.add(configFile.getAbsolutePath());
-        return args.toArray(new String[0]);
-    }
-
-    private void param(List<String> args, String k, String v) {
-        if (v != null && !"".equals(v)) {
-            args.add(k);
-            args.add(v);
-        }
+    @Override
+    protected List<String> getTargets() {
+        return Collections.singletonList(configFile.getAbsolutePath());
     }
 }

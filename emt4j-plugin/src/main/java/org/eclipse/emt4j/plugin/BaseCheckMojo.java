@@ -131,4 +131,47 @@ abstract class BaseCheckMojo extends BaseMojo {
             }
         }
     }
+
+    protected File resolveOutputFile() throws MojoExecutionException {
+        if (outputFile != null) {
+            Path path = Paths.get(outputFile);
+            if (path.isAbsolute()) {
+                return new File(outputFile);
+            }
+        }
+        File dir = new File(session.getExecutionRootDirectory());
+        if (outputFile == null) {
+            outputFile = "report." + (outputFormat == null ? "html" : outputFormat);
+        }
+        return new File(dir, outputFile);
+    }
+
+    protected String[] buildArgs(File output, String format) {
+        List<String> args = new ArrayList<>();
+        param(args, "-f", String.valueOf(fromVersion));
+        param(args, "-t", String.valueOf(toVersion));
+        param(args, "-p", format);
+        param(args, "-o", output.getAbsolutePath());
+        param(args, "-e", externalToolHome);
+        if (targetJDKHome != null) {
+            param(args, "-j", targetJDKHome);
+        }
+        if (verbose) {
+            args.add("-v");
+        }
+        if (priority != null) {
+            param(args, "-priority", priority);
+        }
+        args.addAll(getTargets());
+        return args.toArray(new String[0]);
+    }
+
+    protected abstract List<String> getTargets();
+
+    private void param(List<String> args, String k, String v) {
+        if (v != null && !"".equals(v)) {
+            args.add(k);
+            args.add(v);
+        }
+    }
 }
