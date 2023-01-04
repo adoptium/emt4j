@@ -30,7 +30,7 @@ import java.util.List;
 public class DirectCheckMojo extends BaseCheckMojo {
 
     /**
-     * Specify the targets seperated by ',' to check
+     * Specify the targets separated by ',' to check
      */
     @Parameter(property = "targets", required = true)
     private String targets;
