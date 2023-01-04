@@ -21,7 +21,7 @@ package org.eclipse.emt4j.analysis.report.render;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryContent {
+public class CategorizedContent {
     private String title;
     private int id;
 
@@ -31,7 +31,7 @@ public class CategoryContent {
 
     private List<Content> subContents = new ArrayList<>();
 
-    public CategoryContent(String title) {
+    public CategorizedContent(String title) {
         this.title = title;
     }
 
@@ -47,7 +47,7 @@ public class CategoryContent {
         return subContents;
     }
 
-    void addContent(Content content) {
+    void addSubContent(Content content) {
         subContents.add(content);
         total += content.getTotal();
     }

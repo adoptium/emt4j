@@ -50,16 +50,16 @@ public class HtmlRender extends VelocityTemplateRender {
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
         context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "html.title"));
         context.put("data", categorizedResultList);
-        List<CategoryContent> content = getContent(categorizedResultList);
-        context.put("content", content);
+        List<CategorizedContent> ccs = getCategorizedContents(categorizedResultList);
+        context.put("content", ccs);
         context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
         context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
         context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
         context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
         if (!useOldTemplate()) {
             int total = 0;
-            for (CategoryContent dcc : content) {
-                total += dcc.getTotal();
+            for (CategorizedContent cc : ccs) {
+                total += cc.getTotal();
             }
             context.put("total",
                         String.format(
@@ -83,28 +83,28 @@ public class HtmlRender extends VelocityTemplateRender {
         }
     }
 
-    private List<CategoryContent> getContent(List<CategorizedResult> categorizedResultList) {
-        List<CategoryContent> dccList = new ArrayList<>();
+    private List<CategorizedContent> getCategorizedContents(List<CategorizedResult> categorizedResultList) {
+        List<CategorizedContent> ccs = new ArrayList<>();
         for (CategorizedResult cr : categorizedResultList) {
-            CategoryContent dcc = new CategoryContent(cr.desc);
-            dcc.setId(cr.getId());
+            CategorizedContent cc = new CategorizedContent(cr.desc);
+            cc.setId(cr.getId());
             for (ResultDetail detail : cr.getResultDetailList()) {
                 Content content = new Content(detail.getTitle(), detail.getAnchorId());
                 content.setPriority(detail.priority);
                 content.setTotal(detail.getContext().size());
-                dcc.addContent(content);
+                cc.addSubContent(content);
             }
             if (!useOldTemplate()) {
-                dcc.addDescription(
+                cc.addDescription(
                         String.format(
                                 reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
                                                                  "issue.found"),
-                                dcc.getTotal(),
-                                dcc.getTotal() > 1 ? "s" : ""));
+                                cc.getTotal(),
+                                cc.getTotal() > 1 ? "s" : ""));
             }
-            dccList.add(dcc);
+            ccs.add(cc);
         }
-        return dccList;
+        return ccs;
     }
 
     private List<CategorizedResult> toCategorizedResult(Map<String, List<CheckResultContext>> resultMap) {
