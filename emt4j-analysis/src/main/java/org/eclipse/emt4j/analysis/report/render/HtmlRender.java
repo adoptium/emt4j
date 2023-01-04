@@ -23,14 +23,16 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.eclipse.emt4j.common.*;
+import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.ReportConfig;
+import org.eclipse.emt4j.common.SourceInformation;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HtmlRender extends VelocityTemplateRender {
     private final String DIR_OTHERS = "Others";
@@ -112,7 +114,7 @@ public class HtmlRender extends VelocityTemplateRender {
 
     private List<CategorizedResult> toCategorizedResult(Map<String, List<CheckResultContext>> resultMap) {
         List<CategorizedResult> list = new ArrayList<>();
-        Collection<CheckResultContextHolder> holders = useOldTemplate() ? classifyByDir(resultMap) : classifyByName(resultMap);
+        Collection<CheckResultContextHolder> holders = useOldTemplate() ? classifyByDir(resultMap) : classifyByIdentifier(resultMap);
         if (holders.isEmpty()) {
             return list;
         }
@@ -199,7 +201,7 @@ public class HtmlRender extends VelocityTemplateRender {
         return categorizedMap.values();
     }
 
-    private Collection<CheckResultContextHolder> classifyByName(Map<String, List<CheckResultContext>> resultMap) {
+    private Collection<CheckResultContextHolder> classifyByIdentifier(Map<String, List<CheckResultContext>> resultMap) {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
@@ -208,7 +210,7 @@ public class HtmlRender extends VelocityTemplateRender {
         info4dep.setDependency(true);
         info4dep.setIdentifier(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
         CheckResultContextHolder dh = new CheckResultContextHolder(info4dep);
-        AtomicInteger dc = new AtomicInteger();
+        Set<SourceInformation> depSet = new HashSet<>();
         resultMap.forEach((f, v) -> v.forEach((c) -> {
             SourceInformation sourceInformation = c.getDependency().getSourceInformation();
             if (sourceInformation == null) {
@@ -217,14 +219,14 @@ public class HtmlRender extends VelocityTemplateRender {
             }
             if (sourceInformation.isDependency()) {
                 dh.contexts.add(c);
-                dc.incrementAndGet();
+                depSet.add(sourceInformation);
             } else if (sourceInformation.getIdentifier() != null) {
                 categorizedMap.computeIfAbsent(sourceInformation, CheckResultContextHolder::new).contexts.add(c);
             }
         }));
         if (dh.contexts.size() > 0) {
             ArrayList<CheckResultContextHolder> list = new ArrayList<>(categorizedMap.values());
-            dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencyCount") + ": " + dc.get()});
+            dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencyCount") + ": " + depSet.size()});
             list.add(dh);
             return list;
         }
