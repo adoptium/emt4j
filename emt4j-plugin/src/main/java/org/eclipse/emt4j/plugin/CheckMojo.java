@@ -30,9 +30,6 @@ import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.eclipse.emt4j.analysis.AnalysisMain;
-import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
-import org.eclipse.emt4j.analysis.common.util.ZipUtil;
-import org.eclipse.emt4j.common.JdkMigrationException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -40,7 +37,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -52,46 +48,13 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Mojo(name = "check", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
-public class CheckMojo extends BaseMojo {
+public class CheckMojo extends BaseCheckMojo {
 
     @Component(hint = "default")
     private DependencyGraphBuilder dependencyGraphBuilder;
 
-    @Parameter(property = "externalToolHome")
-    private String externalToolHome;
-
-    @Parameter(property = "targetJDKHome")
-    private String targetJDKHome;
-
-    /**
-     * Specify a comma separated list of external tools in the form of maven coordinate. The specified external tools
-     * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
-     * external tool working home specified by {@link CheckMojo#externalToolHome}.
-     * The external tool can be either jar or zip. Assume the external tool home is {@code EXT_HOME}. Specified external
-     * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
-     * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
-     * will be unzipped to {@code EXT_HOME/org2-artifact2-version-zip-classifier}.
-     * <p>
-     * In summary, there are two constrains for this options:
-     * <ol>
-     *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
-     *     <li>{@link CheckMojo#externalToolHome} must be set as well.</li>
-     * </ol>
-     */
-    @Parameter
-    private List<String> externalTools;
-
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        String externalToolsProperty = System.getProperty("externalTools");
-        if (externalToolsProperty != null && !externalToolsProperty.isEmpty()) {
-            this.externalTools = Arrays.asList(externalToolsProperty.split(","));
-        }
-
-        if (fromVersion >= toVersion) {
-            throw new JdkMigrationException("fromVersion should less than toVersion");
-        }
-
+    public void doExecute() throws MojoExecutionException, MojoFailureException {
         List<MavenProject> projects = session.getProjects();
         boolean last = project.equals(projects.get(projects.size() - 1));
         try {
@@ -118,71 +81,7 @@ public class CheckMojo extends BaseMojo {
             throw new MojoExecutionException("Failed to build dependency", e);
         }
 
-
-        if (externalTools != null && !externalTools.isEmpty()) {
-            Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
-            if (externalToolHome == null || externalToolHome.length() == 0) {
-                throw new MojoFailureException("There is no available external tool home set." +
-                        " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
-            }
-            for (String externalTool : externalTools) {
-
-                Path externalToolHomePath = Paths.get(externalToolHome);
-                Path toolPath = externalToolHomePath.resolve(externalTool.replace(":", "-"));
-                try {
-                    if (Files.notExists(toolPath) || Files.list(toolPath).findAny().isPresent()) {
-                        List<String> command = new ArrayList<>();
-
-                        String mvnHome = System.getProperty("maven.home");
-                        if (mvnHome == null) {
-                            throw new MojoFailureException("System property maven.home is not set. This plugin should be called from mvn command line.");
-                        }
-                        Path mvnPath = Paths.get(mvnHome).resolve("bin").resolve("mvn");
-                        if (Files.notExists(mvnPath)) {
-                            throw new MojoFailureException("Can't find mvn executable file " + mvnPath);
-                        }
-                        command.add(mvnPath.toString());
-                        command.add("dependency:get");
-                        command.add("-Dartifact=" + externalTool);
-                        command.add("-s");
-                        command.add(session.getRequest().getUserSettingsFile().toString());
-                        try {
-                            int ret = ProcessUtil.noBlockingRun(command);
-                            if (ret != 0) {
-                                throw new MojoFailureException("Fail to download required external tool:" + externalTool);
-                            }
-                        } catch (IOException | InterruptedException e) {
-                            throw new MojoFailureException("Fail to download required external tool:" + externalTool, e);
-                        }
-                        String[] tokens = externalTool.split(":");
-                        String groupId = tokens[0];
-                        String artifactId = tokens[1];
-                        String version = tokens[2];
-                        String type = "jar";
-                        String classifier = null;
-                        if (tokens.length >= 4) {
-                            type = tokens[3];
-                        }
-                        if (tokens.length == 5) {
-                            classifier = tokens[4];
-                        }
-                        Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version)
-                                .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
-                        if (Files.exists(artifactPath)) {
-                            if (type.equals("jar")) {
-                                Files.copy(artifactPath, toolPath.resolve(artifactPath.getFileName()));
-                            } else if (type.equals("zip")) {
-                                ZipUtil.unzipTo(artifactPath, toolPath);
-                            }
-                        } else {
-                            throw new MojoExecutionException("The external tool " + artifactPath + " doesn't exist.");
-                        }
-                    }
-                } catch (IOException e) {
-                    throw new MojoExecutionException("Failed when checking existed external tool directory.", e);
-                }
-            }
-        }
+        prepareExternalTools();
 
         try {
             AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
