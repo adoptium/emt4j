@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -41,9 +41,7 @@ public class Dependency implements Serializable {
     private transient byte[] currClassBytecode;
     private transient ClassSymbol classSymbol;
 
-    private String name;
-
-    private boolean isDeps;
+    private SourceInformation sourceInformation;
 
     public Dependency(URL location, DependTarget target, StackTraceElement[] stacktrace, String targetFilePath) {
         this.target = target;
@@ -150,20 +148,12 @@ public class Dependency implements Serializable {
         this.targetFilePath = targetFilePath;
     }
 
-    public String getName() {
-        return name;
+    public SourceInformation getSourceInformation() {
+        return sourceInformation;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isDeps() {
-        return isDeps;
-    }
-
-    public void setDeps(boolean deps) {
-        isDeps = deps;
+    public void setSourceInformation(SourceInformation sourceInformation) {
+        this.sourceInformation = sourceInformation;
     }
 
     @Override
@@ -171,12 +161,12 @@ public class Dependency implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Dependency that = (Dependency) o;
-        return Objects.equals(locationExternalForm, that.locationExternalForm) && Objects.equals(target, that.target) && Objects.equals(targetFilePath, that.targetFilePath) && Objects.equals(callerClass, that.callerClass) && Objects.equals(callerMethod, that.callerMethod) && Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass) && Arrays.equals(stacktrace, that.stacktrace) && Objects.equals(context, that.context) && Arrays.equals(currClassBytecode, that.currClassBytecode) && Objects.equals(classSymbol, that.classSymbol);
+        return Objects.equals(locationExternalForm, that.locationExternalForm) && Objects.equals(target, that.target) && Objects.equals(targetFilePath, that.targetFilePath) && Objects.equals(callerClass, that.callerClass) && Objects.equals(callerMethod, that.callerMethod) && Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass) && Arrays.equals(stacktrace, that.stacktrace) && Objects.equals(context, that.context) && Arrays.equals(currClassBytecode, that.currClassBytecode) && Objects.equals(classSymbol, that.classSymbol) && Objects.equals(sourceInformation, that.sourceInformation);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(locationExternalForm, target, targetFilePath, callerClass, callerMethod, context, classSymbol);
+        int result = Objects.hash(locationExternalForm, target, targetFilePath, callerClass, callerMethod, context, classSymbol, sourceInformation);
         result = 31 * result + Arrays.hashCode(nonJdkCallerClass);
         result = 31 * result + Arrays.hashCode(stacktrace);
         result = 31 * result + Arrays.hashCode(currClassBytecode);
@@ -196,6 +186,7 @@ public class Dependency implements Serializable {
                 ", context=" + context +
                 ", currClassBytecode=" + Arrays.toString(currClassBytecode) +
                 ", classSymbol=" + classSymbol +
+                ", sourceInformation=" + sourceInformation +
                 '}';
     }
 }

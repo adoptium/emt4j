@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,16 +23,14 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.eclipse.emt4j.common.CheckResultContext;
-import org.eclipse.emt4j.common.Dependency;
-import org.eclipse.emt4j.common.Feature;
-import org.eclipse.emt4j.common.ReportConfig;
+import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HtmlRender extends VelocityTemplateRender {
     private final String DIR_OTHERS = "Others";
@@ -95,6 +93,11 @@ public class HtmlRender extends VelocityTemplateRender {
                 cc.addSubContent(content);
             }
             if (!useOldTemplate()) {
+                if (cr.getExtras() != null) {
+                    for (String extra: cr.getExtras()) {
+                        cc.addDescription(extra);
+                    }
+                }
                 cc.addDescription(
                         String.format(
                                 reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
@@ -121,8 +124,9 @@ public class HtmlRender extends VelocityTemplateRender {
                 for (String feature : categorizedCheckResult.getFeatures()) {
                     int detailId = 0;
                     CategorizedResult cr = new CategorizedResult();
-                    cr.desc = holder.name;
-                    cr.anchorId = "cr-anchor" + holder.name.hashCode();
+                    cr.desc = holder.sourceInformation.getIdentifier();
+                    cr.setExtras(holder.sourceInformation.getExtras());
+                    cr.anchorId = "cr-anchor" + holder.sourceInformation.getIdentifier().hashCode();
                     String i18nBase = ConfRuleFacade.getFeatureI18nBase(feature);
                     for (TreeMap<String, TreeMap<String, List<CheckResultContext>>> map : categorizedCheckResult.getResult().get(feature)) {
                         Iterator<Map.Entry<String, TreeMap<String, List<CheckResultContext>>>> iter = map.entrySet().iterator();
@@ -168,12 +172,18 @@ public class HtmlRender extends VelocityTemplateRender {
     }
 
     static class CheckResultContextHolder {
-        String name;
+
+        SourceInformation sourceInformation;
 
         List<CheckResultContext> contexts = new ArrayList<>();
 
-        public CheckResultContextHolder(String name) {
-            this.name = name;
+        public CheckResultContextHolder(SourceInformation sourceInformation) {
+            this.sourceInformation = sourceInformation;
+        }
+
+        public CheckResultContextHolder(String desc) {
+            sourceInformation = new SourceInformation();
+            sourceInformation.setIdentifier(desc);
         }
     }
 
@@ -193,18 +203,24 @@ public class HtmlRender extends VelocityTemplateRender {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, CheckResultContextHolder> categoryMap = new HashMap<>();
-        CheckResultContextHolder dh = new CheckResultContextHolder(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
+        Map<SourceInformation, CheckResultContextHolder> categoryMap = new HashMap<>();
+        SourceInformation info4dep = new SourceInformation();
+        info4dep.setDependency(true);
+        info4dep.setIdentifier(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
+        CheckResultContextHolder dh = new CheckResultContextHolder(info4dep);
+        AtomicInteger dc = new AtomicInteger();
         resultMap.forEach((f, v) -> v.forEach((c) -> {
-            Dependency dependency = c.getDependency();
-            if (c.getDependency().isDeps()) {
+            SourceInformation sourceInformation = c.getDependency().getSourceInformation();
+            if (sourceInformation.isDependency()) {
                 dh.contexts.add(c);
-            } else if (dependency.getName() != null){
-                categoryMap.computeIfAbsent(dependency.getName(), CheckResultContextHolder::new).contexts.add(c);
+                dc.incrementAndGet();
+            } else if (sourceInformation.getIdentifier() != null){
+                categoryMap.computeIfAbsent(sourceInformation, CheckResultContextHolder::new).contexts.add(c);
             }
         }));
         if (dh.contexts.size() > 0) {
             ArrayList<CheckResultContextHolder> list = new ArrayList<>(categoryMap.values());
+            dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencyCount") + ": " + dc.get()});
             list.add(dh);
             return list;
         }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,10 +20,7 @@ package org.eclipse.emt4j.analysis;
 
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.analysis.source.DependencySource;
-import org.eclipse.emt4j.common.CheckConfig;
-import org.eclipse.emt4j.common.DependType;
-import org.eclipse.emt4j.common.Dependency;
-import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.rule.ExecutableRule;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
 import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
@@ -102,17 +99,17 @@ public class AnalysisExecutor {
                                         ReportCheckResult checkResult = rule.execute(d);
                                         if (!checkResult.isPass()) {
                                             if (checkResult.getPropagated().isEmpty()) {
-                                                analysisOutputConsumer.onNewRecord(d, checkResult, rule, source.getName(), source.isDep());
+                                                analysisOutputConsumer.onNewRecord(d, checkResult, rule, source.getInformation());
                                             } else {
                                                 for (Dependency newDependency : checkResult.getPropagated()) {
-                                                    analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule, source.getName(), source.isDep());
+                                                    analysisOutputConsumer.onNewRecord(newDependency, checkResult, rule, source.getInformation());
                                                 }
                                             }
                                         }
                                     }
                                 }
                                 if (d.getDependType() == DependType.CODE_SOURCE || d.getDependType() == DependType.VM_OPTION) {
-                                    analysisOutputConsumer.onNewRecord(d, null, null, source.getName(), source.isDep());
+                                    analysisOutputConsumer.onNewRecord(d, null, null, source.getInformation());
                                 }
                             } catch (Throwable t) {
                                 System.err.println("Failed to analyze " + source.getFile().getName());

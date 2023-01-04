@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,6 +20,7 @@ package org.eclipse.emt4j.analysis.source;
 
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.SourceInformation;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +33,7 @@ public abstract class DependencySource {
 
     private final File file;
 
-    private String name;
-
-    private boolean isDep;
+    private SourceInformation information;
 
     public DependencySource(File file) {
         this.file = file;
@@ -62,19 +61,11 @@ public abstract class DependencySource {
         return true;
     }
 
-    public String getName() {
-        return name;
+    public SourceInformation getInformation() {
+        return information;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isDep() {
-        return isDep;
-    }
-
-    public void setDep(boolean dep) {
-        isDep = dep;
+    public void setInformation(SourceInformation information) {
+        this.information = information;
     }
 }

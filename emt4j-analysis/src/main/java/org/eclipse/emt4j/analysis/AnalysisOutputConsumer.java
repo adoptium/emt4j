@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -21,6 +21,7 @@ package org.eclipse.emt4j.analysis;
 import org.eclipse.emt4j.common.CheckConfig;
 import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.SourceInformation;
 import org.eclipse.emt4j.common.rule.ExecutableRule;
 import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
 
@@ -43,9 +44,8 @@ public interface AnalysisOutputConsumer {
     void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule) throws IOException;
 
 
-    default void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule, String name, boolean isDep) throws IOException {
-        dependency.setName(name);
-        dependency.setDeps(isDep);
+    default void onNewRecord(Dependency dependency, ReportCheckResult checkResult, ExecutableRule rule, SourceInformation sourceInformation) throws IOException {
+        dependency.setSourceInformation(sourceInformation);
         onNewRecord(dependency, checkResult, rule);
     }
 }

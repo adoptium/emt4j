@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -26,6 +26,8 @@ public class CategorizedResult {
     String anchorId;
     int id;
     List<ResultDetail> resultDetailList = new ArrayList<>();
+
+    String[] extras;
 
     public String getDesc() {
         return desc;
@@ -57,5 +59,13 @@ public class CategorizedResult {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String[] getExtras() {
+        return extras;
+    }
+
+    public void setExtras(String[] extras) {
+        this.extras = extras;
     }
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -28,6 +28,7 @@ import org.eclipse.emt4j.common.CheckConfig;
 import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.emt4j.common.SourceInformation;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -113,6 +114,19 @@ public class AnalysisMain {
         return reportConfig;
     }
 
+    private static SourceInformation buildSourceInformation(String str, boolean isDependency) {
+        SourceInformation info = new SourceInformation();
+        String[] arr = str.split(":");
+        info.setIdentifier(arr[1]);
+        String[] extras = new String[3];
+        extras[0] = "groupId: " + arr[0];
+        extras[1] = "artifactId: " + arr[1];
+        extras[2] = "version: " + arr[2];
+        info.setExtras(extras);
+        info.setDependency(isDependency);
+        return info;
+    }
+
     private static void processSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
         File file = new File(v);
         if (file.isDirectory() && file.getName().equals(".emt4j")) {
@@ -122,7 +136,9 @@ public class AnalysisMain {
                 while ((str = br.readLine()) != null) {
                     String[] pair = str.split("=");
                     DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, pair[1]);
-                    dependencySource.setName(pair[0]);
+                    if (dependencySource != null) {
+                        dependencySource.setInformation(buildSourceInformation(pair[0], false));
+                    }
                 }
                 br.close();
 
@@ -133,8 +149,9 @@ public class AnalysisMain {
                         continue;
                     }
                     DependencySource dependencySource = doProcessSource(reportConfig, analysisExecutor, pair[1]);
-                    dependencySource.setName(pair[0]);
-                    dependencySource.setDep(true);
+                    if (dependencySource != null) {
+                        dependencySource.setInformation(buildSourceInformation(pair[0], true));
+                    }
                 }
                 br.close();
             } catch (Throwable t) {
@@ -146,7 +163,12 @@ public class AnalysisMain {
     }
 
     private static DependencySource doProcessSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
-        DependencySource ds = getSource(v).get();
+        Optional<DependencySource> opt= getSource(v);
+        if (!opt.isPresent()) {
+            System.err.println(v + " doesn't exist");
+            return null;
+        }
+        DependencySource ds = opt.get();
         if (ds.needAnalysis()) {
             analysisExecutor.add(ds);
             analysisTargetClassPaths.add(ds.getFile().getAbsolutePath());
