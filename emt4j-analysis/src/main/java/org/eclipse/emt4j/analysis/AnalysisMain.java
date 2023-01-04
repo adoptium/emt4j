@@ -118,11 +118,7 @@ public class AnalysisMain {
         SourceInformation info = new SourceInformation();
         String[] arr = str.split(":");
         info.setIdentifier(arr[1]);
-        String[] extras = new String[3];
-        extras[0] = "groupId: " + arr[0];
-        extras[1] = "artifactId: " + arr[1];
-        extras[2] = "version: " + arr[2];
-        info.setExtras(extras);
+        info.setExtras(new String[]{str});
         info.setDependency(isDependency);
         return info;
     }
