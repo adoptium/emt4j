@@ -48,7 +48,11 @@ public class BinaryFileInputProvider implements ReportInputProvider {
         if (!init) {
             synchronized (BinaryFileInputProvider.class) {
                 if (!init) {
-                    readTmpFile(files);
+                    try {
+                        readTmpFile(files);
+                    } finally {
+                        init = true;
+                    }
                 }
             }
         }
