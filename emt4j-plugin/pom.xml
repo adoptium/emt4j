@@ -50,6 +50,14 @@
             <artifactId>emt4j-analysis</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-agent-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-agent-jdk11</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
