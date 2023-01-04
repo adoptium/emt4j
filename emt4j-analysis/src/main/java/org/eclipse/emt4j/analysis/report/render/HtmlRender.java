@@ -191,19 +191,19 @@ public class HtmlRender extends VelocityTemplateRender {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, CheckResultContextHolder> dirCategoryMap = new HashMap<>();
+        Map<String, CheckResultContextHolder> categorizedMap = new HashMap<>();
         resultMap.forEach((f, v) -> v.forEach((c) -> {
             String categoryDesc = getCategoryDesc(c);
-            dirCategoryMap.computeIfAbsent(categoryDesc, CheckResultContextHolder::new).contexts.add(c);
+            categorizedMap.computeIfAbsent(categoryDesc, CheckResultContextHolder::new).contexts.add(c);
         }));
-        return dirCategoryMap.values();
+        return categorizedMap.values();
     }
 
     private Collection<CheckResultContextHolder> classifyByName(Map<String, List<CheckResultContext>> resultMap) {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<SourceInformation, CheckResultContextHolder> categoryMap = new HashMap<>();
+        Map<SourceInformation, CheckResultContextHolder> categorizedMap = new HashMap<>();
         SourceInformation info4dep = new SourceInformation();
         info4dep.setDependency(true);
         info4dep.setIdentifier(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
@@ -211,20 +211,24 @@ public class HtmlRender extends VelocityTemplateRender {
         AtomicInteger dc = new AtomicInteger();
         resultMap.forEach((f, v) -> v.forEach((c) -> {
             SourceInformation sourceInformation = c.getDependency().getSourceInformation();
+            if (sourceInformation == null) {
+                sourceInformation = new SourceInformation();
+                sourceInformation.setIdentifier(getCategoryDesc(c));
+            }
             if (sourceInformation.isDependency()) {
                 dh.contexts.add(c);
                 dc.incrementAndGet();
-            } else if (sourceInformation.getIdentifier() != null){
-                categoryMap.computeIfAbsent(sourceInformation, CheckResultContextHolder::new).contexts.add(c);
+            } else if (sourceInformation.getIdentifier() != null) {
+                categorizedMap.computeIfAbsent(sourceInformation, CheckResultContextHolder::new).contexts.add(c);
             }
         }));
         if (dh.contexts.size() > 0) {
-            ArrayList<CheckResultContextHolder> list = new ArrayList<>(categoryMap.values());
+            ArrayList<CheckResultContextHolder> list = new ArrayList<>(categorizedMap.values());
             dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencyCount") + ": " + dc.get()});
             list.add(dh);
             return list;
         }
-        return categoryMap.values();
+        return categorizedMap.values();
     }
 
     private String getCategoryDesc(CheckResultContext c) {
