@@ -28,7 +28,7 @@
   #content { flex-shrink: 0; width: 320px; display: flex; flex-direction: column; overflow: hidden;}
   #resizer { flex-shrink: 0; width: 1px; cursor: ew-resize; background: rgb(240, 241, 244); }
   #resizer:hover { background: grey }
-  #main { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden}
+  #main { flex-grow: 1; display: flex; flex-direction: column-reverse; overflow: hidden; position: relative }
   .ce { border-radius: 6px; margin-bottom: 3px; cursor: pointer; padding: 7px 12px;}
   .ce:hover, .ce.active { background: rgb(229, 230, 230); }
   .ce.active { font-weight: 700; }
@@ -62,13 +62,20 @@
   </div>
   <div id="resizer"></div>
   <div id="main">
+    <div class="ellipsis"
+         style="flex-shrink: 0; margin: 5px; padding: 7px 12px; border-top: 1px solid hsla(210, 18%, 87%, 1);
+                font-size: 14px; font-weight: 500; text-align: center">
+      <a href="https://github.com/adoptium/emt4j" target="_blank" style="text-decoration: none; color: #262626">
+        Eclipse Migration Toolkit for Java
+      </a>
+    </div>
   #foreach( $subdata in $data )
     <div id="me$foreach.index" style="padding: 5px 25px; flex-grow: 1; overflow-y: auto; display: #if ($foreach.index == 0) block #else none #end">
       <h1 style="margin-top: 0; padding-bottom: 7px; border-bottom: 1px solid hsla(210, 18%, 87%, 1);">$subdata.desc</h1>
       #foreach( $detail in $subdata.resultDetailList)
       <h2>${detail.detailId}. ${detail.title}</h2>
-      <div style="padding: 0 20px; position: relative;">
-        <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 6px; background: #cfd1d0"></div>
+      <div style="padding: 0 16px; position: relative;">
+        <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 6px; background: #cfd1d0"></div>
         <h3>${detail.descriptionTitle}</h3>
         <span class="tag">${priority}: ${detail.priority}</span>
         <span class="tag" style="margin-left: 10px">${count}: ${detail.context.size()}</span>
@@ -97,13 +104,6 @@
       #end
     </div>
   #end
-    <div class="ellipsis"
-         style="flex-shrink: 0; margin: 5px; padding: 7px 12px; border-top: 1px solid hsla(210, 18%, 87%, 1);
-                font-size: 14px; font-weight: 500; text-align: center">
-      <a href="https://github.com/adoptium/emt4j" target="_blank" style="text-decoration: none; color: #262626">
-        Eclipse Migration Toolkit for Java
-      </a>
-    </div>
   </div>
 </div>
 </body>
