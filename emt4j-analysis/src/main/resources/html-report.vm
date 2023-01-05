@@ -46,7 +46,7 @@
     <div style="flex-grow: 1; overflow-y: auto; direction: rtl">
       <div style="padding: 5px; direction: ltr">
       #foreach ($item in $content)
-        <div class="ce #if ($foreach.index == 0) active #end" id="ce$foreach.index" onclick="clickCE('ce$foreach.index')">
+        <div class="ce #if ($foreach.index == 0) active #end" id="ce$foreach.index" onclick="clickCE('$foreach.index')">
           <div class="ceh">$item.title</div>
           #foreach($description in $item.descriptions)
           <div class="ced ellipsis">${description}</div>
@@ -69,11 +69,29 @@
         Eclipse Migration Toolkit for Java
       </a>
     </div>
-  #foreach( $subdata in $data )
+    <div style="position: absolute; top:0; bottom: 45px; left: 0; width: 25px;; display: flex; justify-content: center; align-items: center;">
+      <span style="font-size: 14px; cursor: pointer; user-select: none" onclick="toggleSubContent()">📎</span>
+    </div>
+    #foreach ($item in $content)
+    <div id="sc$foreach.index"
+           style="position: absolute; top: 0; bottom: 45px; left: 41px; display: none;
+                  justify-content: center; align-items: center;">
+      <div style="position: relative; padding: 0 15px; background: rgb(229, 230, 230); border-radius: 6px; z-index: 1024"
+           onmouseleave="hiddenSubContent()">
+        <span style="position: absolute; right: 7px; font-size: 14px; user-select: none; cursor: pointer"
+              onclick="hiddenSubContent()">x</span>
+        #foreach ($subitem in $item.subContents)
+          <p><a href="#${subitem.anchorId}">${foreach.count}. $subitem.title</a> (${subitem.priority}) (${subitem.total}
+            )</p>
+        #end
+      </div>
+    </div>
+    #end
+    #foreach( $subdata in $data )
     <div id="me$foreach.index" style="padding: 5px 25px; flex-grow: 1; overflow-y: auto; display: #if ($foreach.index == 0) block #else none #end">
       <h1 style="margin-top: 0; padding-bottom: 7px; border-bottom: 1px solid hsla(210, 18%, 87%, 1);">$subdata.desc</h1>
       #foreach( $detail in $subdata.resultDetailList)
-      <h2>${detail.detailId}. ${detail.title}</h2>
+        <h2><a name="${detail.anchorId}">${detail.detailId}. ${detail.title}</a></h2>
       <div style="padding: 0 16px; position: relative;">
         <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 6px; background: #cfd1d0"></div>
         <h3>${detail.descriptionTitle}</h3>
@@ -103,7 +121,7 @@
       </div>
       #end
     </div>
-  #end
+    #end
   </div>
 </div>
 </body>
@@ -148,22 +166,36 @@ resizer.addEventListener('mousedown', mouseDownHandler);
 
 // active content entry
 const activeClass = 'active'
+const ceIdPrefix = 'ce'
 const meIdPrefix = 'me'
-let activeCE = 'ce0';
+const scIdPrefix = 'sc'
+let activeId = '0'
 function clickCE(id) {
-  document.getElementById(activeCE).classList.remove(activeClass)
-  let me = document.getElementById(meIdPrefix + activeCE.substring(2))
+  if (id === activeId) {
+    return
+  }
+  document.getElementById(ceIdPrefix + activeId).classList.remove(activeClass)
+  let me = document.getElementById(meIdPrefix + activeId)
   me.lastScrollTop = main.scrollTop
   me.style.display = 'none'
-  activeCE = id
-  document.getElementById(activeCE).classList.add(activeClass)
-  me = document.getElementById(meIdPrefix + activeCE.substring(2))
+  document.getElementById(scIdPrefix + activeId).style.display = 'none'
+
+  activeId = id
+  document.getElementById(ceIdPrefix + activeId).classList.add(activeClass)
+  me = document.getElementById(meIdPrefix + activeId)
   me.style.display = 'block'
   if (me.lastScrollTop) {
     main.scrollTop = me.lastScrollTop
   } else {
     main.scrollTop = 0
   }
+}
+function toggleSubContent() {
+  let sc = document.getElementById(scIdPrefix + activeId)
+  sc.style.display = (sc.style.display === 'flex') ? 'none' : 'flex'
+}
+function hiddenSubContent() {
+  document.getElementById(scIdPrefix + activeId).style.display = 'none'
 }
 </script>
 <html>
