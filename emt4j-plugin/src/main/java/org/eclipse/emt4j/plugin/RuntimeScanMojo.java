@@ -36,7 +36,7 @@ public class RuntimeScanMojo extends StaticScanMojo {
     /**
      * true means combine static and runtime scan.
      */
-    @Parameter(defaultValue = "true")
+    @Parameter(property = "withStaticScan", defaultValue = "true")
     private boolean withStaticScan;
 
     @Override
