@@ -18,37 +18,25 @@
  ********************************************************************************/
 package org.eclipse.emt4j.plugin;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.emt4j.analysis.AnalysisMain;
 
-import java.util.Arrays;
 import java.util.List;
 
-@Mojo(name = "direct-check", requiresProject = false)
-public class DirectCheckMojo extends BaseCheckMojo {
+/**
+ * A mojo for statically scanning the incompatible issues existing in the specified targets.
+ */
+@Mojo(name = "direct-static-scan", requiresProject = false)
+public class DirectStaticScanMojo extends ScanMojo {
 
     /**
-     * Specify the targets separated by ',' to check
+     * Specify the scan targets
      */
-    @Parameter(property = "targets", required = true)
-    private String targets;
+    @Parameter(property = "targets", required = true, readonly = true)
+    private List<String> targets;
 
     @Override
-    protected void doExecute() throws MojoExecutionException, MojoFailureException {
-        prepareExternalTools();
-
-        try {
-            AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
-        } catch (Throwable t) {
-            throw new MojoExecutionException("Failed to execute direct-check", t);
-        }
-    }
-
-    @Override
-    protected List<String> getTargets() {
-        return Arrays.asList(targets.split(","));
+    List<String> getScanTargets() {
+        return targets;
     }
 }

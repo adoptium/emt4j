@@ -28,7 +28,10 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
-@Mojo(name = "inject-agent", defaultPhase = LifecyclePhase.INITIALIZE, requiresDependencyResolution = ResolutionScope.TEST)
+/**
+ * A mojo for injecting java agent
+ */
+@Mojo(name = "inject-agent", defaultPhase = LifecyclePhase.INITIALIZE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class InjectAgentMojo extends BaseMojo {
 
     @Parameter(defaultValue = "${project.build.directory}/emt4j.dat", required = true, readonly = true)
@@ -41,7 +44,7 @@ public class InjectAgentMojo extends BaseMojo {
     Map<String, Artifact> pluginArtifactMap;
 
     @Override
-    protected void doExecute() {
+    void doExecute() {
         String key = "argLine";
         Properties properties = project.getProperties();
         StringBuilder fv = new StringBuilder();

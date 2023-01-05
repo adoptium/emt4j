@@ -26,37 +26,46 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
-abstract class BaseMojo extends AbstractMojo  {
+/**
+ * Base mojo of EMT4J
+ */
+abstract class BaseMojo extends AbstractMojo {
 
-    @Parameter(defaultValue = "${project}", required = true, readonly = true)
-    protected MavenProject project;
-
-    @Parameter(defaultValue = "${session}", required = true, readonly = true)
+    /**
+     * The current session
+     */
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
     protected MavenSession session;
 
     /**
-     * Define the source JDK version, support: 8, 11
+     * The current project
+     */
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    protected MavenProject project;
+
+    /**
+     * Indicate the source Java version. 8 and 11 are supported.
      */
     @Parameter(property = "fromVersion", defaultValue = "8")
     protected int fromVersion;
 
     /**
-     * Define the target JDK version, support 11,17
+     * Indicate the target Java version. 11 and 17 are supported.
      */
     @Parameter(property = "toVersion", defaultValue = "11")
     protected int toVersion;
 
+    /**
+     * Indicate the priority. p1, p2, p3 and p4 are supported.
+     */
     @Parameter(property = "priority")
     protected String priority;
 
+    /**
+     * Show more detail messages if <code>true</code>.
+     */
     @Parameter(property = "verbose", defaultValue = "false")
     protected boolean verbose;
-
-    @Parameter(property = "outputFormat", defaultValue = "html")
-    protected String outputFormat;
-
-    @Parameter(property = "outputFile", defaultValue = "report.html")
-    protected String outputFile;
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
@@ -66,5 +75,5 @@ abstract class BaseMojo extends AbstractMojo  {
         doExecute();
     }
 
-    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+    abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 }

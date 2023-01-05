@@ -18,24 +18,34 @@
  ********************************************************************************/
 package org.eclipse.emt4j.plugin;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.emt4j.analysis.AnalysisMain;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mojo(name = "check-with-agent", defaultPhase = LifecyclePhase.VERIFY, requiresDependencyResolution = ResolutionScope.TEST)
-public class CheckWithAgentMojo extends BaseCheckMojo {
+/**
+ * A mojo for dynamically scanning the incompatible issues existing in the project.
+ */
+@Mojo(name = "runtime-scan", defaultPhase = LifecyclePhase.VERIFY)
+public class RuntimeScanMojo extends StaticScanMojo {
+
+    /**
+     * true means combine static and runtime scan.
+     */
+    @Parameter(defaultValue = "true")
+    private boolean withStaticScan;
+
     @Override
-    protected List<String> getTargets() {
-        List<MavenProject> projects = session.getProjects();
+    List<String> getScanTargets() {
         List<String> targets = new ArrayList<>();
+        if (withStaticScan) {
+            targets.addAll(super.getScanTargets());
+        }
+        List<MavenProject> projects = session.getProjects();
         for (MavenProject project : projects) {
             File file = new File(project.getBuild().getDirectory(), "emt4j.dat");
             if (file.exists() && !file.isDirectory()) {
@@ -47,21 +57,11 @@ public class CheckWithAgentMojo extends BaseCheckMojo {
     }
 
     @Override
-    protected void doExecute() throws MojoExecutionException, MojoFailureException {
+    boolean preScan() throws Exception {
+        if (withStaticScan) {
+            return super.preScan();
+        }
         List<MavenProject> projects = session.getProjects();
-        if (!project.equals(projects.get(projects.size() - 1))) {
-            System.out.println("Skip");
-            return;
-        }
-
-        prepareExternalTools();
-
-        try {
-            AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
-        } catch (MojoExecutionException e) {
-            throw e;
-        } catch (Exception e) {
-            getLog().error(e);
-        }
+        return project.equals(projects.get(projects.size() - 1));
     }
 }

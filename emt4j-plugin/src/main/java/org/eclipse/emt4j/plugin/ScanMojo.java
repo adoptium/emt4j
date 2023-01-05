@@ -21,6 +21,7 @@ package org.eclipse.emt4j.plugin;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.emt4j.analysis.AnalysisMain;
 import org.eclipse.emt4j.analysis.common.util.ProcessUtil;
 import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 
@@ -30,41 +31,83 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-abstract class BaseCheckMojo extends BaseMojo {
+/**
+ * Base scan mojo
+ */
+abstract class ScanMojo extends BaseMojo {
 
+    /**
+     * Indicate the report format. HTML, TXT, and JSON are supported.
+     */
+    @Parameter(property = "outputFormat", defaultValue = "HTML")
+    protected String outputFormat;
+
+    /**
+     * Indicate the output file.
+     */
+    @Parameter(property = "outputFile", defaultValue = "report.html")
+    protected String outputFile;
+
+    /**
+     * Indicate the external tool home.
+     */
     @Parameter(property = "externalToolHome")
     protected String externalToolHome;
 
+    /**
+     * Indicate the target JDK Home used by the external tool.
+     */
     @Parameter(property = "targetJDKHome")
     protected String targetJDKHome;
 
     /**
-     * Specify a comma separated list of external tools in the form of maven coordinate. The specified external tools
+     * Indicate a comma separated list of external tools in the form of maven coordinate. The specified external tools
      * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
-     * external tool working home specified by {@link BaseCheckMojo#externalToolHome}.
+     * external tool working home specified by {@link ScanMojo#externalToolHome}.
      * The external tool can be either jar or zip. Assume the external tool home is {@code EXT_HOME}. Specified external
      * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
      * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
      * will be unzipped to {@code EXT_HOME/org2-artifact2-version-zip-classifier}.
      * <p>
-     * In summary, there are two constrains for this options:
+     * In summary, there are two constrains for the options:
      * <ol>
      *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
-     *     <li>{@link BaseCheckMojo#externalToolHome} must be set as well.</li>
+     *     <li>{@link ScanMojo#externalToolHome} must be set as well.</li>
      * </ol>
      */
-    @Parameter
+    @Parameter(property = "externalTools")
     protected List<String> externalTools;
 
-    protected void prepareExternalTools() throws MojoFailureException, MojoExecutionException {
-        String externalToolsProperty = System.getProperty("externalTools");
-        if (externalToolsProperty != null && !externalToolsProperty.isEmpty()) {
-            this.externalTools = Arrays.asList(externalToolsProperty.split(","));
+    @Override
+    void doExecute() throws MojoExecutionException {
+        try {
+            if (preScan()) {
+                scan();
+            }
+        } catch (Throwable t) {
+            throw new MojoExecutionException(t.getMessage(), t);
         }
+    }
 
+    /**
+     * Pre-action before scanning.
+     *
+     * @return true means continue scanning
+     */
+    boolean preScan() throws Exception {
+        return true;
+    }
+
+    void scan() throws Exception {
+        prepareExternalTools();
+        AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
+    }
+
+    abstract List<String> getScanTargets();
+
+    private void prepareExternalTools() throws MojoFailureException, MojoExecutionException {
         if (externalTools != null && !externalTools.isEmpty()) {
             Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
             if (externalToolHome == null || externalToolHome.length() == 0) {
@@ -132,7 +175,7 @@ abstract class BaseCheckMojo extends BaseMojo {
         }
     }
 
-    protected File resolveOutputFile() throws MojoExecutionException {
+    private File resolveOutputFile() {
         if (outputFile != null) {
             Path path = Paths.get(outputFile);
             if (path.isAbsolute()) {
@@ -146,7 +189,7 @@ abstract class BaseCheckMojo extends BaseMojo {
         return new File(dir, outputFile);
     }
 
-    protected String[] buildArgs(File output, String format) {
+   private String[] buildArgs(File output, String format) {
         List<String> args = new ArrayList<>();
         param(args, "-f", String.valueOf(fromVersion));
         param(args, "-t", String.valueOf(toVersion));
@@ -162,11 +205,9 @@ abstract class BaseCheckMojo extends BaseMojo {
         if (priority != null) {
             param(args, "-priority", priority);
         }
-        args.addAll(getTargets());
+        args.addAll(getScanTargets());
         return args.toArray(new String[0]);
     }
-
-    protected abstract List<String> getTargets();
 
     private void param(List<String> args, String k, String v) {
         if (v != null && !"".equals(v)) {

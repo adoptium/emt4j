@@ -20,16 +20,15 @@ package org.eclipse.emt4j.plugin;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
-import org.apache.maven.shared.dependency.graph.DependencyGraphBuilderException;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.eclipse.emt4j.analysis.AnalysisMain;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -41,55 +40,37 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Implement a maven plugin that checks JDK compatible problems.
- * It scans java source files, then checks each file to whether contains incompatible problems.
- * If there is a problem, it will print a warning message.
+ * A mojo for statically scanning the incompatible issues existing in the project.
  */
-@SuppressWarnings("unused")
-@Mojo(name = "check", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
-@Execute(phase = LifecyclePhase.TEST_COMPILE)
-public class CheckMojo extends BaseCheckMojo {
+@Mojo(name = "static-scan", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
+public class StaticScanMojo extends ScanMojo {
 
+    /**
+     * Dependency Graph Builder
+     */
     @Component(hint = "default")
     private DependencyGraphBuilder dependencyGraphBuilder;
 
     @Override
-    public void doExecute() throws MojoExecutionException, MojoFailureException {
+    boolean preScan() throws Exception {
         List<MavenProject> projects = session.getProjects();
-        boolean last = project.equals(projects.get(projects.size() - 1));
-        try {
-            initFiles();
-            if (project.equals(projects.get(0))) {
-                prepare();
-            } else {
-                load();
-            }
-
-            ProjectBuildingRequest buildingRequest =
-                    new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
-            buildingRequest.setProject(project);
-            DependencyNode root = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, artifact -> true);
-            addModule(root);
-
-            if (!last) {
-                return;
-            }
+        initFiles();
+        if (project.equals(projects.get(0))) {
+            prepare();
+        } else {
             load();
-        } catch (IOException e) {
-            throw new MojoExecutionException("IOException", e);
-        } catch (DependencyGraphBuilderException e) {
-            throw new MojoExecutionException("Failed to build dependency", e);
         }
+        ProjectBuildingRequest buildingRequest =
+                new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+        buildingRequest.setProject(project);
+        DependencyNode root = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, artifact -> true);
+        addModule(root);
+        return project.equals(projects.get(projects.size() - 1));
+    }
 
-        prepareExternalTools();
-
-        try {
-            AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
-        } catch (MojoExecutionException e) {
-            throw e;
-        } catch (Exception e) {
-            getLog().error(e);
-        }
+    @Override
+    List<String> getScanTargets() {
+        return Collections.singletonList(configFile.getAbsolutePath());
     }
 
     private File configFile;
@@ -112,9 +93,9 @@ public class CheckMojo extends BaseCheckMojo {
     private void prepare() throws IOException {
         if (configFile.exists()) {
             Files.walk(configFile.toPath())
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+                 .sorted(Comparator.reverseOrder())
+                 .map(Path::toFile)
+                 .forEach(File::delete);
         }
         configFile.mkdir();
         modulesFile.createNewFile();
@@ -156,7 +137,7 @@ public class CheckMojo extends BaseCheckMojo {
         }
         String testOutputDirectory = project.getBuild().getTestOutputDirectory();
         if (new File(testOutputDirectory).exists()) {
-            if (outputs.length()> 0) {
+            if (outputs.length() > 0) {
                 outputs.append(File.pathSeparatorChar);
             }
             outputs.append(testOutputDirectory);
@@ -192,10 +173,5 @@ public class CheckMojo extends BaseCheckMojo {
             bw.newLine();
             addDependencies(child, bw);
         }
-    }
-
-    @Override
-    protected List<String> getTargets() {
-        return Collections.singletonList(configFile.getAbsolutePath());
     }
 }

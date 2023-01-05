@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -43,13 +43,12 @@ public class ReportMain {
         OptionProcessor optionProcessor = new OptionProcessor(args);
         optionProcessor.addOption(Option.buildParamWithValueOption("-i", (v) -> new File(v).exists(), (v) -> reportConfig.getInputFiles().add(new File(v))));
         optionProcessor.addOption(Option.buildParamWithValueOption("-f",
-                (v) -> "txt".equals(v) || "json".equals(v) || "html".endsWith(v), (v) -> reportConfig.setOutputFormat(v)));
-        optionProcessor.addOption(Option.buildParamWithValueOption("-o", null, (v) -> reportConfig.setOutputFile(v)));
+                (v) -> "txt".equalsIgnoreCase(v) || "json".equalsIgnoreCase(v) || "html".equalsIgnoreCase(v), (v) -> reportConfig.setOutputFormat(v.toLowerCase())));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-o", null, reportConfig::setOutputFile));
         optionProcessor.addOption(Option.buildParamWithValueOption("-t", (v) -> new File(v).exists()
-                        && new File(v).isDirectory(),
-                (v) -> reportConfig.setTargetJdkHome(v)));
+                        && new File(v).isDirectory(), reportConfig::setTargetJdkHome));
         optionProcessor.addOption(Option.buildParamNoValueOption("-v", null, (v) -> reportConfig.setVerbose(true)));
-        optionProcessor.setShowUsage((s) -> printUsage(s));
+        optionProcessor.setShowUsage(ReportMain::printUsage);
         optionProcessor.process();
 
         Progress progress = new Progress(1, 2, 1, 100, "Report");
@@ -74,11 +73,12 @@ public class ReportMain {
             if (outputFile == null) {
                 return;
             }
-            if (outputFile.endsWith(".txt")) {
+            String lowerCase= outputFile.toLowerCase();
+            if (lowerCase.endsWith(".txt")) {
                 config.setOutputFormat("txt");
-            } else if (outputFile.endsWith(".json")) {
+            } else if (lowerCase.endsWith(".json")) {
                 config.setOutputFormat("json");
-            } else if (outputFile.endsWith(".html")) {
+            } else if (lowerCase.endsWith(".html")) {
                 config.setOutputFormat("html");
             }
         }
