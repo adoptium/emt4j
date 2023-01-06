@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2022 Contributors to the Eclipse Foundation
+    Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -16,223 +16,178 @@
 
     SPDX-License-Identifier: Apache-2.0
  -->
-# Eclipse Migration Toolkit for Java(EMT4J)
 
-The goal of EMT4J is to simplify the migration of Java applications from 
-previous versions of OpenJDK, especially those deemed as Long-Term-Support (LTS)
-release versions. That is:
- - 8 -> 11
- - 8 -> 17
- - 11 ->17
+# Eclipse Migration Toolkit for Java (EMT4J)
 
-This migration toolkit supports examining application artifacts statically, 
-including project source directories and applications archives, or running as a 
-dynamic agent for runtime detection. Finally, the toolkit can produce the 
-analysis results in different formats, including a raw TEXT file, JSON file, 
-or HTML report highlighting areas that need changes for migration.
+EMT4J is a project that aims to simplify the Java version migration. At the moment, this project focuses on three LTS
+(i.e. Long-Term-Support) versions: 8, 11, and 17. Therefore, if you want to migrate your application running on JDK 8/11
+to JDK 11/17, then this project is for you.
 
-## Download 
+EMT4J supports statically checking application artifacts including the project's classes and dependencies. It also
+supports running as a Java agent to perform runtime checking. During the checking process, EMT4J collects compatibility
+problems and outputs a report finally. It currently supports HTML, TEXT, and JSON formats. Users transform the project
+according to the report and finally complete the migration of the Java version.
+
+## How to use
+
+### Maven Plugin
+
+#### Find compatibility problems existing in a Maven project
+
+Add the following configuration to root pom.xml: 
+
+```xml
+<plugin>
+    <groupId>org.eclipse.emt4j</groupId>
+    <artifactId>emt4j-maven-plugin</artifactId>
+    <version>0.7-SNAPSHOT</version>
+    <executions>
+        <execution>
+            <phase>process-test-classes</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <fromVersion>8</fromVersion>
+        <toVersion>11</toVersion>
+        <outputFile>report.html</outputFile>
+    </configuration>
+</plugin>
+```
+
+Some useful configurations:
+
+- `fromVersion`: the JDK version that the project currently uses. 8 and 11 are supported, and 8 is as default.
+
+- `toVersion`: the target JDK version. 11 and 17 are supported, and 11 is as default.
+
+- `outputFile`: the destination of EMT4J's report. Default is report.html.
+
+- `priority`: the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set. 
+
+- `verbose`: print more detail messages if true.
+
+Users can also run the following command directly without modifying pom.xml:
+
+```shell
+# run with default configurations
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check 
+```
+
+``` shell
+# specify outputFile and priority
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check -DoutputFile=emt4j-report.html -Dpriority=p1
+```
+
+As mentioned earlier, EMT4J supports running as a Java agent. To use it during the test process you need to add the
+following configuration:
+
+```xml
+<plugin>
+    <groupId>org.eclipse.emt4j</groupId>
+    <artifactId>emt4j-maven-plugin</artifactId>
+    <version>0.7-SNAPSHOT</version>
+    <executions>
+        <execution>
+            <phase>initialize</phase>
+            <goals>
+                <goal>inject-agent</goal>
+            </goals>
+        </execution>
+        <execution>
+            <phase>verify</phase>
+            <goals>
+                <goal>check</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+#### Find compatibility problems existing in specified files (classes, JAR or directory)
+
+``` shell
+$ mvn org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check-files -Dfiles=...
+```
+
+### Java agent and CLI
+
+First, you need to download the build from the link below:
+
 [Releases](https://github.com/adoptium/emt4j/releases)
 
-## Use the EMT4J agent
-Attach the EMT4J agent jar in the command line to your target application:
-For example: 
-- From JDK 11 to JDK 17
-```
-java -javaagent:/path/to/emt4j-agent-jdk11-0.1.jar=to=17
-```
+The build includes two Java agents, command line tools, a maven plugin and required dependencies.
 
-- From JDK 8 to JDK 11, set the output file to `/tmp/jdk8to11.dat` 
-```
-java -javaagent:/path/to/emt4j-agent-jdk8-0.1.jar=file=/tmp/jdk8to11.dat,to=11
-```
+#### Use Java agent standalone to perform runtime checking
 
-The emt4j-agent records possible incompatible problems to a binary file(*.dat) in the current 
-working directory while running the target application. You can further analyze 
-to generate the HTML report at `/path/to/report/8to11-report.html`.
-```
-sh bin/analysis.sh -o /path/to/report/8to11-report.html /path/to/emt4j-20220102100012.dat
-```
-Agent options:
-* `file` : the output file path.Default file pattern: `emt4j-${yyyyMMddHHmmss}.dat` in the current working directory.
-* `to` : the target JDK version you are willing to upgrade to 
-(11/17 supported)
-* `priority` : specify the minimum rule priority, e.g. `p2` will only enable the rule with p1 or p2 priority, default is no limit
+- Migration Java version from 8 to 11:
 
-## Use the command-line tool(statically scan)
-The EMT4J can statically scan class or jar files, and the directories containing 
-jars or classes for migration issues detection. After the scanning,  it writes out the final HTML report.
-For example:
+   ```shell
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7-SNAPSHOT.jar=to=11,file=jdk8to11.dat
+   ```
 
-- From JDK 8 to JDK 11, check all jars in `/home/admin/tocheck1/lib` and classes in `/home/admin/tocheck2/classes`, report file save at `/home/admin/jdk8to11.html`
-```shell script
-sh bin/analysis.sh -f 8 -t 11 -o /home/admin/jdk8to11.html /home/admin/tocheck1/lib /home/admin/tocheck2/classes 
-```
-- From JDK 8 to JDK 17, check a single jar at '/home/admin/tocheck1/lib/foo.jar', the report file format is JSON.
-```shell script
-sh bin/analysis.sh -f 8 -t 17 -p JSON -o /home/admin/jdk8to11.json /home/admin/tocheck1/lib/foo.jar 
-```
-- From JDK 8 to JDK 11, set target JDK home, integrate JDK built-in tools to find more potential problems.
-```shell script
-sh bin/analysis.sh -f 8 -t 11 -j /Library/Java/JavaVirtualMachines/jdk-11.0.9.jdk/Contents/Home /home/admin/tocheck1/lib
-```
-- Check JVM option.
-```shell script
-sh bin/analysis.sh -f 8 -t 17 /home/admin/tocheck/jvm.cfg
-```
+- Migration Java version from 11 to 17:
 
-All command-line options:
-* `-f` : the base JDK version (8/11 supported).
-* `-t` : the target JDK version you are willing to migrate to (11/17 supported).
-* `-priority` : specify the minimum rule priority, e.g. `-priority p2` will only enable the rule with p1 or p2 priority, default is no limit
-* `-p` : the report format, TXT, HTML (default), JSON are supported.
-* `-o` : the output file name (the default name is 'report')
-* `-j` : the target JDK home. The emt4j integrates the output of JDK built-in tools: jdeprscan and jdeps. The 'jdeprscan' scans a jar file or a class for uses of deprecated API. The 'jdeps' scans a jar file or a class for uses of internal API.  
-* `-v` : the verbose output.
+   ```shell
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk11-0.7-SNAPSHOT.jar=to=17,file=11to17.dat
+   ```
 
-## Use it as Maven Plugin
-Add the following configuration to pom.xml.
-```
-    <plugin>
-        <groupId>org.eclipse.emt4j</groupId>
-        <artifactId>emt4j-maven-plugin</artifactId>
-        <version>0.1</version>
-        <executions>
-            <execution>
-                <phase>process-classes</phase>
-                <goals>
-                    <goal>check</goal>
-                </goals>
-            </execution>
-        </executions>
-        <configuration>
-            <fromVersion>8</fromVersion>
-            <toVersion>17</toVersion>
-            <targetJdkHome>/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home</targetJdkHome>
-        </configuration>
-    </plugin>
-```
-The plugin will be called after the "compile" phase.
+- Migration Java version from 8 to 17:
 
-Maven plugin options:
-* `fromVersion` : the base JDK version (8/11 supported).
-* `toVersion`  : the target JDK version you are willing to migrate to (11/17 supported).
-* `priority` : specify the minimum rule priority, e.g. `p2` will only enable the rule with p1 or p2 priority, default is no limit
-* `targetJdkHome` : the target JDK home. The emt4j integrates the output of JDK built-in tools.
-* `excludes` : the file list to be excluded from check.
-* `includes` : the file list to be included for examination(all files will be examined by default).
-* `verbose` : the verbose output.
+   ```shell
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7-SNAPSHOT.jar=to=17,file=jdk8to17.dat
+   ```
 
-If run from command line,run the command like this:
-```shell
-mvn org.eclipse.emt4j:emt4j-maven-plugin:0.2:check  -DfromVersion=8 -DtoVersion=11 -DprojectBuildDir=/home/admin/app/libs -DoutputFile=/home/admin/report.html -DoutputFormat=html
-```
-# Development Guide
-## Preparation
-### Main workflow
-![workflow](workflow.png)
-### How to Build
-1. To build emt4j successfully, need install both JDK 8 and JDK 11.
-2. Configure JDK 8 and JDK 11 in toolchains.xml of Maven,this is a sample file:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<toolchains>
-    <!-- JDK toolchains -->
-    <toolchain>
-        <type>jdk</type>
-        <provides>
-            <version>8</version>
-            <vendor>openjdk</vendor>
-        </provides>
-        <configuration>
-            <jdkHome>/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home</jdkHome>
-        </configuration>
-    </toolchain>
-    <toolchain>
-        <type>jdk</type>
-        <provides>
-            <version>11</version>
-            <vendor>openjdk</vendor>
-        </provides>
-        <configuration>
-            <jdkHome>/Library/Java/JavaVirtualMachines/jdk-11.0.9.jdk/Contents/Home</jdkHome>
-        </configuration>
-    </toolchain>
-    <toolchain>
-        <type>jdk</type>
-        <provides>
-            <version>17</version>
-            <vendor>openjdk</vendor>
-        </provides>
-        <configuration>
-            <jdkHome>/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home</jdkHome>
-        </configuration>
-    </toolchain>
-</toolchains>
-```
-3. Run with: 
-```
-mvn clean package -Prelease
-```
-4. After that the emt4j-${version}.zip will be generated at emt4j-assembly/target.
+- The Java agent will record the compatibility problems found during running into the file. This file is a binary file,
+  you need to transform it to a readable format by the command:
 
-### How to run the system integration test cases
-```
-mvn clean verify -Ptest
-```
-## Modify an existing rule
-### Incompatible jar
-1. Open "incompatible_jar.cfg" in "emt4j-common" module.
-2. The "incompatible_jar.cfg" is a CSV file, the first column is the artifact name, and the second column is the rule that describes which version can work.
-3. If you need to customize the description for the jar in the final report file, you need to add a resource file:
-    1. The resource file should add at  "emt4j-common/src/main/resources/default/i18n"
-    2. Add a new resource bundle named "INCOMPATIBLE_JAR_${name}", the "${name}" is the artifact name in step 2.
-    3. Each resource always contains these keys: "title", "description", and "solution".
-3. Re-build emt4j.
-### Other rules
-Each rule contains these parts:
-1. Rule description in "emt4j-common/src/main/resources/default/rule/11to17/rule.xml" or "emt4j-common/src/main/resources/default/rule/8to11/rule.xml".
-2. (Optional) Rule data file which contains information needed by the rule implementation.
-3. Rule implementation file.
-4. Resource bundle for the error code of the rule.
+   ```shell
+   $ sh <path-to-emt4j-build>/bin/analysis.sh -o report.html <file generated by agent>
+   ```
 
-For example, the "jvm-option" rule, the data file is "jvmoptions.cfg", the result code is "VM_OPTION".
-If you want to add/modify/delete some options, you can modify the data file "jvmoptions.cfg".
-If you want to customize the description in the report file, you can modify the resource bundle named with "VM_OPTION".
-If you want to change the implementation of this rule, you can modify the implementation class "org.eclipse.emt4j.common.rule.impl.JvmOptionRule".
-```xml
-    <rule desc="JVM Option not compatible" type="jvm-option" jvm-option-file="jvmoptions.cfg"
-          result-code="VM_OPTION" priority="p1">
-        <support-modes>
-            <mode>agent</mode>
-            <mode>class</mode>
-        </support-modes>
-    </rule>
-```
-## Add a new rule
-### Add rule description
-Add a XML node "rule" in "rule.xml" which located at "emt4j-common" module.
-The "rule" node contains:
-1. Human-readable description that helps others understand the function of the rule.
-2. Rule type used to make a connection with the implementation of the rule.
-3. (Optional) Rule data file contains more information needed for the implementation.
-4. The "result-code" makes a connection with the report file. Each result code contains a corresponding resource bundle with the same name.
-5. The "priority" decides the sequence of check results in the report file.
-6. The "support-modes" tell this rule is suitable for javaagent or static analysis.
-### Add rule implementation
-1. If the rule only applies with javaagent, the rule should add to the "emt4j-agent-jdk8" or "emt4j-agent-jdk11" or "emt4j-agent-common" module.
-2. If the rule both applies with javaagent and class, the rule should add to "emt4j-common".
-3. The rule need extend "org.eclipse.emt4j.common.rule.ExecutableRule".
-4. The rule need add an annotation "org.eclipse.emt4j.common.RuleImpl".
-### Rule registration
-1. Agent Rule(JDK 8):  `org.eclipse.emt4j.agent.jdk8.MainAgent`
-2. Agent Rule(JDK 11): `org.eclipse.emt4j.agent.jdk11.MainAgent`
-3. Class Rule： `org.eclipse.emt4j.analysis.AnalysisExecutor`
-### Add resource bundle
-Suppose the result code is "BAR", add a new resource bundle named "BAR" at "emt4j-common/src/main/resources/default/i18n".
-### Add integration test case
-1. Add the test case to the "emt4j-test-jdk8" or "emt4j-test-jdk11" module.
-2. The test case class name must end with "Test" and extend 'org.eclipse.emt4j.test.common.SITBaseCase', then implement the 'run' and 'verify' methods.
-    1. The "run" method contains the code that has an incompatible problem.
-    2. The "verify" method test if the check result matches the expected.
-3. Add "org.eclipse.emt4j.test.common.TestConf" annotation for the new test case. 
+Java agent options:
+
+- `file` : the output file path. Default is `emt4j-${yyyyMMddHHmmss}.dat` in the current working directory.
+
+- `to` : the target JDK version.
+
+- `priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set.
+
+#### Use CLI
+
+The build contains a script named `analysis` located in the directory bin (.sh is for Mac or Linux users and .bat is for
+Windows users).
+
+You can use this script to scan compatibility problems that exist in classes, JARS, and directories that contain classes
+and JARS.
+
+- Migration Java version from 8 to 11:
+
+   ```shell
+   $ sh bin/analysis.sh -f 8 -t 11 -o report.html <files...>
+   ```
+
+- Check JVM options
+   ```shell
+   $ sh bin/analysis.sh -f 8 -t 17 <file that contains JVM opetions>
+   ```
+
+Options:
+
+- `-f` : the JDK version that the project currently uses. 8 and 11 are supported.
+
+- `-t` : the target JDK version. 11 and 17 are supported.
+
+- `-priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set.
+
+- `-p` : the report format, HTML, TXT, and JSON are supported. Default is HTML
+
+- `-o` : the output file name (the default name is 'report').
+
+- `-v` : print more detail messages.
+
+## Other Documents
+
+[Development Guide](DEVELOPMENT_GUIDE.md)
