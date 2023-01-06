@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * A mojo for injecting java agent
+ * Inject EMT4J's java agent.
  */
 @Mojo(name = "inject-agent", defaultPhase = LifecyclePhase.INITIALIZE, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class InjectAgentMojo extends BaseMojo {

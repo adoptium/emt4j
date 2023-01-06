@@ -39,7 +39,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * A mojo for finding the incompatible issues existing in the project.
+ * Find the incompatible issues existing in the project.
  */
 @Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
 public class CheckMojo extends BaseCheckMojo {

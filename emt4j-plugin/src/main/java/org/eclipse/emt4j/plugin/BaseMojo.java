@@ -27,7 +27,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
 /**
- * Base mojo of EMT4J
+ * Base mojo
  */
 abstract class BaseMojo extends AbstractMojo {
 

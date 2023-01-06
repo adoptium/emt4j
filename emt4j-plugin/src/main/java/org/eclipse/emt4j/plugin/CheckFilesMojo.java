@@ -24,7 +24,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.util.List;
 
 /**
- * A mojo for statically finding the incompatible issues existing in the files.
+ * Find the incompatible issues existing in the files.
  */
 @Mojo(name = "check-files", requiresProject = false)
 public class CheckFilesMojo extends BaseCheckMojo {
