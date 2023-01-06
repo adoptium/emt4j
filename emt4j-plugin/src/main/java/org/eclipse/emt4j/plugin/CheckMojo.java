@@ -35,15 +35,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * A mojo for statically scanning the incompatible issues existing in the project.
+ * A mojo for finding the incompatible issues existing in the project.
  */
-@Mojo(name = "static-scan", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
-public class StaticScanMojo extends ScanMojo {
+@Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
+public class CheckMojo extends BaseCheckMojo {
 
     /**
      * Dependency Graph Builder
@@ -52,7 +51,7 @@ public class StaticScanMojo extends ScanMojo {
     private DependencyGraphBuilder dependencyGraphBuilder;
 
     @Override
-    boolean preScan() throws Exception {
+    boolean preCheck() throws Exception {
         List<MavenProject> projects = session.getProjects();
         initFiles();
         if (project.equals(projects.get(0))) {
@@ -60,8 +59,7 @@ public class StaticScanMojo extends ScanMojo {
         } else {
             load();
         }
-        ProjectBuildingRequest buildingRequest =
-                new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+        ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
         buildingRequest.setProject(project);
         DependencyNode root = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, artifact -> true);
         addModule(root);
@@ -69,8 +67,18 @@ public class StaticScanMojo extends ScanMojo {
     }
 
     @Override
-    List<String> getScanTargets() {
-        return Collections.singletonList(configFile.getAbsolutePath());
+    List<String> getCheckTargets() {
+        List<String> targets = new ArrayList<>();
+        targets.add(configFile.getAbsolutePath());
+        List<MavenProject> projects = session.getProjects();
+        for (MavenProject project : projects) {
+            File file = new File(project.getBuild().getDirectory(), "emt4j.dat");
+            if (file.exists() && !file.isDirectory()) {
+                System.out.println(file.getAbsolutePath());
+                targets.add(file.getAbsolutePath());
+            }
+        }
+        return targets;
     }
 
     private File configFile;
@@ -92,10 +100,7 @@ public class StaticScanMojo extends ScanMojo {
     @SuppressWarnings({"ResultOfMethodCallIgnored", "resource"})
     private void prepare() throws IOException {
         if (configFile.exists()) {
-            Files.walk(configFile.toPath())
-                 .sorted(Comparator.reverseOrder())
-                 .map(Path::toFile)
-                 .forEach(File::delete);
+            Files.walk(configFile.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         }
         configFile.mkdir();
         modulesFile.createNewFile();

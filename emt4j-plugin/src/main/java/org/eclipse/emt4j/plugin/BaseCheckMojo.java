@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base scan mojo
+ * Base check mojo
  */
-abstract class ScanMojo extends BaseMojo {
+abstract class BaseCheckMojo extends BaseMojo {
 
     /**
      * Indicate the report format. HTML, TXT, and JSON are supported.
@@ -65,7 +65,7 @@ abstract class ScanMojo extends BaseMojo {
     /**
      * Indicate a comma separated list of external tools in the form of maven coordinate. The specified external tools
      * shall be automatically downloaded with {@code mvn dependency:get -Dartifact=[tool coordinate]}, and copy to the
-     * external tool working home specified by {@link ScanMojo#externalToolHome}.
+     * external tool working home specified by {@link BaseCheckMojo#externalToolHome}.
      * The external tool can be either jar or zip. Assume the external tool home is {@code EXT_HOME}. Specified external
      * tools is {@code -DexternalTools=org1:artifact1:version,org2:artifact2:veresion:zip:classifier}. The {@code artifact1} is
      * jar file, and will be copied to {@code EXT_HOME/org1-artifact1-version}. The {@code artifact2} is a zip file, and
@@ -74,7 +74,7 @@ abstract class ScanMojo extends BaseMojo {
      * In summary, there are two constrains for the options:
      * <ol>
      *     <li>Each item should follow maven-dependency-plugin's idiom: {@code groupId:artifactId:version[:type[:classifier]]}</li>
-     *     <li>{@link ScanMojo#externalToolHome} must be set as well.</li>
+     *     <li>{@link BaseCheckMojo#externalToolHome} must be set as well.</li>
      * </ol>
      */
     @Parameter(property = "externalTools")
@@ -83,8 +83,8 @@ abstract class ScanMojo extends BaseMojo {
     @Override
     void doExecute() throws MojoExecutionException {
         try {
-            if (preScan()) {
-                scan();
+            if (preCheck()) {
+                check();
             }
         } catch (Throwable t) {
             throw new MojoExecutionException(t.getMessage(), t);
@@ -92,27 +92,26 @@ abstract class ScanMojo extends BaseMojo {
     }
 
     /**
-     * Pre-action before scanning.
+     * Pre-action before checking.
      *
-     * @return true means continue scanning
+     * @return true means continue checking
      */
-    boolean preScan() throws Exception {
+    boolean preCheck() throws Exception {
         return true;
     }
 
-    void scan() throws Exception {
+    void check() throws Exception {
         prepareExternalTools();
         AnalysisMain.main(buildArgs(resolveOutputFile(), outputFormat));
     }
 
-    abstract List<String> getScanTargets();
+    abstract List<String> getCheckTargets();
 
     private void prepareExternalTools() throws MojoFailureException, MojoExecutionException {
         if (externalTools != null && !externalTools.isEmpty()) {
             Path localRepoPath = Paths.get(session.getRequest().getLocalRepositoryPath().toURI());
             if (externalToolHome == null || externalToolHome.length() == 0) {
-                throw new MojoFailureException("There is no available external tool home set." +
-                                                       " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
+                throw new MojoFailureException("There is no available external tool home set." + " Please set with -DexternalToolHome= in your mvn command line or <externalToolHome> in pom.");
             }
             for (String externalTool : externalTools) {
 
@@ -156,8 +155,7 @@ abstract class ScanMojo extends BaseMojo {
                         if (tokens.length == 5) {
                             classifier = tokens[4];
                         }
-                        Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version)
-                                                         .resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
+                        Path artifactPath = localRepoPath.resolve(groupId.replace(".", File.separator)).resolve(artifactId).resolve(version).resolve(artifactId + "-" + version + "-" + (classifier == null ? "" : classifier) + "." + type);
                         if (Files.exists(artifactPath)) {
                             if (type.equals("jar")) {
                                 Files.copy(artifactPath, toolPath.resolve(artifactPath.getFileName()));
@@ -189,7 +187,7 @@ abstract class ScanMojo extends BaseMojo {
         return new File(dir, outputFile);
     }
 
-   private String[] buildArgs(File output, String format) {
+    private String[] buildArgs(File output, String format) {
         List<String> args = new ArrayList<>();
         param(args, "-f", String.valueOf(fromVersion));
         param(args, "-t", String.valueOf(toVersion));
@@ -205,7 +203,7 @@ abstract class ScanMojo extends BaseMojo {
         if (priority != null) {
             param(args, "-priority", priority);
         }
-        args.addAll(getScanTargets());
+        args.addAll(getCheckTargets());
         return args.toArray(new String[0]);
     }
 

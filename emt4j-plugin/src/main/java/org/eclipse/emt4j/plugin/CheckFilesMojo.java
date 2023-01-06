@@ -24,19 +24,19 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.util.List;
 
 /**
- * A mojo for statically scanning the incompatible issues existing in the specified targets.
+ * A mojo for statically finding the incompatible issues existing in the files.
  */
-@Mojo(name = "direct-static-scan", requiresProject = false)
-public class DirectStaticScanMojo extends ScanMojo {
+@Mojo(name = "check-files", requiresProject = false)
+public class CheckFilesMojo extends BaseCheckMojo {
 
     /**
-     * Specify the scan targets
+     * Indicate the target files
      */
-    @Parameter(property = "targets", required = true, readonly = true)
-    private List<String> targets;
+    @Parameter(property = "files", required = true)
+    private List<String> files;
 
     @Override
-    List<String> getScanTargets() {
-        return targets;
+    List<String> getCheckTargets() {
+        return files;
     }
 }
