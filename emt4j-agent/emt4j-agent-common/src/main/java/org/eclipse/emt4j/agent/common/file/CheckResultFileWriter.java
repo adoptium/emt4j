@@ -30,7 +30,7 @@ public interface CheckResultFileWriter {
     /**
      * Prepare the write to file,can do some initialization work.
      *
-     * @throws IOException
+     * @throws IOException if IO operation failed
      */
     void begin() throws IOException;
 
@@ -40,7 +40,7 @@ public interface CheckResultFileWriter {
      * close writer.Now only when there occurs a exception,the <code>close</code> will be called.
      * Normal case will not call <code>close</code>,so need flush file for each writing.
      *
-     * @throws IOException
+     * @throws IOException if IO operation failed
      */
     void close() throws IOException;
 }

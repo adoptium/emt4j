@@ -29,16 +29,16 @@ public interface Recorder {
     /**
      * Record the dependency
      *
-     * @param dependency
-     * @throws InterruptedException
+     * @param dependency dependency
+     * @throws InterruptedException if InterruptedException occurred
      */
     void record(Dependency dependency) throws InterruptedException;
 
     /**
      * initialize Recorder
      *
-     * @return
-     * @throws IOException
+     * @return true if success
+     * @throws IOException if IO operation failed
      */
     boolean init() throws IOException;
 }

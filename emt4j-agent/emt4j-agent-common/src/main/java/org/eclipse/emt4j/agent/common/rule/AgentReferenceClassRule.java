@@ -78,7 +78,7 @@ public class AgentReferenceClassRule extends ReferenceClassRule {
      * For finding more potential problems, we should find such cases.
      * So we read the byte code, then analyze the non-public JDK class.
      *
-     * @param dependency
+     * @param dependency dependency
      */
     @Override
     public List<Dependency> propagate(Dependency dependency) {

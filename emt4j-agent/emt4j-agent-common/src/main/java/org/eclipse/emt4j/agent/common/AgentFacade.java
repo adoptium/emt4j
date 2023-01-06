@@ -65,15 +65,8 @@ public class AgentFacade {
      *     <li>Initialize rules</li>
      *     <li>Initialize Reporter</li>
      * </ul>
-     *
-     * @param args            javaagent parameters
-     * @param jdkDependConfig JDK dependent configuration
-     * @throws IOException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     * @throws ClassNotFoundException
      */
-    public static synchronized void init(String args, JdkDependConfig jdkDependConfig) throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+    static synchronized void init(String args, JdkDependConfig jdkDependConfig) throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         parseArgs(args, jdkDependConfig.getFromVersion());
         initCallerProvider(jdkDependConfig.getCallerProviderClassName());
         initInstanceRules(jdkDependConfig.getRuleClasses());

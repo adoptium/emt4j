@@ -45,17 +45,13 @@ import java.util.stream.Stream;
  * }
  *     </code>
  *     When running in JDK8,it print:
- *     <pre>
  * Result: CNY 1.99
  * Result: EUR 1.99
  * Result: USD 1.99
- *     </pre>
  *     ,but running in JDK11,it print
- *     <pre>
  * Result: CN¥ 1.99
  * Result: € 1.99
  * Result: US$ 1.99
- *     </pre>
  * </pre>
  * <p>
  * It a process A running in JDK8,send result to a process running JDK11,it may contain potential problem when parse it.

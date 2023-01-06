@@ -65,8 +65,8 @@ public class ReportRecorder implements Recorder {
     /**
      * put in a queue, then a background thread will take it.
      *
-     * @param dependency
-     * @throws InterruptedException
+     * @param dependency            dependency
+     * @throws InterruptedException if InterruptedException occurred
      */
     @Override
     public void record(Dependency dependency) throws InterruptedException {
@@ -80,8 +80,8 @@ public class ReportRecorder implements Recorder {
      * then provide dependency as a parameter to all rules.
      * If the check failed, write the result to the file.
      *
-     * @return
-     * @throws IOException
+     * @return true if success
+     * @throws IOException if IO operation failed
      */
     @Override
     public boolean init() throws IOException {
