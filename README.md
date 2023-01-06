@@ -127,10 +127,14 @@ If run from command line,run the command like this:
 ```shell
 mvn org.eclipse.emt4j:emt4j-maven-plugin:0.2:check  -DfromVersion=8 -DtoVersion=11 -DprojectBuildDir=/home/admin/app/libs -DoutputFile=/home/admin/report.html -DoutputFormat=html
 ```
+
 # Development Guide
+
 ## Preparation
+
 ### Main workflow
 ![workflow](workflow.png)
+
 ### How to Build
 1. To build emt4j successfully, need install both JDK 8 and JDK 11.
 2. Configure JDK 8 and JDK 11 in toolchains.xml of Maven,this is a sample file:
@@ -180,7 +184,9 @@ mvn clean package -Prelease
 ```
 mvn clean verify -Ptest
 ```
+
 ## Modify an existing rule
+
 ### Incompatible jar
 1. Open "incompatible_jar.cfg" in "emt4j-common" module.
 2. The "incompatible_jar.cfg" is a CSV file, the first column is the artifact name, and the second column is the rule that describes which version can work.
@@ -189,6 +195,7 @@ mvn clean verify -Ptest
     2. Add a new resource bundle named "INCOMPATIBLE_JAR_${name}", the "${name}" is the artifact name in step 2.
     3. Each resource always contains these keys: "title", "description", and "solution".
 3. Re-build emt4j.
+
 ### Other rules
 Each rule contains these parts:
 1. Rule description in "emt4j-common/src/main/resources/default/rule/11to17/rule.xml" or "emt4j-common/src/main/resources/default/rule/8to11/rule.xml".
@@ -209,7 +216,9 @@ If you want to change the implementation of this rule, you can modify the implem
         </support-modes>
     </rule>
 ```
+
 ## Add a new rule
+
 ### Add rule description
 Add a XML node "rule" in "rule.xml" which located at "emt4j-common" module.
 The "rule" node contains:
@@ -219,17 +228,21 @@ The "rule" node contains:
 4. The "result-code" makes a connection with the report file. Each result code contains a corresponding resource bundle with the same name.
 5. The "priority" decides the sequence of check results in the report file.
 6. The "support-modes" tell this rule is suitable for javaagent or static analysis.
+
 ### Add rule implementation
 1. If the rule only applies with javaagent, the rule should add to the "emt4j-agent-jdk8" or "emt4j-agent-jdk11" or "emt4j-agent-common" module.
 2. If the rule both applies with javaagent and class, the rule should add to "emt4j-common".
 3. The rule need extend "org.eclipse.emt4j.common.rule.ExecutableRule".
 4. The rule need add an annotation "org.eclipse.emt4j.common.RuleImpl".
+
 ### Rule registration
 1. Agent Rule(JDK 8):  `org.eclipse.emt4j.agent.jdk8.MainAgent`
 2. Agent Rule(JDK 11): `org.eclipse.emt4j.agent.jdk11.MainAgent`
 3. Class Rule： `org.eclipse.emt4j.analysis.AnalysisExecutor`
+
 ### Add resource bundle
 Suppose the result code is "BAR", add a new resource bundle named "BAR" at "emt4j-common/src/main/resources/default/i18n".
+
 ### Add integration test case
 1. Add the test case to the "emt4j-test-jdk8" or "emt4j-test-jdk11" module.
 2. The test case class name must end with "Test" and extend 'org.eclipse.emt4j.test.common.SITBaseCase', then implement the 'run' and 'verify' methods.
