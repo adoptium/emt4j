@@ -81,8 +81,7 @@
         <span style="position: absolute; right: 7px; font-size: 14px; user-select: none; cursor: pointer"
               onclick="hiddenSubContent()">x</span>
         #foreach ($subitem in $item.subContents)
-          <p><a href="#${subitem.anchorId}">${foreach.count}. $subitem.title</a> (${subitem.priority}) (${subitem.total}
-            )</p>
+          <p><a href="#${subitem.anchorId}">${foreach.count}. $subitem.title</a> (${subitem.priority}) (${subitem.total})</p>
         #end
       </div>
     </div>
