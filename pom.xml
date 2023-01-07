@@ -107,8 +107,6 @@
         <module>emt4j-analysis</module>
         <module>emt4j-common</module>
         <module>emt4j-plugin</module>
-        <module>emt4j-assembly</module>
-        <module>emt4j-test</module>
     </modules>
     <build>
         <pluginManagement>
@@ -179,6 +177,16 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>test-and-assembly</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>emt4j-assembly</module>
+                <module>emt4j-test</module>
+            </modules>
+        </profile>
         <profile>
             <id>deploy-emt4j</id>
             <build>
