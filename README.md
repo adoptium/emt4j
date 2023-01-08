@@ -42,7 +42,7 @@ Add the following configuration to pom.xml (the root pom for multi-module projec
         <plugin>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-maven-plugin</artifactId>
-            <version>0.7-SNAOSHOT</version>
+            <version>0.7.0</version>
             <executions>
                 <execution>
                     <phase>process-test-classes</phase>
@@ -73,12 +73,12 @@ Users can also run the following command directly without modifying pom.xml:
 
 ```shell
 # run with default configurations
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check 
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7.0:check
 ```
 
 ``` shell
 # specify outputFile and priority by -D
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check -DoutputFile=emt4j-report.html -Dpriority=p1
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7.0:check -DoutputFile=emt4j-report.html -Dpriority=p1
 ```
 
 Configurations:
@@ -102,7 +102,7 @@ following configuration:
         <plugin>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-maven-plugin</artifactId>
-            <version>0.7-SNAPSHOT</version>
+            <version>0.7.0</version>
             <executions>
                 <execution>
                     <phase>initialize</phase>
@@ -137,7 +137,7 @@ $ mvn test
 #### Find compatibility problems existing in specified files (classes, JAR or directory)
 
 ``` shell
-$ mvn org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check-files -Dfiles=...
+$ mvn org.eclipse.emt4j:emt4j-maven-plugin:0.7.0:check-files -Dfiles=...
 ```
 
 ### Java agent and CLI
@@ -153,19 +153,19 @@ The build includes two Java agents, command line tools, a maven plugin and requi
 - Migration Java version from 8 to 11:
 
    ```shell
-   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7-SNAPSHOT.jar=to=11,file=jdk8to11.dat
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7.0.jar=to=11,file=jdk8to11.dat
    ```
 
 - Migration Java version from 11 to 17:
 
    ```shell
-   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk11-0.7-SNAPSHOT.jar=to=17,file=11to17.dat
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk11-0.7.0.jar=to=17,file=11to17.dat
    ```
 
 - Migration Java version from 8 to 17:
 
    ```shell
-   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7-SNAPSHOT.jar=to=17,file=jdk8to17.dat
+   $ java -javaagent:<path-to-emt4j-build>/lib/agent/emt4j-agent-jdk8-0.7.0.jar=to=17,file=jdk8to17.dat
    ```
 
 - The Java agent will record the compatibility problems found during running into the file. This file is a binary file,
