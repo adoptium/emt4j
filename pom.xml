@@ -24,8 +24,32 @@
     <artifactId>emt4j-parent</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
-    <name>emt4j</name>
-    <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
+    <name>Eclipse Migration Toolkit for Java</name>
+    <description>Finds compatibility problems that exist in the project</description>
+    <url>https://github.com/adoptium/emt4j</url>
+    <scm>
+        <url>https://ci.eclipse.org/emt4j/job/emt4j.deploy/</url>
+    </scm>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Gang Chen</name>
+            <email>lingjun.cg@alibaba-inc.com</email>
+        </developer>
+        <developer>
+            <name>Ziyi Lin</name>
+            <email>cengfeng.lzy@alibaba-inc.com</email>
+        </developer>
+        <developer>
+            <name>Denghiu Dong</name>
+            <email>denghui.ddh@alibaba-inc.com</email>
+        </developer>
+    </developers>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
