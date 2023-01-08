@@ -34,30 +34,54 @@ according to the report and finally complete the migration of the Java version.
 
 #### Find compatibility problems existing in a Maven project
 
-Add the following configuration to root pom.xml: 
+Add the following configuration to pom.xml (the root pom for multi-module project): 
 
 ```xml
-<plugin>
-    <groupId>org.eclipse.emt4j</groupId>
-    <artifactId>emt4j-maven-plugin</artifactId>
-    <version>0.7-SNAPSHOT</version>
-    <executions>
-        <execution>
-            <phase>process-test-classes</phase>
-            <goals>
-                <goal>check</goal>
-            </goals>
-        </execution>
-    </executions>
-    <configuration>
-        <fromVersion>8</fromVersion>
-        <toVersion>11</toVersion>
-        <outputFile>report.html</outputFile>
-    </configuration>
-</plugin>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-maven-plugin</artifactId>
+            <version>0.7-SNAOSHOT</version>
+            <executions>
+                <execution>
+                    <phase>process-test-classes</phase>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <fromVersion>8</fromVersion>
+                <toVersion>11</toVersion>
+                <outputFile>report.html</outputFile>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 ```
 
-Some useful configurations:
+Then run the following command:
+
+```shell
+$ mvn process-test-classes
+```
+
+EMT4J's report will be generated in the project directory.
+
+Users can also run the following command directly without modifying pom.xml:
+
+```shell
+# run with default configurations
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check 
+```
+
+``` shell
+# specify outputFile and priority by -D
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check -DoutputFile=emt4j-report.html -Dpriority=p1
+```
+
+Configurations:
 
 - `fromVersion`: the JDK version that the project currently uses. 8 and 11 are supported, and 8 is as default.
 
@@ -69,41 +93,45 @@ Some useful configurations:
 
 - `verbose`: print more detail messages if true.
 
-Users can also run the following command directly without modifying pom.xml:
-
-```shell
-# run with default configurations
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check 
-```
-
-``` shell
-# specify outputFile and priority
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.7-SNAPSHOT:check -DoutputFile=emt4j-report.html -Dpriority=p1
-```
-
-As mentioned earlier, EMT4J supports running as a Java agent. To use it during the test process you need to add the
+As mentioned earlier, EMT4J supports running as a Java agent. To leverage it in the test process you need to add the
 following configuration:
 
 ```xml
-<plugin>
-    <groupId>org.eclipse.emt4j</groupId>
-    <artifactId>emt4j-maven-plugin</artifactId>
-    <version>0.7-SNAPSHOT</version>
-    <executions>
-        <execution>
-            <phase>initialize</phase>
-            <goals>
-                <goal>inject-agent</goal>
-            </goals>
-        </execution>
-        <execution>
-            <phase>verify</phase>
-            <goals>
-                <goal>check</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-maven-plugin</artifactId>
+            <version>0.7-SNAPSHOT</version>
+            <executions>
+                <execution>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>inject-agent</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>check</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <fromVersion>8</fromVersion>
+                <toVersion>11</toVersion>
+                <outputFile>report.html</outputFile>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+Then run the following command:
+
+```shell
+$ mvn test
 ```
 
 #### Find compatibility problems existing in specified files (classes, JAR or directory)
