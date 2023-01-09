@@ -34,7 +34,7 @@ according to the report and finally complete the migration of the Java version.
 
 #### Find compatibility problems existing in a Maven project
 
-Add the following configuration to pom.xml (the root pom for multi-module project): 
+Add the following configuration to pom.xml (root pom.xml if a multi-module project): 
 
 ```xml
 <build>
@@ -87,11 +87,11 @@ Configurations:
 
 - `toVersion`: the target JDK version. 11 and 17 are supported, and 11 is as default.
 
-- `outputFile`: the destination of EMT4J's report. Default is report.html.
+- `outputFile`: the destination of EMT4J's report. The default is report.html.
 
-- `priority`: the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set. 
+- `priority`: the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set. 
 
-- `verbose`: print more detail messages if true.
+- `verbose`: print more detailed messages if true.
 
 As mentioned earlier, EMT4J supports running as a Java agent. To leverage it in the test process you need to add the
 following configuration:
@@ -134,7 +134,7 @@ Then run the following command:
 $ mvn test
 ```
 
-#### Find compatibility problems existing in specified files (classes, JAR or directory)
+#### Find compatibility problems existing in specified files (classes, JAR, or directory)
 
 ``` shell
 $ mvn org.eclipse.emt4j:emt4j-maven-plugin:0.7.0:check-files -Dfiles=...
@@ -146,7 +146,7 @@ First, you need to download the build from the link below:
 
 [Releases](https://github.com/adoptium/emt4j/releases)
 
-The build includes two Java agents, command line tools, a maven plugin and required dependencies.
+The build includes two Java agents, command line tools, a maven plugin, and required dependencies.
 
 #### Use Java agent standalone to perform runtime checking
 
@@ -177,11 +177,11 @@ The build includes two Java agents, command line tools, a maven plugin and requi
 
 Java agent options:
 
-- `file` : the output file path. Default is `emt4j-${yyyyMMddHHmmss}.dat` in the current working directory.
+- `file` : the output file path. The default is `emt4j-${yyyyMMddHHmmss}.dat` in the current working directory.
 
 - `to` : the target JDK version.
 
-- `priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set.
+- `priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set.
 
 #### Use CLI
 
@@ -199,7 +199,7 @@ and JARS.
 
 - Check JVM options
    ```shell
-   $ sh bin/analysis.sh -f 8 -t 17 <file that contains JVM opetions>
+   $ sh bin/analysis.sh -f 8 -t 17 <file that contains JVM options>
    ```
 
 Options:
@@ -208,13 +208,13 @@ Options:
 
 - `-t` : the target JDK version. 11 and 17 are supported.
 
-- `-priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. Default is no set.
+- `-priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set.
 
 - `-p` : the report format, HTML, TXT, and JSON are supported. Default is HTML
 
 - `-o` : the output file name (the default name is 'report').
 
-- `-v` : print more detail messages.
+- `-v` : print more detailed messages.
 
 ## Other Documents
 
