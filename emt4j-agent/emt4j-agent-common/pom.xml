@@ -29,11 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>emt4j-agent-common</artifactId>
-    <groupId>org.eclipse.emt4j</groupId>
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.ow2.asm</groupId>

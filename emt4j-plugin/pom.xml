@@ -26,7 +26,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-maven-plugin</artifactId>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
     <packaging>maven-plugin</packaging>

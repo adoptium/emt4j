@@ -26,12 +26,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eclipse.emt4j</groupId>
+
     <artifactId>emt4j-analysis</artifactId>
+
     <name>emt4j-analysis</name>
     <description>Analysis of emt4j</description>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>
     <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>

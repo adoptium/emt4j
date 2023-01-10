@@ -39,7 +39,6 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

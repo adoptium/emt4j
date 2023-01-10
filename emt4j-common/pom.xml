@@ -26,7 +26,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-common</artifactId>
     <name>emt4j-common</name>
     <url>https://projects.eclipse.org/projects/adoptium.emt4j</url>

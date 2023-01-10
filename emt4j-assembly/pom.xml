@@ -27,6 +27,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>emt4j-assembly</artifactId>
+
+    <packaging>pom</packaging>
+
     <properties>
         <build.agent.dir>${project.build.directory}/agent</build.agent.dir>
         <build.analysis.dir>${project.build.directory}/analysis</build.analysis.dir>
@@ -36,8 +41,7 @@
         <testcases.artifactId>emt4j-test-jdk8,emt4j-test-jdk11</testcases.artifactId>
         <agent.artifactId>emt4j-agent-jdk8,emt4j-agent-jdk11</agent.artifactId>
     </properties>
-    <artifactId>emt4j-assembly</artifactId>
-    <packaging>pom</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
@@ -62,17 +66,14 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk8</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk11</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

@@ -26,7 +26,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-agent</artifactId>
     <modules>
         <module>emt4j-agent-jdk8</module>

@@ -28,7 +28,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.eclipse.emt4j</groupId>
     <artifactId>emt4j-test-common</artifactId>
 
     <dependencies>
