@@ -111,7 +111,7 @@ public class AgentFacade {
                             agentOption.setOutputFile(kv[1]);
                             break;
                         case "to":
-                            agentOption.setToVersion(Integer.valueOf(kv[1]));
+                            agentOption.setToVersion(Integer.parseInt(kv[1]));
                             break;
                         case "locale":
                             agentOption.setLocale(new Locale(kv[1]));

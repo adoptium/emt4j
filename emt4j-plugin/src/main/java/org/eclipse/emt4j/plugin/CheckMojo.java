@@ -31,6 +31,7 @@ import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -148,7 +149,7 @@ public class CheckMojo extends BaseCheckMojo {
             outputs.append(testOutputDirectory);
         }
         if (outputs.length() > 0) {
-            try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(modulesFile.toPath(), StandardOpenOption.APPEND)))) {
+            try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(modulesFile.toPath(), StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
                 bw.write(key + "=" + outputs);
                 bw.newLine();
             }
@@ -157,7 +158,7 @@ public class CheckMojo extends BaseCheckMojo {
     }
 
     private void addDependencies(DependencyNode root) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(dependenciesFile.toPath(), StandardOpenOption.APPEND)))) {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(dependenciesFile.toPath(), StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
             addDependencies(root, bw);
         }
     }

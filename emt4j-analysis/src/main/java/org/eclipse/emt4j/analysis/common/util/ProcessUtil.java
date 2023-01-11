@@ -21,6 +21,7 @@ package org.eclipse.emt4j.analysis.common.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ProcessUtil {
@@ -28,10 +29,10 @@ public class ProcessUtil {
         Runtime rt = Runtime.getRuntime();
         Process p = rt.exec(commands);
         BufferedReader stdInput = new BufferedReader(new
-                InputStreamReader(p.getInputStream()));
+                InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
 
         BufferedReader stdError = new BufferedReader(new
-                InputStreamReader(p.getErrorStream()));
+                InputStreamReader(p.getErrorStream(), StandardCharsets.UTF_8));
         String s = null;
         StringBuffer sb = new StringBuffer();
         while ((s = stdError.readLine()) != null) {

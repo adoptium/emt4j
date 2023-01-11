@@ -28,7 +28,7 @@ import java.util.Objects;
  * <code>Dependency</code> is the core model of JDK migration tool.
  * It describes what depends on what, and the type and the context surrounding the dependency.
  */
-public class Dependency implements Serializable {
+public class Dependency implements Serializable, Cloneable {
     private String locationExternalForm;
     private DependTarget target;
     private String targetFilePath;

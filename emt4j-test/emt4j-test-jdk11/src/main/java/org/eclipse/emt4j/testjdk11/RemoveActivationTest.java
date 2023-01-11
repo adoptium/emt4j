@@ -27,8 +27,7 @@ public class RemoveActivationTest extends SITBaseCase {
     public void run() {
         java.util.Properties props = new java.util.Properties();
         java.rmi.activation.ActivationGroupDesc.CommandEnvironment ace = null;
-        java.rmi.activation.ActivationGroupDesc agd = new
-                java.rmi.activation.ActivationGroupDesc(props, ace);
+        new java.rmi.activation.ActivationGroupDesc(props, ace);
     }
 
     @Override

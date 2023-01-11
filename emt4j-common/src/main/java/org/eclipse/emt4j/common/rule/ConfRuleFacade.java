@@ -40,7 +40,7 @@ public class ConfRuleFacade {
         String[] roadMapStr = FileUtil.readPlainTextFromResource("/roadmap.cfg", false).get(0).split("->");
         JDK_UPGRADE_ROADMAP = new int[roadMapStr.length];
         for (int i = 0; i < roadMapStr.length; i++) {
-            JDK_UPGRADE_ROADMAP[i] = Integer.valueOf(roadMapStr[i]);
+            JDK_UPGRADE_ROADMAP[i] = Integer.parseInt(roadMapStr[i]);
         }
     }
 
