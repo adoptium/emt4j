@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -176,6 +176,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
     private static ClassSymbol createClassSymbol(RecordSymbolMethodVisitor methodVisitor, String className) {
         ClassSymbol classSymbol = new ClassSymbol();
         classSymbol.setCallMethodSet(methodVisitor.callMethodSet);
+        classSymbol.setCallMethodToLines(methodVisitor.callMethodToLines);
         classSymbol.setConstantPoolSet(methodVisitor.constantPoolSet);
         classSymbol.setTypeSet(methodVisitor.typeSet);
         classSymbol.setInvokeMap(methodVisitor.invokeMap);
@@ -184,8 +185,14 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
     }
 
     private static class RecordSymbolMethodVisitor extends MethodVisitor {
+
+        private int currentLine;
+
         Set<String> typeSet = new HashSet<>();
         Set<DependTarget.Method> callMethodSet = new HashSet<>();
+
+        Map<DependTarget.Method, List<Integer>> callMethodToLines = new HashMap<>();
+
         Set<String> constantPoolSet = new HashSet<>();
         Map<String, Set<String>> invokeMap = new HashMap<>();
 
@@ -277,6 +284,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
             //Omit the descriptor have no problem for functional.
             DependTarget.Method dependTarget = new DependTarget.Method(normalize(owner), name, descriptor, DependType.METHOD);
             callMethodSet.add(dependTarget);
+            callMethodToLines.computeIfAbsent(dependTarget, i -> new ArrayList<>()).add(currentLine);
             String method = currentMethod.get();
             invokeMap.compute(method, (k, v) -> {
                         if (v == null) {
@@ -287,6 +295,12 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
                     }
             );
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+        }
+
+        @Override
+        public void visitLineNumber(int line, Label start) {
+            currentLine = line;
+            super.visitLineNumber(line, start);
         }
 
         private void add(List<String> classNames) {

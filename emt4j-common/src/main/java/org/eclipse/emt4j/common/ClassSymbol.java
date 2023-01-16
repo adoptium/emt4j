@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,8 @@ import java.util.Set;
 public class ClassSymbol {
     private Set<String> typeSet;
     private Set<DependTarget.Method> callMethodSet;
+
+    private Map<DependTarget.Method, List<Integer>> callMethodToLines;
     private Set<String> constantPoolSet;
     private Map<String, Set<String>> invokeMap;
     private String className; // Internal class name
@@ -54,6 +57,14 @@ public class ClassSymbol {
 
     public void setCallMethodSet(Set<DependTarget.Method> callMethodSet) {
         this.callMethodSet = callMethodSet;
+    }
+
+    public Map<DependTarget.Method, List<Integer>> getCallMethodToLines() {
+        return callMethodToLines;
+    }
+
+    public void setCallMethodToLines(Map<DependTarget.Method, List<Integer>> callMethodToLines) {
+        this.callMethodToLines = callMethodToLines;
     }
 
     public Set<String> getConstantPoolSet() {

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,12 +18,12 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.analyzer;
 
+import org.apache.commons.io.IOUtils;
+import org.eclipse.emt4j.common.ClassSymbol;
 import org.eclipse.emt4j.common.DependTarget;
 import org.eclipse.emt4j.common.DependType;
 import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.classanalyze.ClassInspectorInstance;
-import org.eclipse.emt4j.common.ClassSymbol;
-import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,7 +49,9 @@ public class ClassAnalyzer {
             consumer.accept(new Dependency(location, new DependTarget.Class(type, DependType.CLASS), null, targetFilePath));
         }
         for (DependTarget.Method method : symbol.getCallMethodSet()) {
-            consumer.accept(new Dependency(location, method, null, targetFilePath));
+            Dependency dependency = new Dependency(location, method, null, targetFilePath);
+            dependency.setLines(symbol.getCallMethodToLines().get(method));
+            consumer.accept(dependency);
         }
 
         Dependency wholeClass = new Dependency(location,

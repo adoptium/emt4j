@@ -21,6 +21,7 @@ package org.eclipse.emt4j.common;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,6 +43,8 @@ public class Dependency implements Serializable, Cloneable {
     private transient ClassSymbol classSymbol;
 
     private SourceInformation sourceInformation;
+
+    private List<Integer> lines;
 
     public Dependency(URL location, DependTarget target, StackTraceElement[] stacktrace, String targetFilePath) {
         this.target = target;
@@ -156,17 +159,25 @@ public class Dependency implements Serializable, Cloneable {
         this.sourceInformation = sourceInformation;
     }
 
+    public List<Integer> getLines() {
+        return lines;
+    }
+
+    public void setLines(List<Integer> lines) {
+        this.lines = lines;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Dependency that = (Dependency) o;
-        return Objects.equals(locationExternalForm, that.locationExternalForm) && Objects.equals(target, that.target) && Objects.equals(targetFilePath, that.targetFilePath) && Objects.equals(callerClass, that.callerClass) && Objects.equals(callerMethod, that.callerMethod) && Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass) && Arrays.equals(stacktrace, that.stacktrace) && Objects.equals(context, that.context) && Arrays.equals(currClassBytecode, that.currClassBytecode) && Objects.equals(classSymbol, that.classSymbol) && Objects.equals(sourceInformation, that.sourceInformation);
+        return Objects.equals(locationExternalForm, that.locationExternalForm) && Objects.equals(target, that.target) && Objects.equals(targetFilePath, that.targetFilePath) && Objects.equals(callerClass, that.callerClass) && Objects.equals(callerMethod, that.callerMethod) && Arrays.equals(nonJdkCallerClass, that.nonJdkCallerClass) && Arrays.equals(stacktrace, that.stacktrace) && Objects.equals(context, that.context) && Arrays.equals(currClassBytecode, that.currClassBytecode) && Objects.equals(classSymbol, that.classSymbol) && Objects.equals(sourceInformation, that.sourceInformation) && Objects.equals(lines, that.lines);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(locationExternalForm, target, targetFilePath, callerClass, callerMethod, context, classSymbol, sourceInformation);
+        int result = Objects.hash(locationExternalForm, target, targetFilePath, callerClass, callerMethod, context, classSymbol, sourceInformation, lines);
         result = 31 * result + Arrays.hashCode(nonJdkCallerClass);
         result = 31 * result + Arrays.hashCode(stacktrace);
         result = 31 * result + Arrays.hashCode(currClassBytecode);
@@ -187,6 +198,7 @@ public class Dependency implements Serializable, Cloneable {
                 ", currClassBytecode=" + Arrays.toString(currClassBytecode) +
                 ", classSymbol=" + classSymbol +
                 ", sourceInformation=" + sourceInformation +
+                ", lines=" + lines +
                 '}';
     }
 }
