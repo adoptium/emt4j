@@ -108,6 +108,8 @@ public class Dependency implements Serializable, Cloneable {
         cloned.callerMethod = callerMethod;
         cloned.locationExternalForm = locationExternalForm;
         cloned.targetFilePath = targetFilePath;
+        cloned.sourceInformation = sourceInformation;
+        cloned.lines = lines;
         return cloned;
     }
 
