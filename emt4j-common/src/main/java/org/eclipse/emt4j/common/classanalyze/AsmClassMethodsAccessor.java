@@ -179,7 +179,6 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
         classSymbol.setCallMethodToLines(methodVisitor.callMethodToLines);
         classSymbol.setConstantPoolSet(methodVisitor.constantPoolSet);
         classSymbol.setTypeSet(methodVisitor.typeSet);
-        classSymbol.setInvokeMap(methodVisitor.invokeMap);
         classSymbol.setClassName(className);
         return classSymbol;
     }
@@ -194,7 +193,6 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
         Map<DependTarget.Method, List<Integer>> callMethodToLines = new HashMap<>();
 
         Set<String> constantPoolSet = new HashSet<>();
-        Map<String, Set<String>> invokeMap = new HashMap<>();
 
         public RecordSymbolMethodVisitor() {
             super(ASM9);
@@ -285,15 +283,6 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
             DependTarget.Method dependTarget = new DependTarget.Method(normalize(owner), name, descriptor, DependType.METHOD);
             callMethodSet.add(dependTarget);
             callMethodToLines.computeIfAbsent(dependTarget, i -> new ArrayList<>()).add(currentLine);
-            String method = currentMethod.get();
-            invokeMap.compute(method, (k, v) -> {
-                        if (v == null) {
-                            v = new HashSet<>();
-                        }
-                        v.add(dependTarget.toMethodIdentifierNoDesc());
-                        return v;
-                    }
-            );
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
 

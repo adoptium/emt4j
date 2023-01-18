@@ -74,12 +74,4 @@ public class ClassSymbol {
     public void setConstantPoolSet(Set<String> constantPoolSet) {
         this.constantPoolSet = constantPoolSet;
     }
-
-    public Map<String, Set<String>> getInvokeMap() {
-        return invokeMap;
-    }
-
-    public void setInvokeMap(Map<String, Set<String>> invokeMap) {
-        this.invokeMap = invokeMap;
-    }
 }
