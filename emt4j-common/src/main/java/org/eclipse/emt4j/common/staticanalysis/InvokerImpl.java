@@ -20,6 +20,7 @@
 package org.eclipse.emt4j.common.staticanalysis;
 
 import org.eclipse.emt4j.common.staticanalysis.impl.CastArraysAsListToArrayAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.CastSystemClassLoaderToURLClassLoaderAnalyzer;
 import org.eclipse.emt4j.common.staticanalysis.impl.PatternCompileAnalyzer;
 import soot.G;
 import soot.Scene;
@@ -62,6 +63,7 @@ class InvokerImpl implements Invoker {
 
         add(new CastArraysAsListToArrayAnalyzer());
         add(new PatternCompileAnalyzer());
+        add(new CastSystemClassLoaderToURLClassLoaderAnalyzer());
     }
 
     private void add(Analyzer analyzer) {

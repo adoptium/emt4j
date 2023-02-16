@@ -20,8 +20,18 @@
 package org.eclipse.emt4j.common.staticanalysis.impl;
 
 import org.eclipse.emt4j.common.staticanalysis.Analyzer;
+import soot.Local;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Unit;
+import soot.Value;
+import soot.jimple.CastExpr;
+import soot.jimple.internal.JAssignStmt;
+import soot.toolkits.scalar.SimpleLocalDefs;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 abstract class BaseAnalyzer implements Analyzer {
     @Override
@@ -37,4 +47,23 @@ abstract class BaseAnalyzer implements Analyzer {
     }
 
     abstract boolean doAnalyze(SootMethod method);
+
+    protected final static Set<Value> getDefValues(SimpleLocalDefs localDefs, Unit unit, Local local) {
+        Set<Value> values = new HashSet<>();
+        List<Unit> defs = localDefs.getDefsOfAt(local, unit);
+        for (Unit def : defs) {
+            if (def instanceof JAssignStmt) {
+                JAssignStmt assign = (JAssignStmt) def;
+                Value rightOp = assign.getRightOp();
+                if (rightOp instanceof Local) {
+                    values.addAll(getDefValues(localDefs, def, (Local) rightOp));
+                } else if (rightOp instanceof CastExpr) {
+                    values.addAll(getDefValues(localDefs, def, (Local) ((CastExpr) rightOp).getOp()));
+                } else {
+                    values.add(rightOp);
+                }
+            }
+        }
+        return values;
+    }
 }

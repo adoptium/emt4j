@@ -169,4 +169,12 @@
         </support-modes>
     </rule>
 
+    <rule desc="System classloader not instance of URLClassLoader " type="whole-class"
+          mvel2-rule-file="mvel2-rule-castsystemclassloadertourlclassloader.cfg" static-analysis-rule="cast-system-classloader-to-url-classloader"
+          result-code="SYSTEM_CLASSLOADER_TO_URLCLASSLOADER" priority="p1">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>

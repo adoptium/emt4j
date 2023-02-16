@@ -19,7 +19,6 @@
 
 package org.eclipse.emt4j.common.staticanalysis.impl;
 
-import soot.ArrayType;
 import soot.Local;
 import soot.RefType;
 import soot.SootMethod;
@@ -29,7 +28,6 @@ import soot.Value;
 import soot.ValueBox;
 import soot.jimple.JimpleBody;
 import soot.jimple.internal.JCastExpr;
-import soot.jimple.internal.JInterfaceInvokeExpr;
 import soot.jimple.internal.JStaticInvokeExpr;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraphFactory;
@@ -38,11 +36,11 @@ import soot.toolkits.scalar.SimpleLocalDefs;
 import java.util.List;
 import java.util.Set;
 
-public class CastArraysAsListToArrayAnalyzer extends BaseAnalyzer {
+public class CastSystemClassLoaderToURLClassLoaderAnalyzer extends BaseAnalyzer {
 
     @Override
     public String rule() {
-        return "cast-arrays-as-list-to-array";
+        return "cast-system-classloader-to-url-classloader";
     }
 
     boolean doAnalyze(SootMethod method) {
@@ -56,11 +54,7 @@ public class CastArraysAsListToArrayAnalyzer extends BaseAnalyzer {
                 Value value = box.getValue();
                 if (value instanceof JCastExpr) {
                     Type castType = ((JCastExpr) value).getCastType();
-                    if (!(castType instanceof ArrayType)) {
-                        continue;
-                    }
-                    castType = ((ArrayType) castType).baseType;
-                    if (castType instanceof RefType && ((RefType) castType).getClassName().equals("java.lang.Object")) {
+                    if (!(castType instanceof RefType) || !((RefType) castType).getClassName().equals("java.net.URLClassLoader")) {
                         continue;
                     }
                     Local local = (Local) ((JCastExpr) value).getOpBox().getValue();
@@ -75,28 +69,13 @@ public class CastArraysAsListToArrayAnalyzer extends BaseAnalyzer {
 
     private static boolean isTarget(SimpleLocalDefs localDefs, Unit unit, Local local) {
         Set<Value> defs = getDefValues(localDefs, unit, local);
-        Local receiver = null;
         for (Value def : defs) {
-            if (def instanceof JInterfaceInvokeExpr) {
-                JInterfaceInvokeExpr invoke = (JInterfaceInvokeExpr) def;
+            if (def instanceof JStaticInvokeExpr) {
+                JStaticInvokeExpr invoke = (JStaticInvokeExpr) def;
                 SootMethod method = invoke.getMethod();
-                if (method.getDeclaringClass().getName().equals("java.util.List")
-                    && method.getName().equals("toArray")
-                    && method.getParameterCount() == 0) {
-                    receiver = (Local) invoke.getBase();
-                }
-            }
-        }
-        if (receiver != null) {
-            defs = getDefValues(localDefs, unit, receiver);
-            for (Value def : defs) {
-                if (def instanceof JStaticInvokeExpr) {
-                    JStaticInvokeExpr invoke = (JStaticInvokeExpr) def;
-                    SootMethod method = invoke.getMethod();
-                    if (method.getDeclaringClass().getName().equals("java.util.Arrays")
-                        && method.getName().equals("asList")) {
-                        return true;
-                    }
+                if (method.getDeclaringClass().getName().equals("java.lang.ClassLoader")
+                    && method.getName().equals("getSystemClassLoader")) {
+                    return true;
                 }
             }
         }
