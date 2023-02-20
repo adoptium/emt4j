@@ -28,8 +28,8 @@ import java.net.URLClassLoader;
 
 public class StaticAnalysisEntry {
 
-    static class MyClassLoader extends URLClassLoader {
-        public MyClassLoader(URL[] urls, ClassLoader parent) {
+    static class SootAnalysisClassLoader extends URLClassLoader {
+        public SootAnalysisClassLoader(URL[] urls, ClassLoader parent) {
             super(urls, parent);
         }
 
@@ -48,10 +48,10 @@ public class StaticAnalysisEntry {
     private static final ThreadLocal<Invoker> INVOKER = ThreadLocal.withInitial(() -> {
         try {
             ClassLoader classLoader = StaticAnalysisEntry.class.getClassLoader();
-            MyClassLoader myClassLoader;
+            SootAnalysisClassLoader sootAnalysisClassLoader;
             if (classLoader instanceof URLClassLoader) {
                 URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                myClassLoader = new MyClassLoader(urlClassLoader.getURLs(), urlClassLoader);
+                sootAnalysisClassLoader = new SootAnalysisClassLoader(urlClassLoader.getURLs(), urlClassLoader);
             } else {
                 String[] cps = System.getProperty("java.class.path").split(File.pathSeparator);
                 URL[] urls = new URL[cps.length];
@@ -59,10 +59,10 @@ public class StaticAnalysisEntry {
                     urls[i] = new File(cps[i]).toURI().toURL();
                 }
                 //noinspection resource
-                myClassLoader = new MyClassLoader(urls, classLoader);
+                sootAnalysisClassLoader = new SootAnalysisClassLoader(urls, classLoader);
             }
 
-            Class<?> clazz = myClassLoader.loadClass("org.eclipse.emt4j.common.staticanalysis.InvokerImpl");
+            Class<?> clazz = sootAnalysisClassLoader.loadClass("org.eclipse.emt4j.common.staticanalysis.InvokerImpl");
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             return (Invoker) constructor.newInstance();
