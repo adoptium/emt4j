@@ -57,6 +57,7 @@ public class ClassAnalyzer {
         Dependency wholeClass = new Dependency(location,
                 new DependTarget.Class(className, DependType.WHOLE_CLASS), null, targetFilePath);
         wholeClass.setClassSymbol(symbol);
+        wholeClass.setCurrClassBytecode(classFileContent);
         consumer.accept(wholeClass);
     }
 

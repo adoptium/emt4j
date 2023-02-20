@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -23,6 +23,7 @@ import org.eclipse.emt4j.common.rule.ExecutableRule;
 import org.eclipse.emt4j.common.rule.model.CheckResult;
 import org.eclipse.emt4j.common.rule.model.ConfRuleItem;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
+import org.eclipse.emt4j.common.staticanalysis.StaticAnalysisEntry;
 import org.eclipse.emt4j.common.util.FileUtil;
 import org.mvel2.MVEL;
 
@@ -41,6 +42,8 @@ public class WholeClassRule extends ExecutableRule {
     private String mvel2RuleFile;
     private String mvel2Rule;
 
+    private String staticAnalysisRule;
+
     public WholeClassRule(ConfRuleItem confRuleItem, ConfRules confRules) {
         super(confRuleItem, confRules);
     }
@@ -58,7 +61,15 @@ public class WholeClassRule extends ExecutableRule {
         mvelMap.put("cpSet", dependency.getClassSymbol().getConstantPoolSet());
         Object result = MVEL.eval(mvel2Rule, mvelMap);
         if (result instanceof Boolean) {
-            return ((Boolean) result) ? CheckResult.FAIL : CheckResult.PASS;
+            if (staticAnalysisRule == null) {
+                return ((Boolean) result) ? CheckResult.FAIL : CheckResult.PASS;
+            } else {
+                if ((Boolean) result) {
+                    boolean found = StaticAnalysisEntry.analyze(staticAnalysisRule, dependency.getTarget().asClass().getClassName(), dependency.getCurrClassBytecode());
+                    return found ? CheckResult.FAIL : CheckResult.PASS;
+                }
+                return CheckResult.PASS;
+            }
         } else {
             throw new JdkMigrationException("Mvel2 rule file" + mvel2RuleFile + " must return a boolean result!Now result type is : " + result.getClass());
         }
@@ -83,5 +94,9 @@ public class WholeClassRule extends ExecutableRule {
 
     public void setMvel2Rule(String mvel2Rule) {
         this.mvel2Rule = mvel2Rule;
+    }
+
+    public void setStaticAnalysisRule(String staticAnalysisRule) {
+        this.staticAnalysisRule = staticAnalysisRule;
     }
 }

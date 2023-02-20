@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -16,25 +16,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.emt4j.testjdk8;
 
-import org.eclipse.emt4j.common.JsonReport;
-import org.eclipse.emt4j.test.common.SITBaseCase;
-import org.eclipse.emt4j.test.common.TestConf;
+package org.eclipse.emt4j.common.staticanalysis;
 
-import java.util.regex.Pattern;
+import soot.SootClass;
 
-@TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK8, to = TestConf.RELEASE.JDK11)
-public class RegexPatternTest extends SITBaseCase {
+public interface Analyzer {
+    boolean analyze(SootClass clazz);
 
-    public void run() {
-        Pattern p = Pattern.compile("^x", 12313131);
-        p.matcher("adaoidad");
-    }
-
-
-    @Override
-    public void verify(JsonReport jsonReport) {
-        assertTrue(matchAny(jsonReport, "JUR_PATTERN_COMPILE"));
-    }
+    String rule();
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -30,7 +30,7 @@ import java.util.List;
 
 import static org.eclipse.emt4j.test.common.TestConf.*;
 
-@TestConf(mode = ModeEnum.AGENT, from = RELEASE.JDK8, to = RELEASE.JDK11, option = "-XX:+UseConcMarkSweepGC")
+@TestConf(mode = {ModeEnum.AGENT, ModeEnum.CLASS}, from = RELEASE.JDK8, to = RELEASE.JDK11, option = "-XX:+UseConcMarkSweepGC")
 public class ArraysToListToArrayBugTest extends SITBaseCase {
     public void run() {
         URI[] uriArray = new URI[3];

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Copyright (c) 2022 Contributors to the Eclipse Foundation
+    Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -143,6 +143,37 @@
         <support-modes>
             <mode>class</mode>
             <mode>agent</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Get java version for classfile " type="whole-class" mvel2-rule-file="mvel2-rule-getjavaversion.cfg"
+          result-code="GET_JDK_VERSION" priority="p1">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Arrays.asList().toArray return type changed" type="whole-class"
+          mvel2-rule-file="mvel2-rule-castarraysaslisttoarray.cfg" static-analysis-rule="cast-arrays-as-list-to-array"
+          result-code="ARRAYS_AS_LIST_TO_ARRAY" priority="p1">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="java.util.regex.Pattern.compile add flags check in jdk11,but none in jdk8"
+          type="whole-class" mvel2-rule-file="mvel2-rule-patterncompile.cfg" static-analysis-rule="pattern-compile"
+          result-code="JUR_PATTERN_COMPILE" priority="p1">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="System classloader not instance of URLClassLoader " type="whole-class"
+          mvel2-rule-file="mvel2-rule-castsystemclassloadertourlclassloader.cfg" static-analysis-rule="cast-system-classloader-to-url-classloader"
+          result-code="SYSTEM_CLASSLOADER_TO_URLCLASSLOADER" priority="p1">
+        <support-modes>
+            <mode>class</mode>
         </support-modes>
     </rule>
 
