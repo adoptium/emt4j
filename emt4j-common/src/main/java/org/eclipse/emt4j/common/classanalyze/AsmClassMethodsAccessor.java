@@ -300,7 +300,7 @@ public class AsmClassMethodsAccessor implements ClassMethodsAccessor {
 
         private String normalize(String internal) {
             if (null != internal) {
-                return internal.replace('/', '.').replace('$', '.');
+                return internal.replace('/', '.');
             } else {
                 return null;
             }
