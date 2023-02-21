@@ -50,14 +50,6 @@
         </support-modes>
     </rule>
 
-    <rule desc="Get java version for classfile " type="whole-class" mvel2-rule-file="mvel2-rule-getjavaversion.cfg"
-          result-code="GET_JDK_VERSION" priority="p1">
-        <support-modes>
-            <mode>class</mode>
-        </support-modes>
-    </rule>
-
-
     <rule desc="JPMS require add-exports" type="add-exports" packages-file="jdk11packages.cfg"
           module-to-package-file="jdk11moduleexport.cfg"
           default-exports-file="jdk_default_export_to_unnamed.cfg" result-code="MODULE_ADD_EXPORTS"
