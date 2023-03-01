@@ -19,9 +19,7 @@
 
 package org.eclipse.emt4j.common.staticanalysis;
 
-import org.eclipse.emt4j.common.staticanalysis.impl.CastArraysAsListToArrayAnalyzer;
-import org.eclipse.emt4j.common.staticanalysis.impl.CastSystemClassLoaderToURLClassLoaderAnalyzer;
-import org.eclipse.emt4j.common.staticanalysis.impl.PatternCompileAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.*;
 import soot.G;
 import soot.Scene;
 import soot.SootClass;
@@ -64,6 +62,9 @@ class InvokerImpl implements Invoker {
         add(new CastArraysAsListToArrayAnalyzer());
         add(new PatternCompileAnalyzer());
         add(new CastSystemClassLoaderToURLClassLoaderAnalyzer());
+        add(new CLDRDateFormatAnalyzer());
+        add(new CLDRCalendarFirstDayOfWeekAnalyzer());
+        add(new CLDRNumberFormatAnalyzer());
     }
 
     private void add(Analyzer analyzer) {
