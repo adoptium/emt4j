@@ -39,11 +39,11 @@ public class ClassAnalyzer {
     public static void analyze(Path classFilePath, Consumer<Dependency> consumer) throws IOException {
         try (InputStream inputStream = new FileInputStream(classFilePath.toFile())) {
             byte[] classFileContent = IOUtils.toByteArray(inputStream);
-            processClass(classFileContent, classFilePath.toUri().toURL(), classFilePath.toFile().getAbsolutePath(), consumer, classFilePath.toFile().getName());
+            processClass(classFileContent, classFilePath.toUri().toURL(), classFilePath.toFile().getAbsolutePath(), consumer, null);
         }
     }
 
-    protected static void processClass(byte[] classFileContent, URL location, String targetFilePath, Consumer<Dependency> consumer, String className) throws IOException {
+    protected static void processClass(byte[] classFileContent, URL location, String targetFilePath, Consumer<Dependency> consumer, String className) {
         ClassSymbol symbol = ClassInspectorInstance.getInstance().getSymbolInClass(classFileContent);
         for (String type : symbol.getTypeSet()) {
             consumer.accept(new Dependency(location, new DependTarget.Class(type, DependType.CLASS), null, targetFilePath));
@@ -52,6 +52,10 @@ public class ClassAnalyzer {
             Dependency dependency = new Dependency(location, method, null, targetFilePath);
             dependency.setLines(symbol.getCallMethodToLines().get(method));
             consumer.accept(dependency);
+        }
+
+        if (className == null) {
+            className = normalize(symbol.getClassName());
         }
 
         Dependency wholeClass = new Dependency(location,
@@ -67,6 +71,6 @@ public class ClassAnalyzer {
 
 
     private static String normalize(String internalName) {
-        return internalName.replace('/', '.').replace('$', '.');
+        return internalName.replace('/', '.');
     }
 }
