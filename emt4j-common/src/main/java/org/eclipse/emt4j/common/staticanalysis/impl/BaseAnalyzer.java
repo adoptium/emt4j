@@ -26,7 +26,11 @@ import soot.SootMethod;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.CastExpr;
+import soot.jimple.JimpleBody;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.internal.JAssignStmt;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.ExceptionalUnitGraphFactory;
 import soot.toolkits.scalar.SimpleLocalDefs;
 
 import java.util.HashSet;
@@ -59,11 +63,53 @@ abstract class BaseAnalyzer implements Analyzer {
                     values.addAll(getDefValues(localDefs, def, (Local) rightOp));
                 } else if (rightOp instanceof CastExpr) {
                     values.addAll(getDefValues(localDefs, def, (Local) ((CastExpr) rightOp).getOp()));
+                } else if (rightOp instanceof StaticFieldRef) {
+                    StaticFieldRef ref = (StaticFieldRef) rightOp;
+                    values.addAll(globalTarget(ref));
                 } else {
                     values.add(rightOp);
                 }
             }
         }
         return values;
+    }
+
+    protected final static Set<Unit> getDefUnits(SimpleLocalDefs localDefs, Unit unit, Local local) {
+        Set<Unit> units = new HashSet<>();
+        List<Unit> defs = localDefs.getDefsOfAt(local, unit);
+        for (Unit def : defs) {
+            units.add(def);
+            if (def instanceof JAssignStmt) {
+                JAssignStmt assign = (JAssignStmt) def;
+                Value rightOp = assign.getRightOp();
+                if (rightOp instanceof Local) {
+                    units.addAll(getDefUnits(localDefs, def, (Local) rightOp));
+                } else if (rightOp instanceof CastExpr) {
+                    units.addAll(getDefUnits(localDefs, def, (Local) ((CastExpr) rightOp).getOp()));
+                }
+            }
+        }
+        return units;
+    }
+
+    private static Set<Value> globalTarget(StaticFieldRef fieldRef) {
+        SootClass declaringClass = fieldRef.getField().getDeclaringClass();
+        SootMethod method = declaringClass.getMethodByName("<clinit>");
+        JimpleBody body = (JimpleBody) method.retrieveActiveBody();
+        Local targetLocal = null;
+        Unit targetUnit = null;
+        for (Unit unit : body.getUnits()) {
+            if (unit instanceof JAssignStmt) {
+                JAssignStmt assignStmt = (JAssignStmt) unit;
+                if (assignStmt.getLeftOp().equivTo(fieldRef)) {
+                    if (assignStmt.getRightOp() instanceof Local) targetLocal = (Local) assignStmt.getRightOp();
+                    targetUnit = unit;
+                    break;
+                }
+            }
+        }
+        ExceptionalUnitGraph graph = ExceptionalUnitGraphFactory.createExceptionalUnitGraph(body);
+        SimpleLocalDefs localDefs = new SimpleLocalDefs(graph);
+        return getDefValues(localDefs, targetUnit, targetLocal);
     }
 }
