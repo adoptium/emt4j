@@ -169,4 +169,28 @@
         </support-modes>
     </rule>
 
+    <rule desc="DateFormat incompatible when default locale data to CLDR" type="whole-class"
+          mvel2-rule-file="mvel2-rule-cldrdateformat.cfg" static-analysis-rule="cldr-date-format"
+          result-code="CLDR_CLDR_DATE_FORMAT" priority="p3">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Calendar#getFirstDayOfWeek incompatible when default locale data to CLDR" type="whole-class"
+          mvel2-rule-file="mvel2-rule-cldrcalendarfirstdayofweek.cfg" static-analysis-rule="cldr-calendar-getfirstdayofweek"
+          result-code="CLDR_CLDR_FIRSTDAY_OF_WEEK" priority="p3">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="NumberFormat incompatible when default locale data to CLDR" type="whole-class"
+          mvel2-rule-file="mvel2-rule-cldrnumberformat.cfg" static-analysis-rule="cldr-number-format"
+          result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p3">
+        <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
