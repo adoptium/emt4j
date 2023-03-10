@@ -40,7 +40,9 @@ import java.util.Set;
 abstract class BaseAnalyzer implements Analyzer {
     @Override
     public boolean analyze(SootClass clazz) {
-        for (SootMethod method : clazz.getMethods()) {
+        List<SootMethod> methods = clazz.getMethods();
+        for (int i = 0; i < methods.size(); i++) {
+            SootMethod method = methods.get(i);
             if (!method.isAbstract()) {
                 if (doAnalyze(method)) {
                     return true;
