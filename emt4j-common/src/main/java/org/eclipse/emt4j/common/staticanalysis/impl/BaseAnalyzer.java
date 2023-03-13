@@ -33,8 +33,10 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraphFactory;
 import soot.toolkits.scalar.SimpleLocalDefs;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 abstract class BaseAnalyzer implements Analyzer {
@@ -43,7 +45,7 @@ abstract class BaseAnalyzer implements Analyzer {
         List<SootMethod> methods = clazz.getMethods();
         for (int i = 0; i < methods.size(); i++) {
             SootMethod method = methods.get(i);
-            if (!method.isAbstract()) {
+            if (!method.isAbstract() && !method.isNative()) {
                 if (doAnalyze(method)) {
                     return true;
                 }
@@ -96,7 +98,11 @@ abstract class BaseAnalyzer implements Analyzer {
 
     private static Set<Value> globalTarget(StaticFieldRef fieldRef) {
         SootClass declaringClass = fieldRef.getField().getDeclaringClass();
-        SootMethod method = declaringClass.getMethodByName("<clinit>");
+        Optional<SootMethod> clinit = declaringClass.getMethods().stream().filter(m -> "<clinit>".equals(m.getName())).findFirst();
+        if (!clinit.isPresent()) {
+            return Collections.emptySet();
+        }
+        SootMethod method = clinit.get();
         JimpleBody body = (JimpleBody) method.retrieveActiveBody();
         Local targetLocal = null;
         Unit targetUnit = null;

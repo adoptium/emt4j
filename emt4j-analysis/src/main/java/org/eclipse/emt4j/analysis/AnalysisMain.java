@@ -165,7 +165,7 @@ public class AnalysisMain {
     private static DependencySource doProcessSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
         Optional<DependencySource> opt= getSource(v);
         if (!opt.isPresent()) {
-            System.err.println(v + " doesn't exist");
+            System.err.println("Skip " + v + " since it doesn't exist");
             return null;
         }
         DependencySource ds = opt.get();
@@ -181,7 +181,6 @@ public class AnalysisMain {
     private static boolean isSource(String file) {
         File f = new File(file);
         if (!f.exists()) {
-            System.err.println(file + " not exist!");
             return false;
         }
         if (f.isFile()) {
@@ -193,7 +192,6 @@ public class AnalysisMain {
     private static Optional<DependencySource> getSource(String file) {
         File f = new File(file);
         if (!f.exists()) {
-            System.err.println(file + " not exist!");
             return Optional.empty();
         }
 

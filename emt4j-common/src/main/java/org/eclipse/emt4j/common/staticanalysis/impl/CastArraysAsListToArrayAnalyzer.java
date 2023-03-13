@@ -63,9 +63,12 @@ public class CastArraysAsListToArrayAnalyzer extends BaseAnalyzer {
                     if (castType instanceof RefType && ((RefType) castType).getClassName().equals("java.lang.Object")) {
                         continue;
                     }
-                    Local local = (Local) ((JCastExpr) value).getOpBox().getValue();
-                    if (isTarget(localDefs, unit, local)) {
-                        return true;
+                    Value value2 = ((JCastExpr) value).getOpBox().getValue();
+                    if (value2 instanceof Local) {
+                        Local local = (Local) value2;
+                        if (isTarget(localDefs, unit, local)) {
+                            return true;
+                        }
                     }
                 }
             }

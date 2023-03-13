@@ -19,7 +19,12 @@
 
 package org.eclipse.emt4j.common.staticanalysis;
 
-import org.eclipse.emt4j.common.staticanalysis.impl.*;
+import org.eclipse.emt4j.common.staticanalysis.impl.CLDRCalendarFirstDayOfWeekAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.CLDRDateFormatAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.CLDRNumberFormatAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.CastArraysAsListToArrayAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.CastSystemClassLoaderToURLClassLoaderAnalyzer;
+import org.eclipse.emt4j.common.staticanalysis.impl.PatternCompileAnalyzer;
 import soot.G;
 import soot.Scene;
 import soot.SootClass;
@@ -74,6 +79,8 @@ class InvokerImpl implements Invoker {
         Options.v().set_prepend_classpath(true);
         Options.v().set_allow_phantom_refs(true);
         Options.v().set_keep_line_number(true);
+        // TODO: learn what this does
+        Options.v().set_wrong_staticness(Options.wrong_staticness_ignore);
         Options.v().set_soot_classpath(directory.getAbsolutePath());
     }
 
