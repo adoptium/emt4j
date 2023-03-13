@@ -43,8 +43,6 @@ class InvokerImpl implements Invoker {
 
         directory = Files.createTempDirectory("files-for-static-analysis-" + Thread.currentThread().getId() + "-").toFile();
 
-        System.out.println(directory.getAbsolutePath());
-
         directory.deleteOnExit();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
