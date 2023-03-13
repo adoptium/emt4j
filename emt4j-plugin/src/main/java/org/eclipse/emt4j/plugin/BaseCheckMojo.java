@@ -47,7 +47,7 @@ abstract class BaseCheckMojo extends BaseMojo {
     /**
      * Indicate the output file.
      */
-    @Parameter(property = "outputFile", defaultValue = "report.html")
+    @Parameter(property = "outputFile", defaultValue = "emt4j-report.html")
     protected String outputFile;
 
     /**

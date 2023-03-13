@@ -87,7 +87,7 @@ Configurations:
 
 - `toVersion`: the target JDK version. 11 and 17 are supported, and 11 is as default.
 
-- `outputFile`: the destination of EMT4J's report. The default is report.html.
+- `outputFile`: the destination of EMT4J's report. The default is emt4j-report.html.
 
 - `priority`: the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set. 
 
