@@ -75,7 +75,6 @@ public class CheckMojo extends BaseCheckMojo {
         for (MavenProject project : projects) {
             File file = new File(project.getBuild().getDirectory(), "emt4j.dat");
             if (file.exists() && !file.isDirectory()) {
-                System.out.println(file.getAbsolutePath());
                 targets.add(file.getAbsolutePath());
             }
         }
