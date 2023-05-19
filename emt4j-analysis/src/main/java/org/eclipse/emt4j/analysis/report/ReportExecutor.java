@@ -70,64 +70,66 @@ public class ReportExecutor {
         this.reportConfig = reportConfig;
     }
 
-    public void execute(ReportInputProvider reportInputProvider, Progress parentProgress) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
+    public void execute(ReportInputProvider reportInputProvider, Progress parentProgress, boolean disableExternalTool) throws IOException, ClassNotFoundException, InterruptedException, URISyntaxException {
         ClassURL.registerUrlProtocolHandler();
         log("Reading checking result.");
         new Progress(parentProgress, "Read dependency records").printTitle();
         List<BodyRecord> recordList = reportInputProvider.getRecords();
 
-        log("Prepare for invoking external tools.");
-        new Progress(parentProgress, "Prepare for external tools").printTitle();
-        ExternalToolParam etp = prepareExternalToolParam(recordList, reportInputProvider.getHeader());
-        String externalToolRoot = reportConfig.getExternalToolRoot();
-        if (externalToolRoot != null) {
-            Path root = Paths.get(externalToolRoot);
-            // Each directory in external tool root is the home of one external tool
-            List<URL> urls = new ArrayList<>();
-            try {
-                Files.list(root).filter(p -> Files.isDirectory(p)).forEach(p -> {
-                    // Add jar files in each external tool' directory to URL list.
-                    try {
-                        Files.list(p).filter(f -> f.getFileName().toString().endsWith(".jar")).forEach(f -> {
-                            try {
-                                urls.add(f.toUri().toURL());
-                            } catch (MalformedURLException e) {
-                                log(e);
-                            }
-                        });
-                    } catch (IOException e) {
-                        log(e);
-                    }
-                });
-            } catch (IOException e) {
-                log(e);
-            }
-            if (!urls.isEmpty()) {
-                URLClassLoader externalToolLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
-                Iterator<Tool> toolIterator = ServiceLoader.load(Tool.class, externalToolLoader).iterator();
-                List<Tool> externalTools = new ArrayList<>();
-                while (toolIterator.hasNext()) {
-                    externalTools.add(toolIterator.next());
+        if (!disableExternalTool) {
+            log("Prepare for invoking external tools.");
+            new Progress(parentProgress, "Prepare for external tools").printTitle();
+            ExternalToolParam etp = prepareExternalToolParam(recordList, reportInputProvider.getHeader());
+            String externalToolRoot = reportConfig.getExternalToolRoot();
+            if (externalToolRoot != null) {
+                Path root = Paths.get(externalToolRoot);
+                // Each directory in external tool root is the home of one external tool
+                List<URL> urls = new ArrayList<>();
+                try {
+                    Files.list(root).filter(p -> Files.isDirectory(p)).forEach(p -> {
+                        // Add jar files in each external tool' directory to URL list.
+                        try {
+                            Files.list(p).filter(f -> f.getFileName().toString().endsWith(".jar")).forEach(f -> {
+                                try {
+                                    urls.add(f.toUri().toURL());
+                                } catch (MalformedURLException e) {
+                                    log(e);
+                                }
+                            });
+                        } catch (IOException e) {
+                            log(e);
+                        }
+                    });
+                } catch (IOException e) {
+                    log(e);
                 }
-                int externalToolSize = externalTools.size();
-                if (externalToolSize > 0) {
-                    Progress runExternalProgress = new Progress(parentProgress, "There are " + externalToolSize + " external tools to run");
-                    runExternalProgress.printTitle();
-                    for (int i = 0; i < externalToolSize; i++) {
-                        Tool tool = externalTools.get(i);
-                        new Progress(parentProgress, "Run " + (i + 1) + "/" + externalToolSize + " external tool:" + tool.name()).printTitle();
+                if (!urls.isEmpty()) {
+                    URLClassLoader externalToolLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
+                    Iterator<Tool> toolIterator = ServiceLoader.load(Tool.class, externalToolLoader).iterator();
+                    List<Tool> externalTools = new ArrayList<>();
+                    while (toolIterator.hasNext()) {
+                        externalTools.add(toolIterator.next());
+                    }
+                    int externalToolSize = externalTools.size();
+                    if (externalToolSize > 0) {
+                        Progress runExternalProgress = new Progress(parentProgress, "There are " + externalToolSize + " external tools to run");
+                        runExternalProgress.printTitle();
+                        for (int i = 0; i < externalToolSize; i++) {
+                            Tool tool = externalTools.get(i);
+                            new Progress(parentProgress, "Run " + (i + 1) + "/" + externalToolSize + " external tool:" + tool.name()).printTitle();
 
-                        if (tool instanceof ModifyReportTool) {
-                            // ModifyReportTool can delete the existing records and add new ones.
-                            try {
-                                recordList = ((ModifyReportTool) tool).run(recordList, etp, reportConfig, parentProgress);
-                            } catch (ExternalToolFailException e) {
-                                new Progress(parentProgress, "Fail to run external tool:" + tool.name()).printTitle();
-                                e.printStackTrace();
+                            if (tool instanceof ModifyReportTool) {
+                                // ModifyReportTool can delete the existing records and add new ones.
+                                try {
+                                    recordList = ((ModifyReportTool) tool).run(recordList, etp, reportConfig, parentProgress);
+                                } catch (ExternalToolFailException e) {
+                                    new Progress(parentProgress, "Fail to run external tool:" + tool.name()).printTitle();
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                // Other Tools only add new records.
+                                recordList.addAll(tool.analysis(etp, reportConfig, parentProgress));
                             }
-                        } else {
-                            // Other Tools only add new records.
-                            recordList.addAll(tool.analysis(etp, reportConfig, parentProgress));
                         }
                     }
                 }

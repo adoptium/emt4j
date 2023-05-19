@@ -62,7 +62,7 @@ public class ReportMain {
         }
         ReportExecutor reportExecutor = new ReportExecutor(reportConfig);
         progress.printTitle();
-        reportExecutor.execute(new BinaryFileInputProvider(reportConfig.getInputFiles()), progress);
+        reportExecutor.execute(new BinaryFileInputProvider(reportConfig.getInputFiles()), progress, false);
         System.out.println("EMT4J's report: " + reportConfig.getOutputFile());
     }
 

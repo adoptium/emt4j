@@ -33,4 +33,6 @@ public class JdkCheckCompatibleRequest {
     private String targetJdkHome;
     private boolean verbose;
     private String externalToolHome;
+
+    private boolean disableExternalTool;
 }

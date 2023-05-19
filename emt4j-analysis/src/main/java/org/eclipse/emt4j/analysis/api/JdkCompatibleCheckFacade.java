@@ -68,7 +68,7 @@ public final class JdkCompatibleCheckFacade {
         reportConfig.setVerbose(request.isVerbose());
         reportConfig.setExternalToolRoot(request.getExternalToolHome());
         ReportExecutor reportExecutor = new ReportExecutor(reportConfig);
-        reportExecutor.execute(outputConsumer.getInputProvider(), progress);
+        reportExecutor.execute(outputConsumer.getInputProvider(), progress, request.isDisableExternalTool());
 
         JdkCheckCompatibleResult result = new JdkCheckCompatibleResult();
         result.setResultDetailList(((ApiRender) reportExecutor.getRender()).getResultDetailList());
