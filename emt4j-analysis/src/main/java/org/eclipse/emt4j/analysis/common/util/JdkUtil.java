@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.common.util;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -90,22 +91,24 @@ public class JdkUtil {
     private static File prepareGetJavaVersionClass() throws IOException {
         Path dir = Files.createTempDirectory("emt4j");
         File target = new File(dir.toFile(), "GetJavaVersion16.class");
-        if (target.exists()) {
-            return target;
-        }
-
-        //why use .classfile instead of .class? because the .class not add to VCS.
-        try (InputStream in = JdkUtil.class.getResourceAsStream("/GetJavaVersion16.classfile");
-             OutputStream os = new FileOutputStream(target)) {
-            byte[] buffer = new byte[4096];
-            int len = in.read(buffer);
-            while (len != -1) {
-                os.write(buffer, 0, len);
-                len = in.read(buffer);
+        try {
+            if (target.exists()) {
+                return target;
             }
-            os.flush();
+
+            //why use .classfile instead of .class? because the .class not add to VCS.
+            try (InputStream in = JdkUtil.class.getResourceAsStream("/GetJavaVersion16.classfile");
+                 OutputStream os = new FileOutputStream(target)) {
+                byte[] buffer = new byte[4096];
+                int len = in.read(buffer);
+                while (len != -1) {
+                    os.write(buffer, 0, len);
+                    len = in.read(buffer);
+                }
+                os.flush();
+            }
         } finally {
-            target.deleteOnExit();
+            FileUtils.forceDeleteOnExit(dir.toFile());
         }
         return target;
     }
