@@ -18,26 +18,26 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.emt4j.analysis.common.util.Option;
+import org.eclipse.emt4j.analysis.common.util.OptionProcessor;
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.analysis.out.BinaryFileOutputConsumer;
 import org.eclipse.emt4j.analysis.report.ReportMain;
-import org.eclipse.emt4j.analysis.common.util.Option;
-import org.eclipse.emt4j.analysis.common.util.OptionProcessor;
 import org.eclipse.emt4j.analysis.source.*;
 import org.eclipse.emt4j.common.CheckConfig;
 import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.emt4j.common.SourceInformation;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -65,42 +65,47 @@ public class AnalysisMain {
         progress.printTitle();
         CheckConfig checkConfig = new CheckConfig();
         ReportConfig reportConfig = new ReportConfig();
-        final List<Feature> featureList = new ArrayList<>();
+        final List<Feature> featureList = new ArrayList<>(Collections.singletonList(Feature.DEFAULT));
         AnalysisExecutor analysisExecutor = new AnalysisExecutor(checkConfig);
         OptionProcessor optionProcessor = new OptionProcessor(args);
-        optionProcessor.addOption(Option.buildParamWithValueOption("-o", null, (v) -> reportConfig.setOutputFile(v)));
-        optionProcessor.addOption(Option.buildParamWithValueOption("-f", (v) -> StringUtils.isNumeric(v), (v) -> checkConfig.setFromVersion(Integer.parseInt(v))));
-        optionProcessor.addOption(Option.buildParamWithValueOption("-t", (v) -> StringUtils.isNumeric(v), (v) -> checkConfig.setToVersion(Integer.parseInt(v))));
-        optionProcessor.addOption(Option.buildParamWithValueOption("-priority", null, p -> checkConfig.setPriority(p)));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-o", null, reportConfig::setOutputFile));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-f", StringUtils::isNumeric, (v) -> checkConfig.setFromVersion(Integer.parseInt(v))));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-t", StringUtils::isNumeric, (v) -> checkConfig.setToVersion(Integer.parseInt(v))));
+        optionProcessor.addOption(Option.buildParamWithValueOption("-priority", null, checkConfig::setPriority));
         optionProcessor.addOption(Option.buildParamWithValueOption("-p",
                 (v) -> "txt".equalsIgnoreCase(v) || "json".equalsIgnoreCase(v) || "html".equalsIgnoreCase(v), (v) -> reportConfig.setOutputFormat(v.toLowerCase())));
         optionProcessor.addOption(Option.buildParamWithValueOption("-j", (v) -> new File(v).exists()
-                && new File(v).isDirectory(), (v) -> reportConfig.setTargetJdkHome(v)));
+                && new File(v).isDirectory(), reportConfig::setTargetJdkHome));
         optionProcessor.addOption(Option.buildParamNoValueOption("-v", null, (v) -> {
             checkConfig.setVerbose(true);
             reportConfig.setVerbose(true);
         }));
         optionProcessor.addOption(Option.buildParamWithValueOption("-e", (v) -> new File(v).exists()
-                && new File(v).isDirectory(), (v) -> reportConfig.setExternalToolRoot(v)));
+                && new File(v).isDirectory(), reportConfig::setExternalToolRoot));
         optionProcessor.addOption(Option.buildDefaultOption(
                 AnalysisMain::isSource,
                 (v) -> {
                     processSource(reportConfig, analysisExecutor, v);
                 }));
-        optionProcessor.setShowUsage((s) -> printUsage(s));
+        optionProcessor.addOption(Option.buildParamWithValueOption(
+                "-features",
+                (fs) -> fs.isEmpty() || Arrays.stream(fs.split(",")).allMatch((s) -> Feature.getFeatureByCommandLineText(s) != null),
+                (fs) -> {
+                    if (fs.isEmpty()) return;
+                    featureList.clear();
+                    featureList.addAll(Arrays.stream(fs.split(",")).map(Feature::getFeatureByCommandLineText).collect(Collectors.toList()));
+                }));
+        optionProcessor.setShowUsage(AnalysisMain::printUsage);
         if (checkConfig.getFromVersion() >= checkConfig.getToVersion()) {
             printUsage("from version should less than to version");
         }
 
         optionProcessor.process();
-        if (featureList.isEmpty()) {
-            featureList.add(Feature.DEFAULT);
-        }
 
         if (analysisExecutor.hasSource()) {
             File tempFile = File.createTempFile(DEFAULT_FILE, ".dat");
             tempFile.deleteOnExit();
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(tempFile))) {
+            try (ObjectOutputStream out = new ObjectOutputStream(Files.newOutputStream(tempFile.toPath()))) {
                 analysisExecutor.setAnalysisOutputConsumer(new BinaryFileOutputConsumer(out));
                 analysisExecutor.execute(featureList, progress);
             }
@@ -163,7 +168,7 @@ public class AnalysisMain {
     }
 
     private static DependencySource doProcessSource(ReportConfig reportConfig, AnalysisExecutor analysisExecutor, String v) {
-        Optional<DependencySource> opt= getSource(v);
+        Optional<DependencySource> opt = getSource(v);
         if (!opt.isPresent()) {
             System.err.println("Skip " + v + " since it doesn't exist");
             return null;
@@ -218,9 +223,9 @@ public class AnalysisMain {
         }
 
         String osName = System.getProperty("os.name");
-        boolean windows = osName != null && osName.toLowerCase().indexOf("windows") != -1;
+        boolean windows = osName != null && osName.toLowerCase().contains("windows");
         String launcher = windows ? "analysis.bat" : "analysis.sh";
-        System.err.println("Usage:" + launcher + " [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-e external tool home] [-v] <files>");
+        System.err.println("Usage:" + launcher + " [-f version] [-t version] [-p txt] [-o outputfile] [-j target jdk home] [-e external tool home] [-v] [-features features] <files>");
         System.err.println("-f From which JDK version,default is 8");
         System.err.println("-t To which JDK version,default is 11");
         System.err.println("-p The report format.Can be TXT or JSON or HTML.Default is HTML");
@@ -228,6 +233,7 @@ public class AnalysisMain {
         System.err.println("-j Target JDK home. Provide target jdk home can help to find more compatible problems.");
         System.err.println("-e The root directory of external tools.");
         System.err.println("-v Show verbose information.");
+        System.err.println("-features Override features with a comma-split string.");
         System.err.println("files can be combination of following types :");
         final String[] allSupportFiles = new String[]{
                 "Agent output file(*.dat)",

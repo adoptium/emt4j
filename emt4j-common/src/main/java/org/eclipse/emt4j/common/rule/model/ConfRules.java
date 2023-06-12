@@ -18,12 +18,14 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule.model;
 
+import org.eclipse.emt4j.common.Feature;
+
 import java.util.List;
 
 public class ConfRules {
     private List<ConfRuleItem> ruleItems;
     private String ruleDataPathPrefix;
-    private String feature;
+    private Feature feature;
     private int fromVersion;
     private int toVersion;
 
@@ -43,11 +45,11 @@ public class ConfRules {
         this.ruleDataPathPrefix = ruleDataPathPrefix;
     }
 
-    public String getFeature() {
+    public Feature getFeature() {
         return feature;
     }
 
-    public void setFeature(String feature) {
+    public void setFeature(Feature feature) {
         this.feature = feature;
     }
 

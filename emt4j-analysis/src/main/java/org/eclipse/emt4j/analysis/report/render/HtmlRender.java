@@ -33,6 +33,7 @@ import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HtmlRender extends VelocityTemplateRender {
     private final String DIR_OTHERS = "Others";
@@ -42,33 +43,33 @@ public class HtmlRender extends VelocityTemplateRender {
     }
 
     @Override
-    public void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException {
+    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
         VelocityContext context = new VelocityContext();
         List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
-        context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "html.title"));
+        context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "html.title"));
         context.put("data", categorizedResultList);
         List<CategorizedContent> ccs = getCategorizedContents(categorizedResultList);
         context.put("content", ccs);
-        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
-        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
-        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
-        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
+        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT)));
+        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "content.title"));
+        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "detail.title"));
+        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "back.to.content"));
         if (!useOldTemplate()) {
             int total = 0;
             for (CategorizedContent cc : ccs) {
                 total += cc.getTotal();
             }
             context.put("total",
-                        String.format(
-                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.foundInTotal"),
-                                total,
-                                total > 1 ? "s" : ""));
+                    String.format(
+                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.foundInTotal"),
+                            total,
+                            total > 1 ? "s" : ""));
 
-            context.put("priority", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.priority"));
-            context.put("count", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "issue.count"));
+            context.put("priority", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.priority"));
+            context.put("count", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.count"));
         }
 
         File output = new File(config.getOutputFile()).getAbsoluteFile();
@@ -96,14 +97,14 @@ public class HtmlRender extends VelocityTemplateRender {
             }
             if (!useOldTemplate()) {
                 if (cr.getExtras() != null) {
-                    for (String extra: cr.getExtras()) {
+                    for (String extra : cr.getExtras()) {
                         cc.addDescription(extra);
                     }
                 }
                 cc.addDescription(
                         String.format(
-                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"),
-                                                                 "issue.found"),
+                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT),
+                                        "issue.found"),
                                 cc.getTotal(),
                                 cc.getTotal() > 1 ? "s" : ""));
             }
@@ -112,18 +113,18 @@ public class HtmlRender extends VelocityTemplateRender {
         return ccs;
     }
 
-    private List<CategorizedResult> toCategorizedResult(Map<String, List<CheckResultContext>> resultMap) {
+    private List<CategorizedResult> toCategorizedResult(Map<Feature, List<CheckResultContext>> resultMap) {
         List<CategorizedResult> list = new ArrayList<>();
         Collection<CheckResultContextHolder> holders = useOldTemplate() ? classifyByDir(resultMap) : classifyByIdentifier(resultMap);
         if (holders.isEmpty()) {
             return list;
         }
         holders.forEach(holder -> {
-            Map<String, List<CheckResultContext>> tmp = new HashMap<>();
-            tmp.put(Feature.DEFAULT.getId(), holder.contexts);
+            Map<Feature, List<CheckResultContext>> tmp = new HashMap<>();
+            tmp.put(holder.feature, holder.contexts);
             CategorizedCheckResult categorizedCheckResult = categorize(tmp);
             if (!categorizedCheckResult.noResult()) {
-                for (String feature : categorizedCheckResult.getFeatures()) {
+                for (Feature feature : categorizedCheckResult.getFeatures()) {
                     int detailId = 0;
                     CategorizedResult cr = new CategorizedResult();
                     cr.desc = holder.sourceInformation.getIdentifier();
@@ -177,60 +178,76 @@ public class HtmlRender extends VelocityTemplateRender {
 
         SourceInformation sourceInformation;
 
+        Feature feature;
+
         List<CheckResultContext> contexts = new ArrayList<>();
 
-        public CheckResultContextHolder(SourceInformation sourceInformation) {
+        public CheckResultContextHolder(SourceInformation sourceInformation, Feature feature) {
             this.sourceInformation = sourceInformation;
+            this.feature = feature;
         }
 
-        public CheckResultContextHolder(String desc) {
+        public CheckResultContextHolder(String desc, Feature feature) {
             sourceInformation = new SourceInformation();
             sourceInformation.setIdentifier(desc);
+            this.feature = feature;
         }
     }
 
-    private Collection<CheckResultContextHolder> classifyByDir(Map<String, List<CheckResultContext>> resultMap) {
+    private Collection<CheckResultContextHolder> classifyByDir(Map<Feature, List<CheckResultContext>> resultMap) {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, CheckResultContextHolder> categorizedMap = new HashMap<>();
+        Map<String, Map<Feature, CheckResultContextHolder>> categorizedMap = new HashMap<>();
         resultMap.forEach((f, v) -> v.forEach((c) -> {
             String categoryDesc = getCategoryDesc(c);
-            categorizedMap.computeIfAbsent(categoryDesc, CheckResultContextHolder::new).contexts.add(c);
+            categorizedMap
+                    .computeIfAbsent(categoryDesc, _k -> new HashMap<>())
+                    .computeIfAbsent(f, _f -> new CheckResultContextHolder(categoryDesc, f))
+                    .contexts.add(c);
         }));
-        return categorizedMap.values();
+        return categorizedMap.values().stream().flatMap(m -> m.values().stream()).collect(Collectors.toList());
     }
 
-    private Collection<CheckResultContextHolder> classifyByIdentifier(Map<String, List<CheckResultContext>> resultMap) {
+    private Collection<CheckResultContextHolder> classifyByIdentifier(Map<Feature, List<CheckResultContext>> resultMap) {
         if (null == resultMap || resultMap.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<SourceInformation, CheckResultContextHolder> categorizedMap = new HashMap<>();
+        Map<SourceInformation, Map<Feature, CheckResultContextHolder>> categorizedMap = new HashMap<>();
         SourceInformation info4dep = new SourceInformation();
         info4dep.setDependency(true);
-        info4dep.setIdentifier(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencies"));
-        CheckResultContextHolder dh = new CheckResultContextHolder(info4dep);
+        info4dep.setIdentifier(reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "project.dependencies"));
+        CheckResultContextHolder dh = new CheckResultContextHolder(info4dep, Feature.DEFAULT);
         Set<SourceInformation> depSet = new HashSet<>();
-        resultMap.forEach((f, v) -> v.forEach((c) -> {
-            SourceInformation sourceInformation = c.getDependency().getSourceInformation();
-            if (sourceInformation == null) {
-                sourceInformation = new SourceInformation();
-                sourceInformation.setIdentifier(getCategoryDesc(c));
-            }
-            if (sourceInformation.isDependency()) {
-                dh.contexts.add(c);
-                depSet.add(sourceInformation);
-            } else if (sourceInformation.getIdentifier() != null) {
-                categorizedMap.computeIfAbsent(sourceInformation, CheckResultContextHolder::new).contexts.add(c);
-            }
-        }));
+        resultMap.forEach((f, v) -> {
+            v.forEach((c) -> {
+                SourceInformation sourceInformation;
+                if (c.getDependency().getSourceInformation() != null) {
+                    sourceInformation = c.getDependency().getSourceInformation();
+                } else {
+                    sourceInformation = new SourceInformation();
+                    sourceInformation.setIdentifier(getCategoryDesc(c));
+                }
+                if (sourceInformation.isDependency()) {
+                    dh.contexts.add(c);
+                    depSet.add(sourceInformation);
+                } else if (sourceInformation.getIdentifier() != null) {
+                    categorizedMap
+                            .computeIfAbsent(sourceInformation, _k -> new HashMap<>())
+                            .computeIfAbsent(f, _s -> new CheckResultContextHolder(sourceInformation, f))
+                            .contexts.add(c);
+                }
+            });
+        });
+        Collection<CheckResultContextHolder> c = categorizedMap.values().stream()
+                .flatMap(m -> m.values().stream()).collect(Collectors.toList());
         if (dh.contexts.size() > 0) {
-            ArrayList<CheckResultContextHolder> list = new ArrayList<>(categorizedMap.values());
-            dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "project.dependencyCount") + ": " + depSet.size()});
+            ArrayList<CheckResultContextHolder> list = new ArrayList<>(c);
+            dh.sourceInformation.setExtras(new String[]{reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "project.dependencyCount") + ": " + depSet.size()});
             list.add(dh);
             return list;
         }
-        return categorizedMap.values();
+        return c;
     }
 
     private String getCategoryDesc(CheckResultContext c) {

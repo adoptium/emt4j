@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.MainResultDetail;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
@@ -37,9 +38,9 @@ public class ApiRender extends AbstractRender implements Render {
     }
 
     @Override
-    public void doRender(Map<String, List<CheckResultContext>> resultMap) {
+    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) {
         CategorizedCheckResult categorizedCheckResult = categorize(resultMap);
-        for (String feature : categorizedCheckResult.getFeatures()) {
+        for (Feature feature : categorizedCheckResult.getFeatures()) {
             String i18nBase = ConfRuleFacade.getFeatureI18nBase(feature);
             for (TreeMap<String, TreeMap<String, List<CheckResultContext>>> map : categorizedCheckResult.getResult().get(feature)) {
                 convert(map, resultDetailList, i18nBase);

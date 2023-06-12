@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
 
 import java.util.*;
 
@@ -27,21 +28,21 @@ public class CategorizedCheckResult {
     /**
      * <feature,<result code,<sub result code>>
      */
-    private Map<String, List<TreeMap<String, TreeMap<String, List<CheckResultContext>>>>> result = new HashMap<>();
+    private Map<Feature, List<TreeMap<String, TreeMap<String, List<CheckResultContext>>>>> result = new HashMap<>();
 
-    private List<String> features = new ArrayList<>();
+    private List<Feature> features = new ArrayList<>();
 
-    public Map<String, List<TreeMap<String, TreeMap<String, List<CheckResultContext>>>>> getResult() {
+    public Map<Feature, List<TreeMap<String, TreeMap<String, List<CheckResultContext>>>>> getResult() {
         return result;
     }
 
-    public List<String> getFeatures() {
+    public List<Feature> getFeatures() {
         return features;
     }
 
     public boolean noResult() {
         if (!result.isEmpty()) {
-            for (String feature : features) {
+            for (Feature feature : features) {
                 if (!result.get(feature).isEmpty()) {
                     return false;
                 }

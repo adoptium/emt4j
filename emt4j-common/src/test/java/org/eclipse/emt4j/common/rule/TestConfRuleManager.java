@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.model.ConfRuleItem;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
 import org.junit.Test;
@@ -33,11 +34,11 @@ public class TestConfRuleManager {
 
     @Test
     public void testLoad() throws SAXException, IOException, URISyntaxException {
-        String[] features = new String[]{"default"};
-        List<ConfRules> rules1 = ConfRuleFacade.load(new String[]{"default"}, new String[]{"agent"}, 8, 17);
+        String[] features = new String[]{Feature.DEFAULT.getId()};
+        List<ConfRules> rules1 = ConfRuleFacade.load(new Feature[]{Feature.DEFAULT}, new String[]{"agent"}, 8, 17);
         assertTrue(rules1.size() > 0);
         for (ConfRules confRules : rules1) {
-            assertTrue(inArray(confRules.getFeature(), features));
+            assertTrue(inArray(confRules.getFeature().getId(), features));
         }
 
         for (ConfRules confRules : rules1) {

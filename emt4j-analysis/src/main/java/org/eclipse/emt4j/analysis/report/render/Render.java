@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,5 +32,5 @@ public interface Render {
     /**
      * The key of resultMap is the feature name.
      */
-    void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException;
+    void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException;
 }

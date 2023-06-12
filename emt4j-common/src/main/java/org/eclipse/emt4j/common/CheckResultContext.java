@@ -22,6 +22,8 @@ import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
 
 public class CheckResultContext {
 
+    private final Feature feature;
+
     private ReportCheckResult reportCheckResult;
 
     private Dependency dependency;
@@ -42,7 +44,12 @@ public class CheckResultContext {
         this.dependency = dependency;
     }
 
-    public CheckResultContext(ReportCheckResult reportCheckResult, Dependency dependency) {
+    public Feature getFeature() {
+        return feature;
+    }
+
+    public CheckResultContext(Feature feature, ReportCheckResult reportCheckResult, Dependency dependency) {
+        this.feature = feature;
         this.reportCheckResult = reportCheckResult;
         this.dependency = dependency;
     }

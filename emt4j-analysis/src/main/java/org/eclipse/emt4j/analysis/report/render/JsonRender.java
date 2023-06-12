@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.JsonReport;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
@@ -39,10 +40,10 @@ public class JsonRender extends AbstractRender implements Render {
     }
 
     @Override
-    public void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException {
+    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         CategorizedCheckResult categorizedCheckResult = categorize(resultMap);
         JsonReport jsonReport = new JsonReport();
-        for (String feature : categorizedCheckResult.getFeatures()) {
+        for (Feature feature : categorizedCheckResult.getFeatures()) {
             String i18nBase = ConfRuleFacade.getFeatureI18nBase(feature);
             for (TreeMap<String, TreeMap<String, List<CheckResultContext>>> map : categorizedCheckResult.getResult().get(feature)) {
                 convert(map, jsonReport.getResultDetailList(), i18nBase);

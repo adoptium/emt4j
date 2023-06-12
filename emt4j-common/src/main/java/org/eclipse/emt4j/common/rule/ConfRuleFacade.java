@@ -18,13 +18,16 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
 import org.eclipse.emt4j.common.util.FileUtil;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +47,7 @@ public class ConfRuleFacade {
         }
     }
 
-    public static List<ConfRules> load(String[] features, String[] modes, int fromVersion, int toVersion) throws SAXException, IOException, URISyntaxException {
+    public static List<ConfRules> load(Feature[] features, String[] modes, int fromVersion, int toVersion) throws SAXException, IOException, URISyntaxException {
         int[][] roadmap = findWays(fromVersion, toVersion);
         if (roadmap == null) {
             throw new RuntimeException("Not a valid fromVersion: " + fromVersion + ",toVersion:" + toVersion + " pair!");
@@ -52,7 +55,7 @@ public class ConfRuleFacade {
 
         List<ConfRules> confRulesList = new ArrayList<>();
         for (int[] oneWay : roadmap) {
-            for (String feature : features) {
+            for (Feature feature : features) {
                 Optional<ConfRules> confRules = ConfRuleRepository.load(feature, oneWay[0], oneWay[1]);
                 confRules.ifPresent((v) -> {
                     if (v.getRuleItems() != null) {
@@ -99,7 +102,7 @@ public class ConfRuleFacade {
         return ways;
     }
 
-    public static String getFeatureI18nBase(String feature) {
-        return feature + ".i18n.";
+    public static String getFeatureI18nBase(Feature feature) {
+        return feature.getId() + ".i18n.";
     }
 }

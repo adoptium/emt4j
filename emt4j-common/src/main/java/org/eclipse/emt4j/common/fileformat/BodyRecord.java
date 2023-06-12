@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.common.fileformat;
 
 import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
 
 import java.io.Serializable;
@@ -37,7 +38,7 @@ public class BodyRecord implements Serializable {
      * check result.
      */
     ReportCheckResult checkResult;
-    String feature;
+    Feature feature;
 
     public Dependency getDependency() {
         return dependency;
@@ -55,11 +56,11 @@ public class BodyRecord implements Serializable {
         this.checkResult = checkResult;
     }
 
-    public String getFeature() {
+    public Feature getFeature() {
         return feature;
     }
 
-    public void setFeature(String feature) {
+    public void setFeature(Feature feature) {
         this.feature = feature;
     }
 }

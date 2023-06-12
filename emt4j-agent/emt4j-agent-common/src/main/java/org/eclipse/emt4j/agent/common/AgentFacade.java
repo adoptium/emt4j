@@ -23,16 +23,13 @@ import org.eclipse.emt4j.agent.common.file.Recorder;
 import org.eclipse.emt4j.agent.common.file.ReportRecorder;
 import org.eclipse.emt4j.agent.common.jdkdependent.CallerProvider;
 import org.eclipse.emt4j.agent.common.jdkdependent.GuessCallerInfo;
-import org.eclipse.emt4j.common.CheckConfig;
-import org.eclipse.emt4j.common.DependTarget;
-import org.eclipse.emt4j.common.DependType;
-import org.eclipse.emt4j.common.Dependency;
-import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.classanalyze.ClassInspectorInstance;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
 import org.eclipse.emt4j.common.util.ClassURL;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -91,7 +88,7 @@ public class AgentFacade {
     }
 
     private static void initInstanceRules(String[] classList) {
-        InstanceRuleManager.init(classList, new String[]{"default"}, new String[]{"agent"},
+        InstanceRuleManager.init(classList, new Feature[]{Feature.DEFAULT}, new String[]{"agent"},
                 agentOption.getFromVersion(), agentOption.getToVersion(), agentOption.getPriority());
     }
 

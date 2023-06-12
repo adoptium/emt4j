@@ -25,13 +25,10 @@ import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.analysis.report.external.ExternalToolFailException;
 import org.eclipse.emt4j.analysis.report.external.ModifyReportTool;
 import org.eclipse.emt4j.analysis.report.external.Tool;
-import org.eclipse.emt4j.analysis.report.render.ApiRender;
-import org.eclipse.emt4j.analysis.report.render.HtmlRender;
-import org.eclipse.emt4j.analysis.report.render.JsonRender;
-import org.eclipse.emt4j.analysis.report.render.Render;
-import org.eclipse.emt4j.analysis.report.render.TxtRender;
+import org.eclipse.emt4j.analysis.report.render.*;
 import org.eclipse.emt4j.common.CheckResultContext;
 import org.eclipse.emt4j.common.DependType;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.fileformat.BodyRecord;
 import org.eclipse.emt4j.common.fileformat.VariableHeader;
@@ -46,13 +43,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Do the real report work.
@@ -182,14 +173,14 @@ public class ReportExecutor {
         }
     }
 
-    private Map<String, List<CheckResultContext>> prepare(List<BodyRecord> recordList) {
-        Map<String, List<CheckResultContext>> resultMap = new HashMap<>();
+    private Map<Feature, List<CheckResultContext>> prepare(List<BodyRecord> recordList) {
+        Map<Feature, List<CheckResultContext>> resultMap = new HashMap<>();
         for (BodyRecord record : recordList) {
             if (null == record.getCheckResult()) {
                 continue;
             }
-            String feature = record.getFeature();
-            CheckResultContext checkResultContext = new CheckResultContext(record.getCheckResult(), record.getDependency());
+            Feature feature = record.getFeature();
+            CheckResultContext checkResultContext = new CheckResultContext(feature, record.getCheckResult(), record.getDependency());
             resultMap.computeIfAbsent(feature, i -> new ArrayList<>()).add(checkResultContext);
         }
         return resultMap;

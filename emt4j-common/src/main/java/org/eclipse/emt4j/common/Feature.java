@@ -60,4 +60,12 @@ public enum Feature {
         }
         return null;
     }
+
+    public String getRuleBasePath(int fromVersion, int toVersion) {
+        switch (this) {
+            case DEFAULT:
+                return "/default/rule/" + fromVersion + "to" + toVersion;
+        }
+        throw new RuntimeException("should not reach here");
+    }
 }
