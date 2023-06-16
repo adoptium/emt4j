@@ -114,7 +114,7 @@ public class InstanceRuleManager {
             if (chars[i] == '-') {
                 continue;
             } else {
-                if (i == 0 || (i != 0 && chars[i - 1] == '-')) {
+                if (i == 0 || chars[i - 1] == '-') {
                     setMethodName.append(Character.toUpperCase(chars[i]));
                 } else {
                     setMethodName.append(chars[i]);

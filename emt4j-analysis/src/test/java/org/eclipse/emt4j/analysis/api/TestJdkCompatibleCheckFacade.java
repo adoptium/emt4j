@@ -18,21 +18,24 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.api;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.emt4j.analysis.common.model.CheckTargetTypeEnum;
 import org.eclipse.emt4j.analysis.common.model.JdkCheckCompatibleRequest;
 import org.eclipse.emt4j.analysis.common.model.JdkCheckCompatibleResult;
 import org.eclipse.emt4j.analysis.common.model.ToCheckTarget;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 public class TestJdkCompatibleCheckFacade {
 
@@ -52,7 +55,7 @@ public class TestJdkCompatibleCheckFacade {
         request.setToCheckTargetList(toCheckTargetList);
 
         JdkCheckCompatibleResult result = JdkCompatibleCheckFacade.check(request);
-        assertTrue(result != null);
+        assertNotNull(result);
         assertFalse(result.getResultDetailList().isEmpty());
 
         jarFile.delete();

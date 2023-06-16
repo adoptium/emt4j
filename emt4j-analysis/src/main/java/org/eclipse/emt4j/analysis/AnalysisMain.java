@@ -29,6 +29,7 @@ import org.eclipse.emt4j.common.CheckConfig;
 import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.SourceInformation;
+import org.eclipse.emt4j.common.util.FileUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -201,14 +202,15 @@ public class AnalysisMain {
         }
 
         if (f.isFile()) {
-            if (file.endsWith(".class")) {
-                return Optional.of(new SingleClassSource(f));
-            } else if (file.endsWith(".cfg")) {
-                return Optional.of(new JavaOptionSource(f));
-            } else if (file.endsWith(".jar")) {
-                return Optional.of(new SingleJarSource(f));
-            } else if (file.endsWith(".dat")) {
-                return Optional.of(new AgentOutputAsSource(f));
+            switch (FileUtil.fileType(file)) {
+                case Class:
+                    return Optional.of(new SingleClassSource(f));
+                case Cfg:
+                    return Optional.of(new JavaOptionSource(f));
+                case Jar:
+                    return Optional.of(new SingleJarSource(f));
+                case Dat:
+                    return Optional.of(new AgentOutputAsSource(f));
             }
         } else if (f.isDirectory()) {
             return Optional.of(new DirectorySource(f));

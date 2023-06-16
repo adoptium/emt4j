@@ -64,9 +64,7 @@ public class MainAgent {
             List<Class> toRetransformClass = new ArrayList<>();
             for (Class loadedClass : loadedClasses) {
                 //skip agent's classes
-                if (loadedClass.getName() != null
-                        && (loadedClass.getName().startsWith(AGENT_PACKAGE)
-                        || loadedClass.getName().startsWith(COMMON_PACKAGE))) {
+                if (loadedClass.getName().startsWith(AGENT_PACKAGE) || loadedClass.getName().startsWith(COMMON_PACKAGE)) {
                     continue;
                 }
                 if (TransformerFactory.needTransform(loadedClass.getName())) {

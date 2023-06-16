@@ -49,9 +49,4 @@ public class JavaOptionSource extends DependencySource {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public String desc() {
-        return getFile().getName();
-    }
 }

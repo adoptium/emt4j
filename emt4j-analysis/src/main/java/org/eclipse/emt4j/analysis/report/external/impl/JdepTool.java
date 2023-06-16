@@ -42,7 +42,7 @@ public class JdepTool extends CodeSourceAsCheckTargetTool {
     @Override
     protected List<BodyRecord> parseOutput(File jarOrClass, String result) throws MalformedURLException {
         String[] lines = result.split("\n");
-        if (lines == null || lines.length == 0) {
+        if (lines.length == 0) {
             return Collections.emptyList();
         }
 

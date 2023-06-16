@@ -18,17 +18,22 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.source;
 
+import org.eclipse.emt4j.analysis.analyzer.DependencyAnalyzer;
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.common.DependTarget;
 import org.eclipse.emt4j.common.Dependency;
-import org.eclipse.emt4j.analysis.analyzer.DependencyAnalyzer;
+import org.eclipse.emt4j.common.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -41,20 +46,18 @@ public class DirectorySource extends DependencySource {
 
     @Override
     public void parse(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException {
-        List<Path> files = walk();
-        for (Path f : files) {
-            consumer.accept(new Dependency(null, new DependTarget.Location(f.toFile().toURI().toURL()), null,f.toFile().getAbsolutePath()));
+        Map<Path, FileUtil.FileType> files = walk();
+        for (Map.Entry<Path, FileUtil.FileType> e : files.entrySet()) {
+            Path f = e.getKey();
+            if (e.getValue() == FileUtil.FileType.Jar || e.getValue() == FileUtil.FileType.Class) {
+                consumer.accept(new Dependency(null, new DependTarget.Location(f.toFile().toURI().toURL()), null, f.toFile().getAbsolutePath()));
+            }
         }
-        new DependencyAnalyzer(files).iterateDo(consumer, sourceProgress);
+        new DependencyAnalyzer(new ArrayList<>(files.keySet())).iterateDo(consumer, sourceProgress);
     }
 
-    @Override
-    public String desc() {
-        return getFile().getName();
-    }
-
-    private List<Path> walk() throws IOException {
-        List<Path> candidateFiles = new ArrayList<>();
+    private Map<Path, FileUtil.FileType> walk() throws IOException {
+        Map<Path, FileUtil.FileType> candidateFiles = new HashMap<>();
         Files.walkFileTree(getFile().toPath(), new FileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -63,10 +66,7 @@ public class DirectorySource extends DependencySource {
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                String fileStr = file.toString().toLowerCase();
-                if (fileStr.endsWith(".jar") || fileStr.endsWith(".class")) {
-                    candidateFiles.add(file);
-                }
+                candidateFiles.put(file, FileUtil.fileType(file.toString()));
                 return FileVisitResult.CONTINUE;
             }
 

@@ -21,6 +21,7 @@ package org.eclipse.emt4j.analysis.analyzer;
 
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.util.FileUtil;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,11 +48,13 @@ public class DependencyAnalyzer {
         for (Path file : files) {
             try {
                 i++;
-                String fileStr = file.toString().toLowerCase();
-                if (fileStr.endsWith(".jar")) {
-                    JarAnalyzer.analyze(file, consumer);
-                } else if (fileStr.endsWith(".class")) {
-                    ClassAnalyzer.analyze(file, consumer);
+                switch (FileUtil.fileType(file.toString())) {
+                    case Jar:
+                        JarAnalyzer.analyze(file, consumer);
+                        break;
+                    case Class:
+                        ClassAnalyzer.analyze(file, consumer);
+                        break;
                 }
                 if (progress != null) {
                     progress.printProgress(i);

@@ -56,8 +56,8 @@ public class MainAgent {
             JdkDependConfig jdkDependConfig = new JdkDependConfig(RULE_CLASS,
                     "org.eclipse.emt4j.agent.jdk11.Java11CallerProvider", 11, agentPath);
             Class<?> agentInit = MainAgent.class.getClassLoader().loadClass(INIT_CLASS);
-            Method initMethod = agentInit.getMethod("init", new Class[]{String.class, Instrumentation.class, JdkDependConfig.class});
-            initMethod.invoke(null, new Object[]{args, instrumentation, jdkDependConfig});
+            Method initMethod = agentInit.getMethod("init", String.class, Instrumentation.class, JdkDependConfig.class);
+            initMethod.invoke(null, args, instrumentation, jdkDependConfig);
 
             Class[] loadedClasses = instrumentation.getAllLoadedClasses();
             List<Class> toRetransformClass = new ArrayList<>();

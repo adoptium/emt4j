@@ -37,9 +37,4 @@ public class SingleJarSource extends DependencySource {
     public void parse(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException {
         new DependencyAnalyzer(Collections.singletonList(getFile().toPath())).iterateDo(consumer, sourceProgress);
     }
-
-    @Override
-    public String desc() {
-        return getFile().getName();
-    }
 }

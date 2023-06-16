@@ -38,9 +38,4 @@ public class SingleClassSource extends DependencySource {
         new DependencyAnalyzer(Collections.singletonList(getFile().toPath())).iterateDo(consumer, sourceProgress);
         consumer.accept(new Dependency(null, new DependTarget.Location(getFile().toURI().toURL()), null, getFile().getAbsolutePath()));
     }
-
-    @Override
-    public String desc() {
-        return getFile().getName();
-    }
 }

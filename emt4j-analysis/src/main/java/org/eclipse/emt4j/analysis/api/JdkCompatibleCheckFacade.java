@@ -112,7 +112,7 @@ public final class JdkCompatibleCheckFacade {
         if (!isSupportLocale(request)) {
             throw new JdkMigrationException("Language only support en or zh");
         }
-        if (null == request || null == request.getToCheckTargetList() || request.getToCheckTargetList().isEmpty()) {
+        if (null == request.getToCheckTargetList() || request.getToCheckTargetList().isEmpty()) {
             throw new JdkMigrationException("No need to check?");
         }
         for (int i = 0; i < request.getToCheckTargetList().size(); i++) {

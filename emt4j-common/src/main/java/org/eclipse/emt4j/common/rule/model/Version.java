@@ -67,7 +67,7 @@ public class Version {
             //align with same length
             if (a.length > b.length) {
                 b = align(a, b);
-            } else if (a.length < b.length) {
+            } else {
                 a = align(b, a);
             }
         }

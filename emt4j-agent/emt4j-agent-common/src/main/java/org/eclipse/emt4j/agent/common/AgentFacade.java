@@ -97,28 +97,26 @@ public class AgentFacade {
         agentOption.setFromVersion(fromVersion);
         if (args != null && !"".equals(args)) {
             String[] paramArray = args.split(",");
-            if (paramArray != null && paramArray.length > 0) {
-                for (String param : paramArray) {
-                    String[] kv = param.split("=");
-                    if (kv == null || kv.length != 2) {
+            for (String param : paramArray) {
+                String[] kv = param.split("=");
+                if (kv.length != 2) {
+                    throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
+                }
+                switch (kv[0]) {
+                    case "file":
+                        agentOption.setOutputFile(kv[1]);
+                        break;
+                    case "to":
+                        agentOption.setToVersion(Integer.parseInt(kv[1]));
+                        break;
+                    case "locale":
+                        agentOption.setLocale(new Locale(kv[1]));
+                        break;
+                    case "priority":
+                        agentOption.setPriority(kv[1]);
+                        break;
+                    default:
                         throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
-                    }
-                    switch (kv[0]) {
-                        case "file":
-                            agentOption.setOutputFile(kv[1]);
-                            break;
-                        case "to":
-                            agentOption.setToVersion(Integer.parseInt(kv[1]));
-                            break;
-                        case "locale":
-                            agentOption.setLocale(new Locale(kv[1]));
-                            break;
-                        case "priority":
-                            agentOption.setPriority(kv[1]);
-                            break;
-                        default:
-                            throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
-                    }
                 }
             }
         }
@@ -141,7 +139,7 @@ public class AgentFacade {
     public static void recordLoadClass(String className, ProtectionDomain protectionDomain, byte[] classContent) throws InterruptedException {
         Optional<GuessCallerInfo> callerInfo = getCallerProvider().guessCallers(GUESS_CALLER_NUM);
         if (callerInfo.isPresent()) {
-            Dependency dependency = DependencyBuilder.buildLoadClass(className, callerInfo.isPresent() ? callerInfo.get().getStacktrace() : null, protectionDomain);
+            Dependency dependency = DependencyBuilder.buildLoadClass(className, callerInfo.map(GuessCallerInfo::getStacktrace).orElse(null), protectionDomain);
             dependency.setNonJdkCallerClass(callerInfo.get().getCallerClasses());
             dependency.setCurrClassBytecode(classContent);
             recorder.record(dependency);
