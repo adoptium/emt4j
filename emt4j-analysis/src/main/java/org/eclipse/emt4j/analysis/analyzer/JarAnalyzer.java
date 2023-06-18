@@ -18,10 +18,10 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.analyzer;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.emt4j.analysis.common.util.ZipUtil;
 import org.eclipse.emt4j.common.DependTarget;
 import org.eclipse.emt4j.common.Dependency;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ class JarAnalyzer extends ClassAnalyzer {
     public static void analyze(Path jarFilePath, Consumer<Dependency> consumer) throws IOException {
         JarFile jarFile = new JarFile(jarFilePath.toFile());
         Enumeration<JarEntry> entries = jarFile.entries();
-        boolean fatJar = true;
+        boolean fatJar = false;
         while (entries.hasMoreElements()) {
             JarEntry jarEntry = entries.nextElement();
             if (jarEntry.getName().endsWith(CLASS)) {

@@ -18,17 +18,22 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule.impl;
 
-import org.eclipse.emt4j.common.rule.ExecutableRule;
-import org.eclipse.emt4j.common.rule.model.*;
-import org.eclipse.emt4j.common.util.FileUtil;
-import org.eclipse.emt4j.common.util.JarFileInfoUtil;
 import org.eclipse.emt4j.common.DependType;
 import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.JdkMigrationException;
 import org.eclipse.emt4j.common.RuleImpl;
+import org.eclipse.emt4j.common.rule.ExecutableRule;
+import org.eclipse.emt4j.common.rule.model.*;
+import org.eclipse.emt4j.common.util.FileUtil;
+import org.eclipse.emt4j.common.util.JarFileInfoUtil;
 import org.mvel2.MVEL;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.eclipse.emt4j.common.util.StringUtils.readableRule;
+import static org.eclipse.emt4j.common.util.StringUtils.stripDoubleQuote;
 
 /**
  * There are some jars that contain the incompatible problems in advance.
@@ -64,7 +69,7 @@ public class IncompatibleJarRule extends ExecutableRule {
                 } else {
                     Map<String, Object> context = new HashMap<>();
                     context.put("jar", dependency.getTarget().asLocation().getLocationExternalForm());
-                    context.put("rule", moreReadable(jarRule.getRule()));
+                    context.put("rule", readableRule(jarRule.getRule()));
                     context.put("artifact", jarRule.getArtifact().toUpperCase());
                     return CheckResult.fail(context);
                 }
@@ -74,20 +79,6 @@ public class IncompatibleJarRule extends ExecutableRule {
         } else {
             return CheckResult.PASS;
         }
-    }
-
-    private String moreReadable(String rule) {
-        return rule.replaceAll("\\$version", "Version should ")
-                .replaceAll("\\$jar", "Jar name should ")
-                .replaceAll(".ge", ">=")
-                .replaceAll(".lt", "<")
-                .replaceAll(".le", "<=")
-                .replaceAll(".eq", "==")
-                .replaceAll(".ne", "!=")
-                .replaceAll(".gt", ">=")
-                .replaceAll(".contains", "include")
-                .replace('(', ' ')
-                .replace(')', ' ');
     }
 
     @Override
@@ -100,10 +91,6 @@ public class IncompatibleJarRule extends ExecutableRule {
                 sortArtifactToJarRule.put(key(JarFileInfoUtil.sortArtifactFragments(artifact)), new JarRule(artifact, rule));
             }
         });
-    }
-
-    private String stripDoubleQuote(String str) {
-        return str.substring(str.indexOf('"') + 1, str.lastIndexOf('"'));
     }
 
     @Override

@@ -18,14 +18,11 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.report.render;
 
-import org.eclipse.emt4j.common.CheckResultContext;
-import org.eclipse.emt4j.common.MainResultDetail;
-import org.eclipse.emt4j.common.ReportConfig;
-import org.eclipse.emt4j.common.SubResultDetail;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.i18n.ReportResourceAccessor;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -42,9 +39,9 @@ public abstract class AbstractRender {
         reportResourceAccessor = new ReportResourceAccessor(config.getLocale());
     }
 
-    protected CategorizedCheckResult categorize(Map<String, List<CheckResultContext>> checkResultContextList) {
+    protected CategorizedCheckResult categorize(Map<Feature, List<CheckResultContext>> checkResultContextList) {
         CategorizedCheckResult categorizedCheckResult = new CategorizedCheckResult();
-        for (String feature : checkResultContextList.keySet()) {
+        for (Feature feature : checkResultContextList.keySet()) {
             Map<String, List<CheckResultContext>> priorityToCheckResult = checkResultContextList.get(feature).stream().collect(Collectors.groupingBy(c -> c.getReportCheckResult().getPriority()));
             Map<String, TreeMap<String, TreeMap<String, List<CheckResultContext>>>> priorityToTreeMap = new HashMap<>();
             priorityToCheckResult.forEach((k, v) -> {
@@ -65,16 +62,12 @@ public abstract class AbstractRender {
         return categorizedCheckResult;
     }
 
-    private TreeMap<String, TreeMap<String, List<CheckResultContext>>> category(List<CheckResultContext> checkResultContextList, String feature) {
+    private TreeMap<String, TreeMap<String, List<CheckResultContext>>> category(List<CheckResultContext> checkResultContextList, Feature feature) {
         TreeMap<String, TreeMap<String, List<CheckResultContext>>> resultMap = new TreeMap<>();
         for (CheckResultContext crc : checkResultContextList) {
             String main = crc.getReportCheckResult().getResultCode();
             String sub = crc.getReportCheckResult().getSubResultCode();
-            TreeMap<String, List<CheckResultContext>> subTree = resultMap.get(main);
-            if (subTree == null) {
-                subTree = new TreeMap<>();
-                resultMap.put(crc.getReportCheckResult().getResultCode(), subTree);
-            }
+            TreeMap<String, List<CheckResultContext>> subTree = resultMap.computeIfAbsent(main, _k -> new TreeMap<>());
 
             String effective = "";
             //Ignore sub result code if no specific corresponding resource bundle
@@ -83,11 +76,7 @@ public abstract class AbstractRender {
                 effective = sub;
             }
 
-            List<CheckResultContext> value = subTree.get(effective);
-            if (value == null) {
-                value = new ArrayList<>();
-                subTree.put(effective, value);
-            }
+            List<CheckResultContext> value = subTree.computeIfAbsent(effective, _k -> new ArrayList<>());
             value.add(crc);
         }
         return resultMap;

@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.JdkMigrationException;
 import org.eclipse.emt4j.common.rule.model.ConfRuleItem;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
@@ -49,7 +50,7 @@ public class InstanceRuleManager {
      * @param fromVersion
      * @param toVersion
      */
-    public synchronized static void init(String[] classList, String[] features, String[] modes, int fromVersion, int toVersion, String priority) {
+    public synchronized static void init(String[] classList, Feature[] features, String[] modes, int fromVersion, int toVersion, String priority) {
         if (hasInit) {
             return;
         }
@@ -113,7 +114,7 @@ public class InstanceRuleManager {
             if (chars[i] == '-') {
                 continue;
             } else {
-                if (i == 0 || (i != 0 && chars[i - 1] == '-')) {
+                if (i == 0 || chars[i - 1] == '-') {
                     setMethodName.append(Character.toUpperCase(chars[i]));
                 } else {
                     setMethodName.append(chars[i]);

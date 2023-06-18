@@ -120,6 +120,11 @@ public abstract class DependTarget implements Serializable {
             this.locationExternalForm = location.toExternalForm();
         }
 
+        public Location(URL location, DependType dependType) {
+            super(dependType);
+            this.locationExternalForm = location.toExternalForm();
+        }
+
         public String getLocationExternalForm() {
             return locationExternalForm;
         }

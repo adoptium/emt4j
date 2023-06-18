@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.JdkMigrationException;
 import org.eclipse.emt4j.common.rule.model.ConfRuleItem;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
@@ -50,20 +51,12 @@ import java.util.Optional;
  * It read the rule.xml and validate it,then convert it to <code>ConfRules</code>
  */
 public class ConfRuleRepository {
-    public static Optional<ConfRules> load(String feature, int fromVersion, int toVersion) throws URISyntaxException, IOException, SAXException {
-        if (null == feature || "".equals(feature)) {
-            throw new RuntimeException("feature cannot be null or empty!");
+    public static Optional<ConfRules> load(Feature feature, int fromVersion, int toVersion) throws URISyntaxException, IOException, SAXException {
+        if (null == feature) {
+            throw new RuntimeException("feature cannot be null!");
         }
 
-        //because feature will be part of path.so limit feature can pass with . or ..
-        //so limit only digit or number
-        for (char c : feature.toCharArray()) {
-            if (!Character.isLetterOrDigit(c)) {
-                throw new RuntimeException("feature must be number or digit");
-            }
-        }
-
-        String basePath = "/" + feature + "/rule/" + fromVersion + "to" + toVersion;
+        String basePath = feature.getRuleBasePath(fromVersion, toVersion);
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(ConfRuleRepository.class.getResource("/xsd/rules.xsd").toURI().toURL());
         Validator validator = schema.newValidator();

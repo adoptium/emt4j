@@ -18,6 +18,7 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.rule;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -30,13 +31,13 @@ import static org.junit.Assert.*;
 public class TestConfRuleRepository {
     @Test
     public void testLoad() throws SAXException, IOException, URISyntaxException {
-        ConfRules confRules = ConfRuleRepository.load("default", 8, 11).get();
+        ConfRules confRules = ConfRuleRepository.load(Feature.DEFAULT, 8, 11).get();
         assertNotNull(confRules);
         assertEquals(confRules.getFromVersion(), 8);
         assertEquals(confRules.getToVersion(), 11);
-        assertEquals(confRules.getFeature(), "default");
+        assertEquals(confRules.getFeature(), Feature.DEFAULT);
         assertNotNull(confRules.getRuleDataPathPrefix());
         assertFalse(confRules.getRuleItems().isEmpty());
-        assertTrue(confRules.getRuleItems().stream().filter((r) -> r.getType().equals("reference-class")).findFirst().isPresent());
+        assertTrue(confRules.getRuleItems().stream().anyMatch((r) -> r.getType().equals("reference-class")));
     }
 }

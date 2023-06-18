@@ -18,7 +18,7 @@ public class CompileUtil {
         for (JavaSource javaSource : javaSources) {
             JavaByteObject jbo = byteObjectMap.get(javaSource.getClassName());
             byte[] classBytes = jbo.getBytes();
-            if (null == classBytes || classBytes.length == 0) {
+            if (classBytes.length == 0) {
                 throw new RuntimeException("Class : " + javaSource.getClassName() + " compile failed!");
             }
             doWrite(classesDir, javaSource, jbo);

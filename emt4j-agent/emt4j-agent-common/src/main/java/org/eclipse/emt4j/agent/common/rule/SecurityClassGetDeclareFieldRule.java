@@ -70,8 +70,8 @@ public class SecurityClassGetDeclareFieldRule extends ExecutableRule {
         } else {
             if (dependency.getContext() != null) {
                 Object thisObject = dependency.getContext().get("thisObject");
-                if (thisObject != null && thisObject instanceof Class) {
-                    String className = ((Class) thisObject).getName();
+                if (thisObject instanceof Class) {
+                    String className = ((Class<?>) thisObject).getName();
                     if (securityClassSet.contains(className)) {
                         return CheckResult.fail("className", className);
                     }

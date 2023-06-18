@@ -24,8 +24,8 @@ import org.eclipse.emt4j.common.DependTarget;
 import org.eclipse.emt4j.common.DependType;
 import org.eclipse.emt4j.common.Dependency;
 import org.eclipse.emt4j.common.Feature;
-import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
 import org.eclipse.emt4j.common.fileformat.BodyRecord;
+import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -42,7 +42,7 @@ public class JdepTool extends CodeSourceAsCheckTargetTool {
     @Override
     protected List<BodyRecord> parseOutput(File jarOrClass, String result) throws MalformedURLException {
         String[] lines = result.split("\n");
-        if (lines == null || lines.length == 0) {
+        if (lines.length == 0) {
             return Collections.emptyList();
         }
 
@@ -68,7 +68,7 @@ public class JdepTool extends CodeSourceAsCheckTargetTool {
 
     private BodyRecord createRecord(File jarOrClass, String problemClass, String suggestion) throws MalformedURLException {
         BodyRecord br = new BodyRecord();
-        br.setFeature(Feature.DEFAULT.getId());
+        br.setFeature(Feature.DEFAULT);
         br.setDependency(new Dependency(jarOrClass.toURI().toURL(), new DependTarget.Class(problemClass, DependType.CLASS), null, jarOrClass.getAbsolutePath()));
 
         ReportCheckResult checkResult = new ReportCheckResult(false);

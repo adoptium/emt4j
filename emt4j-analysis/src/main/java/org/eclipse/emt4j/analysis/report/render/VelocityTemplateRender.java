@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.eclipse.emt4j.common.CheckResultContext;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.ReportConfig;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
@@ -37,7 +38,7 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
     }
 
     @Override
-    public void doRender(Map<String, List<CheckResultContext>> resultMap) throws IOException {
+    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
@@ -45,10 +46,10 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
         List<FeatureResult> featureResultList = toFeatureResult(resultMap);
         context.put("data", featureResultList);
         context.put("content", getContent(featureResultList));
-        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase("default")));
-        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "content.title"));
-        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "detail.title"));
-        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase("default"), "back.to.content"));
+        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT)));
+        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "content.title"));
+        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "detail.title"));
+        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "back.to.content"));
 
         try (OutputStream out = new FileOutputStream(config.getOutputFile())) {
             Template template = velocityEngine.getTemplate(getTemplate());
@@ -68,7 +69,7 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
         return contents;
     }
 
-    private List<FeatureResult> toFeatureResult(Map<String, List<CheckResultContext>> resultMap) {
+    private List<FeatureResult> toFeatureResult(Map<Feature, List<CheckResultContext>> resultMap) {
         List<FeatureResult> list = new ArrayList<>();
         CategorizedCheckResult categorizedCheckResult = categorize(resultMap);
         if (categorizedCheckResult.noResult()) {
@@ -76,7 +77,7 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
         }
 
         int featureId = 0;
-        for (String feature : categorizedCheckResult.getFeatures()) {
+        for (Feature feature : categorizedCheckResult.getFeatures()) {
             featureId++;
             int detailId = 0;
             FeatureResult fr = new FeatureResult();

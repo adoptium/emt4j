@@ -20,7 +20,10 @@ package org.eclipse.emt4j.analysis;
 
 import org.eclipse.emt4j.analysis.common.util.Progress;
 import org.eclipse.emt4j.analysis.source.DependencySource;
-import org.eclipse.emt4j.common.*;
+import org.eclipse.emt4j.common.CheckConfig;
+import org.eclipse.emt4j.common.DependType;
+import org.eclipse.emt4j.common.Dependency;
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.rule.ExecutableRule;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
 import org.eclipse.emt4j.common.rule.model.ReportCheckResult;
@@ -31,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 /**
  * Pipeline abstract the process to
@@ -78,7 +80,7 @@ public class AnalysisExecutor {
     public void execute(List<Feature> featureList, Progress parentProgress) throws IOException {
         log("[Begin]Analysis");
         ClassURL.registerUrlProtocolHandler();
-        InstanceRuleManager.init(RULE_CLASS, featureList.stream().map((c) -> c.getId()).collect(Collectors.toList()).toArray(new String[featureList.size()]),
+        InstanceRuleManager.init(RULE_CLASS, new ArrayList<>(featureList).toArray(new Feature[featureList.size()]),
                 new String[]{"class", "source"},
                 checkConfig.getFromVersion(), checkConfig.getToVersion(), checkConfig.getPriority());
         analysisOutputConsumer.onBegin(checkConfig, featureList);
@@ -146,6 +148,6 @@ public class AnalysisExecutor {
             "org.eclipse.emt4j.common.rule.impl.ReferenceClassRule",
             "org.eclipse.emt4j.common.rule.impl.TouchedMethodRule",
             "org.eclipse.emt4j.common.rule.impl.WholeClassRule",
-            "org.eclipse.emt4j.common.rule.impl.DeprecatedAPIRule"
+            "org.eclipse.emt4j.common.rule.impl.DeprecatedAPIRule",
     };
 }

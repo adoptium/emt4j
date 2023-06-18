@@ -18,20 +18,23 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.util;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class FileUtil {
     public static List<String> readPlainTextFromResource(String resourcePath, boolean includeComment) {
         try {
             List<String> lines = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(FileUtil.class.getResourceAsStream(resourcePath), StandardCharsets.UTF_8))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(Objects.requireNonNull(FileUtil.class.getResourceAsStream(resourcePath)), StandardCharsets.UTF_8))) {
                 String line = br.readLine();
                 while (line != null) {
                     if (!line.startsWith("#") || includeComment) {
@@ -44,5 +47,34 @@ public class FileUtil {
         } catch (Exception e) {
             throw new JdkMigrationException("Read resource failed by path:" + resourcePath, e);
         }
+    }
+
+    private static final List<String> ELF_EXTENSIONS = Arrays.asList("so", "dll", "dylib", "o");
+
+    public enum FileType {
+        Java, Jar, Class,
+        Cfg,
+        Dat,
+        Other;
+    }
+
+    public static FileType fileType(String path) {
+        String f = path.toLowerCase(), ext;
+        if (Pattern.matches("^.*\\.so(\\..+)?$", f)) {
+            ext = "so";
+        } else {
+            ext = FilenameUtils.getExtension(f);
+        }
+        switch (ext) {
+            case "jar":
+                return FileType.Jar;
+            case "class":
+                return FileType.Class;
+            case "dat":
+                return FileType.Dat;
+            case "cfg":
+                return FileType.Cfg;
+        }
+        return FileType.Other;
     }
 }

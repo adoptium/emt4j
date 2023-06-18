@@ -48,7 +48,9 @@ public abstract class DependencySource {
      */
     public abstract void parse(Consumer<Dependency> consumer, Progress sourceProgress) throws IOException;
 
-    public abstract String desc();
+    public String desc() {
+        return getFile().getName();
+    }
 
     public final File getFile() {
         return file;

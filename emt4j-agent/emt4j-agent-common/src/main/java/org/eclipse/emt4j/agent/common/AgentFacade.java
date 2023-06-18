@@ -23,16 +23,13 @@ import org.eclipse.emt4j.agent.common.file.Recorder;
 import org.eclipse.emt4j.agent.common.file.ReportRecorder;
 import org.eclipse.emt4j.agent.common.jdkdependent.CallerProvider;
 import org.eclipse.emt4j.agent.common.jdkdependent.GuessCallerInfo;
-import org.eclipse.emt4j.common.CheckConfig;
-import org.eclipse.emt4j.common.DependTarget;
-import org.eclipse.emt4j.common.DependType;
-import org.eclipse.emt4j.common.Dependency;
-import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.classanalyze.ClassInspectorInstance;
 import org.eclipse.emt4j.common.rule.InstanceRuleManager;
 import org.eclipse.emt4j.common.util.ClassURL;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -91,7 +88,7 @@ public class AgentFacade {
     }
 
     private static void initInstanceRules(String[] classList) {
-        InstanceRuleManager.init(classList, new String[]{"default"}, new String[]{"agent"},
+        InstanceRuleManager.init(classList, new Feature[]{Feature.DEFAULT}, new String[]{"agent"},
                 agentOption.getFromVersion(), agentOption.getToVersion(), agentOption.getPriority());
     }
 
@@ -100,28 +97,26 @@ public class AgentFacade {
         agentOption.setFromVersion(fromVersion);
         if (args != null && !"".equals(args)) {
             String[] paramArray = args.split(",");
-            if (paramArray != null && paramArray.length > 0) {
-                for (String param : paramArray) {
-                    String[] kv = param.split("=");
-                    if (kv == null || kv.length != 2) {
+            for (String param : paramArray) {
+                String[] kv = param.split("=");
+                if (kv.length != 2) {
+                    throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
+                }
+                switch (kv[0]) {
+                    case "file":
+                        agentOption.setOutputFile(kv[1]);
+                        break;
+                    case "to":
+                        agentOption.setToVersion(Integer.parseInt(kv[1]));
+                        break;
+                    case "locale":
+                        agentOption.setLocale(new Locale(kv[1]));
+                        break;
+                    case "priority":
+                        agentOption.setPriority(kv[1]);
+                        break;
+                    default:
                         throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
-                    }
-                    switch (kv[0]) {
-                        case "file":
-                            agentOption.setOutputFile(kv[1]);
-                            break;
-                        case "to":
-                            agentOption.setToVersion(Integer.parseInt(kv[1]));
-                            break;
-                        case "locale":
-                            agentOption.setLocale(new Locale(kv[1]));
-                            break;
-                        case "priority":
-                            agentOption.setPriority(kv[1]);
-                            break;
-                        default:
-                            throw new RuntimeException("Illegal agent parameters for : [" + param + "]");
-                    }
                 }
             }
         }
@@ -144,7 +139,7 @@ public class AgentFacade {
     public static void recordLoadClass(String className, ProtectionDomain protectionDomain, byte[] classContent) throws InterruptedException {
         Optional<GuessCallerInfo> callerInfo = getCallerProvider().guessCallers(GUESS_CALLER_NUM);
         if (callerInfo.isPresent()) {
-            Dependency dependency = DependencyBuilder.buildLoadClass(className, callerInfo.isPresent() ? callerInfo.get().getStacktrace() : null, protectionDomain);
+            Dependency dependency = DependencyBuilder.buildLoadClass(className, callerInfo.map(GuessCallerInfo::getStacktrace).orElse(null), protectionDomain);
             dependency.setNonJdkCallerClass(callerInfo.get().getCallerClasses());
             dependency.setCurrClassBytecode(classContent);
             recorder.record(dependency);
