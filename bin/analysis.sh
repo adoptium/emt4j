@@ -17,8 +17,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-base_dir=$(dirname "$0")
+# resolve links - $0 may be a softlink (code as used by Tomcat)
+# N.B. readlink would be a lot simpler but is not supported on Solaris
+PRG="$0"
+
+while [ -h "$PRG" ]; do
+	ls=`ls -ld "$PRG"`
+	link=`expr "$ls" : '.*-> \(.*\)$'`
+	if expr "$link" : '/.*' > /dev/null; then
+		PRG="$link"
+	else
+		PRG=`dirname "$PRG"`/"$link"
+	fi
+done
+base_dir=$(dirname "$PRG")
 lib_dir=$(builtin cd "$base_dir/../lib/analysis";pwd)
 class_path="${lib_dir}/*"
 java -cp "$class_path" org.eclipse.emt4j.analysis.AnalysisMain "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}"
-
