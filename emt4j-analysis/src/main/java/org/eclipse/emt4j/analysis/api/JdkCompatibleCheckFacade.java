@@ -47,7 +47,10 @@ public final class JdkCompatibleCheckFacade {
     private final static int[][] VALID_FROM_TO_VERSION_PAIR = new int[][]{
             {8, 11},
             {11, 17},
-            {8, 17}};
+            {8, 17},
+            {8, 21},
+            {11, 21},
+            {17, 21}};
 
     public static JdkCheckCompatibleResult check(JdkCheckCompatibleRequest request) throws IOException, InterruptedException, ClassNotFoundException, URISyntaxException {
         checkParam(request);
