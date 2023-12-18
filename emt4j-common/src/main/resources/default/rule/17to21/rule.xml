@@ -52,4 +52,13 @@
         </support-modes>
     </rule>
 
+    <rule desc="Method Changed to Unconditionally Throw UnsupportedOperationException"
+          type="touched-method" method-list-file="unsupported_operation.cfg" result-code="UNSUPPORTED_OPERATION"
+          priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
