@@ -43,4 +43,13 @@
         </support-modes>
     </rule>
 
+    <rule desc="Removed Class" type="reference-class" match-type="by-class"
+          class-package-file="remove_classes.cfg" must-contain-in-bytecode="true"
+          result-code="REMOVE_CLASS" priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
