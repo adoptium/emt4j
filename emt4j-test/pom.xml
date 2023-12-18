@@ -34,6 +34,7 @@
         <module>emt4j-test-common</module>
         <module>emt4j-test-jdk8</module>
         <module>emt4j-test-jdk11</module>
+        <module>emt4j-test-jdk17</module>
     </modules>
 
 </project>

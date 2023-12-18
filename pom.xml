@@ -116,6 +116,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
+                <artifactId>emt4j-test-jdk17</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-assembly</artifactId>
                 <version>${project.version}</version>
             </dependency>
