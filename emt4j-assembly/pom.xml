@@ -40,7 +40,7 @@
         <build.test.testcases>${project.build.directory}/test/testcase</build.test.testcases>
         <testcases.artifactId>emt4j-test-jdk17</testcases.artifactId>
 <!--        <testcases.artifactId>emt4j-test-jdk8,emt4j-test-jdk11,emt4j-test-jdk17</testcases.artifactId>-->
-        <agent.artifactId>emt4j-agent-jdk8,emt4j-agent-jdk11</agent.artifactId>
+        <agent.artifactId>emt4j-agent-jdk8,emt4j-agent-jdk11,emt4j-agent-jdk17</agent.artifactId>
     </properties>
 
     <dependencies>
@@ -51,6 +51,10 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-agent-jdk11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-agent-jdk17</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>

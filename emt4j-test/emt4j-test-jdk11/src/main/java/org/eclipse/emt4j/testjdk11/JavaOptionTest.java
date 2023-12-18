@@ -16,22 +16,39 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.emt4j.testjdk17;
+package org.eclipse.emt4j.testjdk11;
 
 import org.eclipse.emt4j.common.JsonReport;
+import org.eclipse.emt4j.common.MainResultDetail;
+import org.eclipse.emt4j.common.SubResultDetail;
 import org.eclipse.emt4j.test.common.SITBaseCase;
 import org.eclipse.emt4j.test.common.TestConf;
 
+import java.util.List;
 
-@TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK17, to = TestConf.RELEASE.JDK21)
-public class RemovedAPITest extends SITBaseCase {
+@TestConf(mode = TestConf.ModeEnum.AGENT, from = TestConf.RELEASE.JDK11, to = TestConf.RELEASE.JDK17, option = "-XX:+UseConcMarkSweepGC")
+public class JavaOptionTest extends SITBaseCase {
+
     public void run() {
-        ThreadGroup threadGroup = new ThreadGroup("test group");
-        threadGroup.allowThreadSuspension(false);
+        //we only check java option,so no need do anything
     }
 
     @Override
     public void verify(JsonReport jsonReport) {
-        assertTrue(matchAny(jsonReport, "REMOVED_API"));
+        List<MainResultDetail> list = filter(jsonReport, "VM_OPTION");
+        assertNotEmpty(list, "Should find VM_OPTION error,but actually not found!");
+        boolean checkSuggestionOK = false;
+        found:
+        for (MainResultDetail mrd : list) {
+            for (SubResultDetail srd : mrd.getSubResultDetailList()) {
+                for (String solution : srd.getHowToFix()) {
+                    if (solution.indexOf("-XX:+UseConcMarkSweepGC") != -1) {
+                        checkSuggestionOK = true;
+                        break found;
+                    }
+                }
+            }
+        }
+        assertTrue(checkSuggestionOK, "Solution should contain -XX:+UseConcMarkSweepGC,but actually not found!");
     }
 }

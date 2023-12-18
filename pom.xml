@@ -91,6 +91,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.emt4j</groupId>
+                <artifactId>emt4j-agent-jdk17</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.emt4j</groupId>
                 <artifactId>emt4j-maven-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -212,6 +217,11 @@
                     <artifactId>exec-maven-plugin</artifactId>
                     <groupId>org.codehaus.mojo</groupId>
                     <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.5.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>

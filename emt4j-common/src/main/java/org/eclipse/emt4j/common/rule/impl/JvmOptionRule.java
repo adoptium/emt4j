@@ -132,12 +132,13 @@ public class JvmOptionRule extends ExecutableRule {
     }
 
     private String emptyIfDefault(String str) {
-        return "-".equals(str) ? "" : str;
+        return "-".equals(str) || "".equals(str) ? "" : str;
     }
 
     private Integer convert(String origin) {
         String trimmed = origin.trim();
-        return "-".equals(trimmed) ? null : Integer.valueOf(trimmed);
+        boolean unavailable = "-".equals(trimmed) || "".equals(trimmed);
+        return unavailable ? null : Integer.valueOf(trimmed);
     }
 
     private void checkFormat(String[] arr, String line, int lineNo) {
@@ -145,7 +146,7 @@ public class JvmOptionRule extends ExecutableRule {
             throw new JdkMigrationException("Content at line  " + lineNo + " is malformed!content is : " + line);
         }
         for (String col : arr) {
-            if (col == null || "".equals(col)) {
+            if (col == null) {
                 throw new JdkMigrationException("Content at line " + lineNo + " is malformed!content is : " + line);
             }
         }
