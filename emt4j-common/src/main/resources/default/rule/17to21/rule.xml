@@ -27,4 +27,12 @@
         </support-modes>
     </rule>
 
+    <rule desc="Removed API" type="touched-method" method-list-file="remove_methods.cfg" result-code="REMOVED_API"
+          priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
