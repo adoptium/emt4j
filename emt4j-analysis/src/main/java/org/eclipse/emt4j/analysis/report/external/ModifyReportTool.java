@@ -97,7 +97,7 @@ public abstract class ModifyReportTool implements Tool {
      * Look for the proper JDK for external tool from 4 places:
      * <ol>
      *     <li>Currently executing java home. Usually 8.</li>
-     *     <li>-j option. 11, 17</li>
+     *     <li>-j option. 11, 17 or 21</li>
      *     <li>System variable $JAVA_HOME</li>
      *     <li>java in system path</li>
      * </ol>
