@@ -61,4 +61,13 @@
         </support-modes>
     </rule>
 
+    <rule desc="ThreadGroup Degraded"
+          type="touched-method" method-list-file="threadgroup_degraded.cfg" result-code="THREADGROUP_DEGRADED"
+          priority="p2">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
