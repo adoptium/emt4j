@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.jar.JarFile;
 
 import static org.eclipse.emt4j.agent.common.Constant.*;
-import static org.eclipse.emt4j.agent.common.Constant.COMMON_PACKAGE;
 
 /**
  * Entry for agent running in JDK 17
