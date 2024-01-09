@@ -44,13 +44,13 @@ abstract class BaseMojo extends AbstractMojo {
     protected MavenProject project;
 
     /**
-     * Indicate the source Java version. 8 and 11 are supported.
+     * Indicate the source Java version. 8, 11 and 17 are supported.
      */
     @Parameter(property = "fromVersion", defaultValue = "8")
     protected int fromVersion;
 
     /**
-     * Indicate the target Java version. 11 and 17 are supported.
+     * Indicate the target Java version. 11, 17 and 21 are supported.
      */
     @Parameter(property = "toVersion", defaultValue = "11")
     protected int toVersion;

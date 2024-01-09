@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -137,7 +137,8 @@ public class JvmOptionRule extends ExecutableRule {
 
     private Integer convert(String origin) {
         String trimmed = origin.trim();
-        return "-".equals(trimmed) ? null : Integer.valueOf(trimmed);
+        boolean unavailable = "-".equals(trimmed) || "".equals(trimmed);
+        return unavailable ? null : Integer.valueOf(trimmed);
     }
 
     private void checkFormat(String[] arr, String line, int lineNo) {
@@ -145,7 +146,7 @@ public class JvmOptionRule extends ExecutableRule {
             throw new JdkMigrationException("Content at line  " + lineNo + " is malformed!content is : " + line);
         }
         for (String col : arr) {
-            if (col == null || "".equals(col)) {
+            if (col == null) {
                 throw new JdkMigrationException("Content at line " + lineNo + " is malformed!content is : " + line);
             }
         }

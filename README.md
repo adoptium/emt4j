@@ -20,8 +20,8 @@
 # Eclipse Migration Toolkit for Java (EMT4J)
 
 EMT4J is a project that aims to simplify the Java version migration. At the moment, this project focuses on three LTS
-(i.e. Long-Term-Support) versions: 8, 11, and 17. Therefore, if you want to migrate your application running on JDK 8/11
-to JDK 11/17, then this project is for you.
+(i.e. Long-Term-Support) versions: 8, 11, 17 and 21. Therefore, if you want to migrate your application running on JDK 8/11/17
+to JDK 11/17/21, then this project is for you.
 
 EMT4J supports statically checking application artifacts including the project's classes and dependencies. It also
 supports running as a Java agent to perform runtime checking. During the checking process, EMT4J collects compatibility
@@ -83,9 +83,9 @@ $ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.8.0:check -Dou
 
 Configurations:
 
-- `fromVersion`: the JDK version that the project currently uses. 8 and 11 are supported, and 8 is as default.
+- `fromVersion`: the JDK version that the project currently uses. 8, 11 and 21 are supported, and 8 is as default.
 
-- `toVersion`: the target JDK version. 11 and 17 are supported, and 11 is as default.
+- `toVersion`: the target JDK version. 11, 17 and 21 are supported, and 11 is as default.
 
 - `outputFile`: the destination of EMT4J's report. The default is emt4j-report.html.
 
@@ -204,9 +204,9 @@ and JARS.
 
 Options:
 
-- `-f` : the JDK version that the project currently uses. 8 and 11 are supported.
+- `-f` : the JDK version that the project currently uses. 8, 11 and 17 are supported.
 
-- `-t` : the target JDK version. 11 and 17 are supported.
+- `-t` : the target JDK version. 11, 17, 21 are supported.
 
 - `-priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set.
 

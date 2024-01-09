@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Copyright (c) 2023 Contributors to the Eclipse Foundation
+
+    See the NOTICE file(s) distributed with this work for additional
+    information regarding copyright ownership.
+
+    This program and the accompanying materials are made available under the
+    terms of the Apache License, Version 2.0 which is available at
+    https://www.apache.org/licenses/LICENSE-2.0.
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    SPDX-License-Identifier: Apache-2.0
+ -->
+<rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="https://projects.eclipse.org/projects/adoptium.emt4j">
+    <rule desc="JVM Option not compatible" type="jvm-option" jvm-option-file="jvmoptions.cfg"
+          result-code="VM_OPTION" priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Removed API" type="touched-method" method-list-file="remove_methods.cfg" result-code="REMOVED_API"
+          priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Deprecated API" type="deprecated-api" class-list-file="deprecated_api_jdk21.cfg"
+          result-code="DEPRECATED_API" priority="p4">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Removed Class" type="reference-class" match-type="by-class"
+          class-package-file="remove_classes.cfg" must-contain-in-bytecode="true"
+          result-code="REMOVE_CLASS" priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Method Changed to Unconditionally Throw UnsupportedOperationException"
+          type="touched-method" method-list-file="unsupported_operation.cfg" result-code="UNSUPPORTED_OPERATION"
+          priority="p1">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="ThreadGroup Degraded"
+          type="touched-method" method-list-file="threadgroup_degraded.cfg" result-code="THREADGROUP_DEGRADED"
+          priority="p2">
+        <support-modes>
+            <mode>agent</mode>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+</rules>

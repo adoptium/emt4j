@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-# Copyright (c) 2022 Contributors to the Eclipse Foundation
+# Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -35,7 +35,10 @@ my @plugin_output;
 my @jdk_from_to = (
     [ "8", "11" ],
     [ "11", "17" ],
-    [ "8", "17" ]
+    [ "8", "17" ],
+    [ "8", "21" ],
+    [ "11", "21" ],
+    [ "17", "21" ]
 );
 
 sub print_output;

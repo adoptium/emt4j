@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2022 Contributors to the Eclipse Foundation
+    Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -30,6 +30,7 @@
     <modules>
         <module>emt4j-agent-jdk8</module>
         <module>emt4j-agent-jdk11</module>
+        <module>emt4j-agent-jdk17</module>
         <module>emt4j-agent-common</module>
     </modules>
     <description>javaagent of emt4j</description>

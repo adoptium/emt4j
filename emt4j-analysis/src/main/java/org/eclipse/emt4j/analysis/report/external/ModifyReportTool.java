@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -97,7 +97,7 @@ public abstract class ModifyReportTool implements Tool {
      * Look for the proper JDK for external tool from 4 places:
      * <ol>
      *     <li>Currently executing java home. Usually 8.</li>
-     *     <li>-j option. 11 or 17</li>
+     *     <li>-j option. 11, 17 or 21</li>
      *     <li>System variable $JAVA_HOME</li>
      *     <li>java in system path</li>
      * </ol>

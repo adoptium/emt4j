@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -16,41 +16,22 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-package org.eclipse.emt4j.test.common;
+package org.eclipse.emt4j.testjdk17;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.eclipse.emt4j.common.JsonReport;
+import org.eclipse.emt4j.test.common.SITBaseCase;
+import org.eclipse.emt4j.test.common.TestConf;
 
-/**
- * Only a Test class contains a annotation TestConf regard as SIT Testcase.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface TestConf {
-    ModeEnum[] mode();
 
-    RELEASE from();
-
-    RELEASE to();
-
-    String option() default "";
-
-    enum ModeEnum {
-        AGENT, CLASS, DYNAMIC
+@TestConf(mode = {TestConf.ModeEnum.AGENT, TestConf.ModeEnum.CLASS}, from = TestConf.RELEASE.JDK17, to = TestConf.RELEASE.JDK21)
+public class RemovedAPITest extends SITBaseCase {
+    public void run() {
+        ThreadGroup threadGroup = new ThreadGroup("test group");
+        threadGroup.allowThreadSuspension(false);
     }
 
-    enum RELEASE {
-        JDK8("8"), JDK11("11"), JDK17("17"), JDK21("21");
-        private String value;
-
-        RELEASE(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
+    @Override
+    public void verify(JsonReport jsonReport) {
+        assertTrue(matchAny(jsonReport, "REMOVED_API"));
     }
 }
