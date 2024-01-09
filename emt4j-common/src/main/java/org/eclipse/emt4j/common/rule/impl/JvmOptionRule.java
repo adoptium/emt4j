@@ -132,7 +132,7 @@ public class JvmOptionRule extends ExecutableRule {
     }
 
     private String emptyIfDefault(String str) {
-        return "-".equals(str) || "".equals(str) ? "" : str;
+        return "-".equals(str) ? "" : str;
     }
 
     private Integer convert(String origin) {
