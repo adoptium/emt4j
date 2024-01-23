@@ -17,18 +17,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# resolve links - $0 may be a softlink (code as used by Tomcat)
-# N.B. readlink would be a lot simpler but is not supported on Solaris
+# resolve links - $0 may be a softlink (code as used by gradle)
 PRG="$0"
 
-while [ -h "$PRG" ]; do
-	ls=`ls -ld "$PRG"`
-	link=`expr "$ls" : '.*-> \(.*\)$'`
-	if expr "$link" : '/.*' > /dev/null; then
-		PRG="$link"
-	else
-		PRG=`dirname "$PRG"`/"$link"
-	fi
+while
+  base_dir=${PRG%"${PRG##*/}"}
+  [ -h "$PRG" ]
+do
+  ls=$( ls -ld "$PRG")
+  link=${ls#*' -> '}
+  case $link in
+    /* )  PRG=$link;;
+    *  )  PRG=$base_dir$link;;
+  esac
 done
 base_dir=$(dirname "$PRG")
 lib_dir=$(builtin cd "$base_dir/../lib/analysis";pwd)
