@@ -17,8 +17,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-base_dir=$(dirname "$0")
+# resolve links - $0 may be a softlink (code as used by gradle)
+PRG="$0"
+
+while
+  base_dir=${PRG%"${PRG##*/}"}
+  [ -h "$PRG" ]
+do
+  ls=$( ls -ld "$PRG")
+  link=${ls#*' -> '}
+  case $link in
+    /* )  PRG=$link;;
+    *  )  PRG=$base_dir$link;;
+  esac
+done
+base_dir=$(cd "${base_dir:-./}" && pwd -P) || exit
 lib_dir=$(builtin cd "$base_dir/../lib/analysis";pwd)
 class_path="${lib_dir}/*"
 java -cp "$class_path" org.eclipse.emt4j.analysis.AnalysisMain "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}"
-
