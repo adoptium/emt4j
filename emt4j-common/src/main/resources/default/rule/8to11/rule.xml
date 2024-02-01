@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+    Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -189,6 +189,15 @@
           mvel2-rule-file="mvel2-rule-cldrnumberformat.cfg" static-analysis-rule="cldr-number-format"
           result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p3">
         <support-modes>
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
+    <rule desc="Classes are removed" type="reference-class" match-type="by-class"
+          class-package-file="remove_classes.cfg" must-contain-in-bytecode="true"
+          result-code="REMOVE_CLASS" priority="p1">
+        <support-modes>
+            <mode>agent</mode>
             <mode>class</mode>
         </support-modes>
     </rule>
