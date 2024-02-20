@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -126,6 +126,7 @@ public class AnalysisMain {
         info.setIdentifier(arr[1]);
         info.setExtras(new String[]{str});
         info.setDependency(isDependency);
+        info.setFullIdentifier(str);
         return info;
     }
 

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -40,7 +40,7 @@ public class JsonRender extends AbstractRender implements Render {
     }
 
     @Override
-    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
+    public void render(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         CategorizedCheckResult categorizedCheckResult = categorize(resultMap);
         JsonReport jsonReport = new JsonReport();
         for (Feature feature : categorizedCheckResult.getFeatures()) {
@@ -51,7 +51,7 @@ public class JsonRender extends AbstractRender implements Render {
         }
 
         try (OutputStream out = new FileOutputStream(config.getOutputFile())) {
-            IOUtils.write(new Gson().toJson(jsonReport), out);
+            IOUtils.write(new Gson().toJson(jsonReport), out, "utf-8");
         }
     }
 }

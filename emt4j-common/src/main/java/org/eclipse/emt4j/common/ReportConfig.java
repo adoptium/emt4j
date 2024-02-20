@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -91,5 +91,19 @@ public class ReportConfig {
 
     public void setTargetJdkHome(String targetJdkHome) {
         this.targetJdkHome = targetJdkHome;
+    }
+
+    public ReportConfig() {
+    }
+
+    // clone object
+    public ReportConfig(ReportConfig config) {
+        this.inputFiles = config.inputFiles;
+        this.outputFile = config.outputFile;
+        this.verbose = config.verbose;
+        this.outputFormat = config.outputFormat;
+        this.locale = config.locale;
+        this.targetJdkHome = config.targetJdkHome;
+        this.externalToolRoot = config.externalToolRoot;
     }
 }

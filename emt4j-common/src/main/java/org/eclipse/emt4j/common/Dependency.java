@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -202,5 +202,19 @@ public class Dependency implements Serializable, Cloneable {
                 ", sourceInformation=" + sourceInformation +
                 ", lines=" + lines +
                 '}';
+    }
+
+
+    public String buildDependencyGATV() {
+        int dotIndex = targetFilePath.lastIndexOf(".");
+        String type;
+        if (dotIndex >= 0) {
+            type = targetFilePath.substring(dotIndex + 1);
+        } else {
+            type = "jar";
+        }
+
+        String[] GAV = sourceInformation.getFullIdentifier().split(":");
+        return GAV[0] + ":" + GAV[1] + ":" + type + ":" + GAV[2];
     }
 }

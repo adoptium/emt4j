@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2023, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -30,12 +30,23 @@ public class SourceInformation implements Serializable {
 
     private String[] extras;
 
+    // TODO should use identifier
+    private String fullIdentifier;
+
     public String getIdentifier() {
         return identifier;
     }
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public void setFullIdentifier(String fullIdentifier) {
+        this.fullIdentifier = fullIdentifier;
+    }
+
+    public String getFullIdentifier() {
+        return fullIdentifier;
     }
 
     public boolean isDependency() {
