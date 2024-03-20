@@ -19,11 +19,8 @@
 package org.eclipse.emt4j.analysis.autofix.recipe;
 
 import org.openrewrite.*;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.text.PlainTextParser;
-
-import static java.util.Objects.requireNonNull;
 
 public abstract class BasePlainTextVisitor<P> extends TreeVisitor<PlainText, P> {
 
