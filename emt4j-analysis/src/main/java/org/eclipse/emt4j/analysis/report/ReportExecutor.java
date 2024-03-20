@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,6 +18,8 @@
  ********************************************************************************/
 package org.eclipse.emt4j.analysis.report;
 
+import org.eclipse.emt4j.analysis.autofix.AutofixConfig;
+import org.eclipse.emt4j.analysis.autofix.BaseAutofixExecutor;
 import org.eclipse.emt4j.analysis.common.ReportInputProvider;
 import org.eclipse.emt4j.analysis.common.model.ExternalToolParam;
 import org.eclipse.emt4j.analysis.common.util.JdkUtil;
@@ -127,8 +129,24 @@ public class ReportExecutor {
             }
         }
         this.render = createRender();
+        Map<Feature, List<CheckResultContext>> resultMap = prepare(recordList);
+        // I think autofix should be an independent step, but it must be done after externel tools
+        // changing result map. So I make autofix a sub phase of rendering.
+        doAutofix(resultMap, parentProgress);
         new Progress(parentProgress, "Write result to report file").printTitle();
-        render.doRender(prepare(recordList));
+        render.doRender(resultMap);
+    }
+
+    private static void doAutofix(Map<Feature, List<CheckResultContext>> resultMap, Progress progress) {
+        try {
+            BaseAutofixExecutor executor = BaseAutofixExecutor.getInstance();
+            if (executor != null) {
+                executor.doAutofix(resultMap, progress);
+            }
+        } catch (Exception e) {
+            System.out.println("Autofix failed: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     private ExternalToolParam prepareExternalToolParam(List<BodyRecord> recordList, VariableHeader header) throws IOException, InterruptedException, URISyntaxException {
@@ -188,7 +206,10 @@ public class ReportExecutor {
 
     private Render createRender() {
         String format = reportConfig.getOutputFormat();
-        if ("json".equals(format)) {
+        AutofixConfig autofixConfig = AutofixConfig.getInstance();
+        if (autofixConfig.isAutofix()) {
+            return new AutofixReportRenderer(reportConfig);
+        } else if ("json".equals(format)) {
             return new JsonRender(reportConfig);
         } else if ("txt".equals(format)) {
             return new TxtRender(reportConfig);

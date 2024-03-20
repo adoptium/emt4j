@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+    Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -82,6 +82,10 @@
         <dependency>
             <groupId>org.eclipse.emt4j</groupId>
             <artifactId>emt4j-test-jdk17</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emt4j</groupId>
+            <artifactId>emt4j-test-maven-plugin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -204,7 +208,7 @@
                                         <argument>${build.agent.dir}</argument>
                                         <argument>--analysis-lib-dir</argument>
                                         <argument>${build.analysis.dir}</argument>
-                                        <argument>--agent-version</argument>
+                                        <argument>--project-version</argument>
                                         <argument>${project.version}</argument>
                                     </arguments>
                                 </configuration>

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -37,10 +37,13 @@ import java.lang.reflect.Method;
 public class RunWithCheckMain {
     public static void main(String[] args) throws ClassNotFoundException, IOException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         Class checkClass = Class.forName(args[0]);
-        String content = FileUtils.readFileToString(new File(args[1]));
-        //Both running javaagent and analysis use json as immediate format.
-        JsonReport report = new Gson().fromJson(content, JsonReport.class);
-        Method checkMethod = checkClass.getDeclaredMethod("verify", JsonReport.class);
+        JsonReport report = null;
+        if (args.length >= 2 && new File(args[1]).exists()) {
+            String content = FileUtils.readFileToString(new File(args[1]));
+            //Both running javaagent and analysis use json as immediate format.
+            report = new Gson().fromJson(content, JsonReport.class);
+        }
+        Method checkMethod = checkClass.getMethod("verify", JsonReport.class);
         //Throw exception regard as failed
         checkMethod.invoke(checkClass.getDeclaredConstructor().newInstance(), report);
     }

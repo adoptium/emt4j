@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -29,10 +29,7 @@ import org.eclipse.emt4j.analysis.report.render.ApiRender;
 import org.eclipse.emt4j.analysis.common.model.JdkCheckCompatibleRequest;
 import org.eclipse.emt4j.analysis.source.DependencySource;
 import org.eclipse.emt4j.analysis.source.SingleJarSource;
-import org.eclipse.emt4j.common.CheckConfig;
-import org.eclipse.emt4j.common.Feature;
-import org.eclipse.emt4j.common.JdkMigrationException;
-import org.eclipse.emt4j.common.ReportConfig;
+import org.eclipse.emt4j.common.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -59,7 +56,7 @@ public final class JdkCompatibleCheckFacade {
         AnalysisExecutor analysisExecutor = new AnalysisExecutor(checkConfig);
         analysisExecutor.setAnalysisOutputConsumer(outputConsumer);
         for (ToCheckTarget checkTarget : request.getToCheckTargetList()) {
-            analysisExecutor.add(convert(checkTarget));
+            analysisExecutor.add(convert(request.getIdentifier(), checkTarget));
         }
         Progress progress = new Progress(0, 1, "JDK Compatible API Check");
         analysisExecutor.execute(Collections.singletonList(Feature.DEFAULT), progress);
@@ -78,12 +75,16 @@ public final class JdkCompatibleCheckFacade {
         return result;
     }
 
-    private static DependencySource convert(ToCheckTarget checkTarget) {
+    private static DependencySource convert(String identifier, ToCheckTarget checkTarget) {
         if (checkTarget.getTargetType() == CheckTargetTypeEnum.JAR
                 || checkTarget.getTargetType() == CheckTargetTypeEnum.ClASS) {
             File f = new File(checkTarget.getTargetIdentifier());
             if (f.isFile() && f.exists()) {
-                return new SingleJarSource(f);
+                SingleJarSource source = new SingleJarSource(f);
+                SourceInformation sourceInformation = new SourceInformation();
+                sourceInformation.setFullIdentifier(identifier);
+                source.setInformation(sourceInformation);
+                return source;
             } else {
                 throw new JdkMigrationException("Jar file " + checkTarget.getTargetIdentifier() + " not valid!");
             }

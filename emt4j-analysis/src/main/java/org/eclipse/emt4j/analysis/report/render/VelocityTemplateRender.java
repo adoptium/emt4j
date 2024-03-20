@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -38,7 +38,7 @@ public abstract class VelocityTemplateRender extends AbstractRender implements R
     }
 
     @Override
-    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
+    public void render(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());

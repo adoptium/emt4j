@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -21,6 +21,7 @@ package org.eclipse.emt4j.test.common;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class RunJavaUtil {
     public static String getJavaExePath(RunningTestParam testParam, String selectJdk) {
@@ -32,8 +33,24 @@ public class RunJavaUtil {
     }
 
     public static void runProcess(List<String> arguments) throws IOException, InterruptedException {
-        System.out.println(String.join(" ", arguments));
-        ProcessBuilder pb = new ProcessBuilder(arguments).inheritIO();
+        runProcess(arguments, null, null, null);
+    }
+
+    public static void runProcess(List<String> arguments, File workingDirectory, File stdout, Map<String,String> environment) throws IOException, InterruptedException {
+        System.out.println("run process: " + String.join(" ", arguments));
+        ProcessBuilder pb = new ProcessBuilder(arguments);
+        if (workingDirectory != null) {
+            pb.directory(workingDirectory);
+        }
+        if (stdout == null) {
+            pb.inheritIO();
+        } else {
+            pb.redirectOutput(stdout);
+        }
+        if (environment != null) {
+            Map<String, String> processEnvironment = pb.environment();
+            processEnvironment.putAll(environment);
+        }
         Process p = pb.start();
         int ret = p.waitFor();
         if (ret != 0) {

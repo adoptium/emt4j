@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -28,6 +28,8 @@ public class CategorizedResult {
     List<ResultDetail> resultDetailList = new ArrayList<>();
 
     String[] extras;
+
+    int problemCount;
 
     public String getDesc() {
         return desc;
@@ -67,5 +69,13 @@ public class CategorizedResult {
 
     public void setExtras(String[] extras) {
         this.extras = extras;
+    }
+
+    public int getProblemCount() {
+        return problemCount;
+    }
+
+    public void setProblemCount(int problemCount) {
+        this.problemCount = problemCount;
     }
 }

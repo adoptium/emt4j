@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -25,7 +25,7 @@ import java.util.Map;
  * Include which jdk will running the testcase, class path for agent ,class path for analysis.
  */
 public class RunningTestParam {
-    String agentVersion;
+    String projectVersion;
     Map<String, String> jdkVersionToHome;
     String testCommonClassPath;
     String agentLibDir;

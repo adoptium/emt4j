@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -22,6 +22,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emt4j.common.JdkMigrationException;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -76,5 +78,13 @@ public class FileUtil {
                 return FileType.Cfg;
         }
         return FileType.Other;
+    }
+
+    public static boolean isSameFile(File file1, File file2) {
+        try {
+            return file1.getCanonicalPath().equals(file2.getCanonicalPath());
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

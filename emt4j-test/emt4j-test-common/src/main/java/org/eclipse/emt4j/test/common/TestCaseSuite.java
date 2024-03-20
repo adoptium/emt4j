@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,12 +18,13 @@
  ********************************************************************************/
 package org.eclipse.emt4j.test.common;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static org.eclipse.emt4j.test.common.RunJavaUtil.getJavaExePath;
 import static org.eclipse.emt4j.test.common.RunJavaUtil.runProcess;
@@ -69,6 +70,9 @@ class TestCaseSuite {
                             break;
                         case DYNAMIC:
                             runWithDynamic(testParam, testCase, testcasePlayground);
+                            break;
+                        case MAVEN_PLUGIN:
+                            runWithMavenPlugin(testParam, testCase, testcasePlayground);
                             break;
                         default:
                             throw new RuntimeException("Not support mode for TestConf annotation!" + mode);
@@ -131,6 +135,36 @@ class TestCaseSuite {
         return arguments;
     }
 
+    private void runWithMavenPlugin(RunningTestParam testParam, TestCase testCase, File testcasePlayground) throws IOException, InterruptedException {
+        File stdout = null;
+
+        //1. generate dynamic test target
+        runProcess(buildCallDynamicTarget(testParam, testCase, testcasePlayground));
+
+        try {
+            //2.run plugin
+            stdout = Paths.get(testcasePlayground.getPath(), "stdout").toFile();
+            Map<String, String> environment = new HashMap<>();
+            environment.put("MAVEN_OPTS", "-Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8");
+            runProcess(buildCallMavenPluginParams(testParam, testCase, testcasePlayground), testcasePlayground, stdout, environment);
+        } catch (Exception e) {
+            if (stdout != null && stdout.exists()) {
+                // stdout may be too long. Print only if test failed
+                System.out.println("test failed with stdout content:");
+                System.out.println(FileUtils.readFileToString(stdout, "utf-8"));
+            }
+            throw e;
+        }
+
+        //3.run checker
+        runProcess(buildCheckParam(testParam, testCase, null), testcasePlayground, null, null);
+    }
+
+    private List<String> buildCallMavenPluginParams(RunningTestParam testParam, TestCase testCase, File dynamicWorkDir) {
+        String command = "mvn " + testCase.option.replace("${version}", testParam.projectVersion) + " -X";
+        return Arrays.asList(command.split(" +"));
+    }
+
     private File unzip(File testcaseJar, File playground) throws IOException, InterruptedException {
         File jarTmpDir = new File(playground, "tmp-classes");
         if (!jarTmpDir.mkdirs()) {
@@ -173,7 +207,9 @@ class TestCaseSuite {
         //to run class
         arguments.add(testCase.className);
         //file to verify
-        arguments.add(analysisOutput.getAbsolutePath());
+        if (analysisOutput != null) {
+            arguments.add(analysisOutput.getAbsolutePath());
+        }
         return arguments;
     }
 
@@ -252,7 +288,7 @@ class TestCaseSuite {
 
     private String buildJavaAgentParam(RunningTestParam testParam, TestCase testCase, File agentOutput) {
         StringBuilder sb = new StringBuilder(256);
-        sb.append("-javaagent:").append(testParam.agentLibDir + File.separator + "emt4j-agent-jdk" + testCase.from.getValue() + "-" + testParam.agentVersion + ".jar");
+        sb.append("-javaagent:").append(testParam.agentLibDir + File.separator + "emt4j-agent-jdk" + testCase.from.getValue() + "-" + testParam.projectVersion + ".jar");
         sb.append('=');
         sb.append("file=").append(agentOutput.getAbsolutePath());
         sb.append(',').append("to=").append(testCase.to.getValue());

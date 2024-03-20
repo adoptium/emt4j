@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,7 +18,9 @@
  ********************************************************************************/
 package org.eclipse.emt4j.common.i18n;
 
+import org.eclipse.emt4j.common.Feature;
 import org.eclipse.emt4j.common.JdkMigrationException;
+import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
 import java.util.*;
 
@@ -35,8 +37,15 @@ public class ReportResourceAccessor {
     private Map<String, Optional<ResourceBundle>> resourceBundleMap = new HashMap<>();
     private ResourceBundle commonResource;
 
+    private final ResourceBundle autofixDescBundle;
+
     public ReportResourceAccessor(Locale locale) {
         this.locale = locale;
+        this.autofixDescBundle = selectResourceBundle("AUTOFIX", ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT));
+    }
+
+    public String getAutofixDesc(String fixType) {
+        return autofixDescBundle.getString(fixType);
     }
 
     public I18nResourceUnit getResourceUnit(String resultCode, String subResultCode, String i18nBase) {

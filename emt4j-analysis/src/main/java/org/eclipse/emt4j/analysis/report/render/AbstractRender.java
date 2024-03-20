@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,17 +19,22 @@
 package org.eclipse.emt4j.analysis.report.render;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.shared.utils.logging.MessageBuilder;
+import org.apache.maven.shared.utils.logging.MessageUtils;
+import org.eclipse.emt4j.analysis.autofix.AutofixReport;
 import org.eclipse.emt4j.common.*;
 import org.eclipse.emt4j.common.i18n.I18nResourceUnit;
 import org.eclipse.emt4j.common.i18n.ReportResourceAccessor;
 import org.eclipse.emt4j.common.rule.ConfRuleFacade;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public abstract class AbstractRender {
+public abstract class AbstractRender implements Render {
 
     protected ReportConfig config;
     protected ReportResourceAccessor reportResourceAccessor;
@@ -37,6 +42,19 @@ public abstract class AbstractRender {
     public AbstractRender(ReportConfig config) {
         this.config = config;
         reportResourceAccessor = new ReportResourceAccessor(config.getLocale());
+    }
+
+    protected void beforeRender(Map<Feature, List<CheckResultContext>> resultMap) {
+        AutofixReport.getInstance().saveCheckResultMap(resultMap);
+    }
+
+    protected abstract void render(Map<Feature, List<CheckResultContext>> resultMap) throws IOException;
+
+    @Override
+    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
+        beforeRender(resultMap);
+        render(resultMap);
+        logGeneratedFilePath();
     }
 
     protected CategorizedCheckResult categorize(Map<Feature, List<CheckResultContext>> checkResultContextList) {
@@ -119,5 +137,48 @@ public abstract class AbstractRender {
         T t = creator.get();
         list.add(t);
         return t;
+    }
+
+    protected void logGeneratedFilePath() {
+        if (config.getOutputFile() != null) {
+            doLogGeneratedFilePath("EMT4J's report", config.getOutputFile());
+        }
+    }
+
+    public static void doLogGeneratedFilePath(String prefix, String path) {
+        MessageBuilder prefixPart = MessageUtils.buffer().strong(prefix);
+        MessageBuilder pathPart = MessageUtils.buffer().success(new File(path).getAbsolutePath());
+        System.out.println(prefixPart.toString() + ": " + pathPart.toString());
+    }
+
+    public static int getJavaProblemCount(Map<Feature, List<CheckResultContext>> javaAndDependency) {
+        if (javaAndDependency == null) {
+            return 0;
+        }
+        return (int) javaAndDependency.values().stream()
+                .flatMap(Collection::stream)
+                .filter(check -> !check.getDependency().getSourceInformation().isDependency())
+                .map(check -> check.getReportCheckResult().getResultCode() + "#" + check.getDependency().getTargetFilePath())
+                .distinct()
+                .count();
+    }
+
+    public static int getDependencyProblemCount(Map<Feature, List<CheckResultContext>> javaAndDependency) {
+        if (javaAndDependency == null) {
+            return 0;
+        }
+        return (int) javaAndDependency.values().stream()
+                .flatMap(Collection::stream)
+                .filter(check -> check.getDependency().getSourceInformation().isDependency())
+                .map(check -> check.getDependency().buildDependencyGATV())
+                .distinct()
+                .count();
+    }
+
+    public static int getJavaAndDependencyProblemCount(Map<Feature, List<CheckResultContext>> javaAndDependency) {
+        if (javaAndDependency == null) {
+            return 0;
+        }
+        return getJavaProblemCount(javaAndDependency) + getDependencyProblemCount(javaAndDependency);
     }
 }
