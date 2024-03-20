@@ -127,7 +127,7 @@ public class ConfRuleRepository {
                 confRuleItem.setPriority(attributes.getValue("priority"));
                 List<String[]> userDefineAttrs = new ArrayList<>(attributes.getLength());
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    String attrName = attributes.getLocalName(i);
+                    String attrName = attributes.getQName(i);
                     if (!isFixedAttribute(attrName)) {
                         userDefineAttrs.add(new String[]{attrName, attributes.getValue(i)});
                     }
