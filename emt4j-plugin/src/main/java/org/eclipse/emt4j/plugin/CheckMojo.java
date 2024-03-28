@@ -51,11 +51,13 @@ public class CheckMojo extends BaseCheckMojo {
     @Component(hint = "default")
     private DependencyGraphBuilder dependencyGraphBuilder;
 
+    private static boolean isPrepared = false;
+
     @Override
     boolean preCheck() throws Exception {
         List<MavenProject> projects = session.getProjects();
         initFiles();
-        if (project.equals(projects.get(0))) {
+        if (!isPrepared) {
             prepare();
         } else {
             load();
@@ -105,6 +107,7 @@ public class CheckMojo extends BaseCheckMojo {
         configFile.mkdir();
         modulesFile.createNewFile();
         dependenciesFile.createNewFile();
+        isPrepared = true;
     }
 
     private void load() throws IOException {
