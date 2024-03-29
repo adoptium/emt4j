@@ -54,7 +54,6 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
             new GATChangeDependencyUpdateRule("org.mapstruct:mapstruct-jdk8:jar", "org.mapstruct:mapstruct:jar:1.5.5.Final"),
             new GADontChangeDependencyUpdateRule("org.mapstruct:mapstruct-processor:jar:1.5.5.Final"),
             new GADontChangeDependencyUpdateRule("commons-lang:commons-lang:jar:2.6"),
-
     };
 
     public FullAutofixExecutor(AutofixConfig config, MavenSession session, MavenProject project, Log log, RuntimeInformation runtime, SettingsDecrypter settingsDecrypter) {

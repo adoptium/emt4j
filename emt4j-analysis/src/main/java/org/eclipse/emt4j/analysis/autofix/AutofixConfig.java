@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 public class AutofixConfig {
     private static AutofixConfig instance = new AutofixConfig();
 
-    private boolean autofix = false;
+    private boolean autofix;
     private String autofixFile;
     private boolean autofixGeneratePatch;
     private String unfixedReportFile;
