@@ -206,6 +206,9 @@ public class Dependency implements Serializable, Cloneable {
 
 
     public String buildDependencyGATV() {
+        if (!getSourceInformation().isDependency()) {
+            throw new IllegalStateException("should be dependency");
+        }
         int dotIndex = targetFilePath.lastIndexOf(".");
         String type;
         if (dotIndex >= 0) {
@@ -214,7 +217,7 @@ public class Dependency implements Serializable, Cloneable {
             type = "jar";
         }
 
-        String[] GAV = sourceInformation.getFullIdentifier().split(":");
+        String[] GAV = sourceInformation.getExtras()[0].split(":");
         return GAV[0] + ":" + GAV[1] + ":" + type + ":" + GAV[2];
     }
 }

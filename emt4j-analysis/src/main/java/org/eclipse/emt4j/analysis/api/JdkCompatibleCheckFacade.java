@@ -56,7 +56,7 @@ public final class JdkCompatibleCheckFacade {
         AnalysisExecutor analysisExecutor = new AnalysisExecutor(checkConfig);
         analysisExecutor.setAnalysisOutputConsumer(outputConsumer);
         for (ToCheckTarget checkTarget : request.getToCheckTargetList()) {
-            analysisExecutor.add(convert(request.getIdentifier(), checkTarget));
+            analysisExecutor.add(convert(checkTarget));
         }
         Progress progress = new Progress(0, 1, "JDK Compatible API Check");
         analysisExecutor.execute(Collections.singletonList(Feature.DEFAULT), progress);
@@ -75,14 +75,13 @@ public final class JdkCompatibleCheckFacade {
         return result;
     }
 
-    private static DependencySource convert(String identifier, ToCheckTarget checkTarget) {
+    private static DependencySource convert(ToCheckTarget checkTarget) {
         if (checkTarget.getTargetType() == CheckTargetTypeEnum.JAR
                 || checkTarget.getTargetType() == CheckTargetTypeEnum.ClASS) {
             File f = new File(checkTarget.getTargetIdentifier());
             if (f.isFile() && f.exists()) {
                 SingleJarSource source = new SingleJarSource(f);
                 SourceInformation sourceInformation = new SourceInformation();
-                sourceInformation.setFullIdentifier(identifier);
                 source.setInformation(sourceInformation);
                 return source;
             } else {

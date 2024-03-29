@@ -30,23 +30,12 @@ public class SourceInformation implements Serializable {
 
     private String[] extras;
 
-    // TODO should use identifier
-    private String fullIdentifier;
-
     public String getIdentifier() {
         return identifier;
     }
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    public void setFullIdentifier(String fullIdentifier) {
-        this.fullIdentifier = fullIdentifier;
-    }
-
-    public String getFullIdentifier() {
-        return fullIdentifier;
     }
 
     public boolean isDependency() {

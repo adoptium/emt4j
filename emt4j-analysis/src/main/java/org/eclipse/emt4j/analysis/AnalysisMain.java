@@ -126,7 +126,6 @@ public class AnalysisMain {
         info.setIdentifier(arr[1]);
         info.setExtras(new String[]{str});
         info.setDependency(isDependency);
-        info.setFullIdentifier(str);
         return info;
     }
 
