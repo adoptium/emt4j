@@ -22,7 +22,7 @@ import org.eclipse.emt4j.test.common.TestConf;
 
 import static org.eclipse.emt4j.test.common.TestConf.ModeEnum;
 
-@TestConf(mode = {ModeEnum.MAVEN_PLUGIN}, option = "process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:${version}:check -Dpriority=p1 -Dautofix=false -DfixedReportFileName=fixedReport.html -DunfixedReportFileName=unfixedReport.html -DautofixFile=fixed.patch -DoutputFile=report.html")
+@TestConf(mode = {ModeEnum.MAVEN_PLUGIN}, option = "process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:${version}:process -Dpriority=p1 -Dautofix=false -DfixedReportFileName=fixedReport.html -DunfixedReportFileName=unfixedReport.html -DautofixFile=fixed.patch -DoutputFile=report.html")
 public class NoAutofixTest extends BaseMavenPluginSITCase {
 
     @Override

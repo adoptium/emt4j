@@ -28,7 +28,7 @@ import org.eclipse.emt4j.analysis.autofix.FullAutofixExecutor;
 /**
  * Find the incompatible issues existing in the project and tries to autofix them.
  */
-@Mojo(name = "check", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
+@Mojo(name = "process", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST)
 public class CheckAndAutofixMojo extends BaseCheckAndAutofixMojo {
     protected BaseAutofixExecutor getAutofixExecutor() {
         return new FullAutofixExecutor(AutofixConfig.getInstance(), session, project, getLog(), runtime, settingsDecrypter);
