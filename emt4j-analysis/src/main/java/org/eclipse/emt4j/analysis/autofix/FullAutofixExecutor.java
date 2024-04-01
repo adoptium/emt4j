@@ -89,7 +89,9 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
         List<String> recipesNames = new ArrayList<>();
         List<Recipe> recipes = new ArrayList<>();
 
-        if (config.getToVersion() == 11) {
+        int fromVersion = config.getFromVersion();
+        int toVersion = config.getToVersion();
+        if (isSubset(8, 11, fromVersion, toVersion)) {
             recipesNames.add("org.eclipse.emt4j.analysis.autofix.recipe.UpdateLombokExperimental");
             report.addRecipeReporterGenerator("org.eclipse.emt4j.analysis.autofix.recipe.UpdateLombokExperimental",
                     (recipe) -> new AbstractRecipeFixReporter.CountByFileRecipeFixReporter("autofix.java.lombokExperimental"));
@@ -97,10 +99,9 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
             recipes.add(new TernaryUnboxingGenericRecipe());
             recipes.add(new CastArraysAsListToList());
             recipes.add(new UseJavaUtilBase64("sun.misc", true));
-        } else if (config.getToVersion() == 17) {
+        }
+        if (isSubset(11, 17, fromVersion, toVersion)) {
             recipesNames.add("org.openrewrite.java.migrate.Java11toJava17");
-        } else {
-            throw new RuntimeException("Unsupported target version: " + config.getToVersion());
         }
 
         PomUpdatePlan pomUpdatePlan = generatePomUpdatePlan();
@@ -119,6 +120,11 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
         Recipe recipe = env.activateRecipes(recipesNames);
         recipe.getRecipeList().addAll(recipes);
         return recipe;
+    }
+
+    // return true if [low1, high1] is subset of [low2, high2]
+    private boolean isSubset(int low1, int high1, int low2, int high2) {
+        return low1 >= low2 && high1 <= high2;
     }
 
     private Recipe generateAddJDKMigrationCommentRecipe(PomUpdatePlan pomUpdatePlan) {
