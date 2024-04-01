@@ -73,12 +73,12 @@ Users can also run the following command directly without modifying pom.xml:
 
 ```shell
 # run with default configurations
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.8.0:check
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.8.0:process
 ```
 
 ``` shell
 # specify outputFile and priority by -D
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.8.0:check -DoutputFile=emt4j-report.html -Dpriority=p1
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.8.0:process -DoutputFile=emt4j-report.html -Dpriority=p1
 ```
 
 #### Autofix
@@ -90,7 +90,7 @@ Steps to use:
 + Execute EMT4J with the autofix option
 
 ``` shell
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.9.0:check -DautofixFile=fixed.patch -Dautofix=true
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.9.0:process -DautofixFile=fixed.patch -Dautofix=true
 ```
 
 + Apply the patch using the command
@@ -102,7 +102,7 @@ $ git apply fixed.patch
 If the project files include multiple file encodings, the above git apply step might fail. In this case, consider not generating a patch and directly writing the autofix results into the files, which can be done using the following command
 
 ```shell
-$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.9.0:check -DautofixGeneratePatch=false -Dautofix=true
+$ mvn process-test-classes org.eclipse.emt4j:emt4j-maven-plugin:0.9.0:process -DautofixGeneratePatch=false -Dautofix=true
 ```
 
 All available options for the Maven plugin:
