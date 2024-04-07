@@ -35,6 +35,7 @@ import java.util.*;
 
 // This executor contains most recipes that we support
 public class FullAutofixExecutor extends BaseAutofixExecutor {
+    // These packages have been removed from JDK in JDK11. We bring them back for compatability.
     public static final String[] JAVAEE_DEPENDENCIES = new String[]{
             "com.sun.activation:javax.activation:jar:1.2.0",
             "javax.transaction:javax.transaction-api:jar:1.2",

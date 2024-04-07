@@ -27,9 +27,9 @@ import java.util.List;
 // record the code structure of pom file
 @Data
 public class PomResolution {
-    private Xml.Tag moduleSelfTag=null;
-    private Xml.Tag parentTag = null;
-    private Xml.Tag dependenciesTag = null;
+    private Xml.Tag moduleSelfTag;
+    private Xml.Tag parentTag;
+    private Xml.Tag dependenciesTag;
     private List<Xml.Tag> properties = new ArrayList<>();
     private List<Xml.Tag> dependencies = new ArrayList<>();
     private List<Xml.Tag> plugins = new ArrayList<>();
