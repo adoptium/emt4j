@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -53,8 +53,8 @@ public class TestLauncher {
                 testParam.agentLibDir = args[++i];
             } else if ("--analysis-lib-dir".equals(args[i])) {
                 testParam.analysisLibDir = args[++i];
-            } else if ("--agent-version".equals(args[i])) {
-                testParam.agentVersion = args[++i];
+            } else if ("--project-version".equals(args[i])) {
+                testParam.projectVersion = args[++i];
             } else {
                 throw new RuntimeException("Unknown option : " + args[i]);
             }

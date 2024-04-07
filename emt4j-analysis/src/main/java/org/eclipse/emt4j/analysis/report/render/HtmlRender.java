@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -43,34 +43,11 @@ public class HtmlRender extends VelocityTemplateRender {
     }
 
     @Override
-    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
+    public void render(Map<Feature, List<CheckResultContext>> resultMap) throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "classpath");
         velocityEngine.setProperty("resource.loader.classpath.class", ClasspathResourceLoader.class.getName());
-        VelocityContext context = new VelocityContext();
-        List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
-        context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "html.title"));
-        context.put("data", categorizedResultList);
-        List<CategorizedContent> ccs = getCategorizedContents(categorizedResultList);
-        context.put("content", ccs);
-        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT)));
-        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "content.title"));
-        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "detail.title"));
-        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "back.to.content"));
-        if (!useOldTemplate()) {
-            int total = 0;
-            for (CategorizedContent cc : ccs) {
-                total += cc.getTotal();
-            }
-            context.put("total",
-                    String.format(
-                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.foundInTotal"),
-                            total,
-                            total > 1 ? "s" : ""));
-
-            context.put("priority", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.priority"));
-            context.put("count", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.count"));
-        }
+        VelocityContext context = prepareVelocityContext(resultMap);
 
         File output = new File(config.getOutputFile()).getAbsoluteFile();
         if (!output.getParentFile().exists()) {
@@ -84,6 +61,33 @@ public class HtmlRender extends VelocityTemplateRender {
         }
     }
 
+    protected VelocityContext prepareVelocityContext(Map<Feature, List<CheckResultContext>> resultMap) {
+        VelocityContext context = new VelocityContext();
+        List<CategorizedResult> categorizedResultList = toCategorizedResult(resultMap);
+        context.put("title", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "html.title"));
+        context.put("data", categorizedResultList);
+        List<CategorizedContent> ccs = getCategorizedContents(categorizedResultList);
+        context.put("content", ccs);
+        context.put("noIssue", reportResourceAccessor.getNoIssueResource(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT)));
+        context.put("contentTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "content.title"));
+        context.put("detailTitle", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "detail.title"));
+        context.put("backToContent", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "back.to.content"));
+        int total = 0;
+        for (CategorizedContent cc : ccs) {
+            total += cc.getTotal();
+        }
+        context.put("total",
+                String.format(
+                        reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), getIssueFoundTotalKey()),
+                        total,
+                        total > 1 ? "s" : ""));
+
+        context.put("priority", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.priority"));
+        context.put("count", reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT), "issue.count"));
+
+        return context;
+    }
+
     private List<CategorizedContent> getCategorizedContents(List<CategorizedResult> categorizedResultList) {
         List<CategorizedContent> ccs = new ArrayList<>();
         for (CategorizedResult cr : categorizedResultList) {
@@ -95,19 +99,18 @@ public class HtmlRender extends VelocityTemplateRender {
                 content.setTotal(detail.getContext().size());
                 cc.addSubContent(content);
             }
-            if (!useOldTemplate()) {
-                if (cr.getExtras() != null) {
-                    for (String extra : cr.getExtras()) {
-                        cc.addDescription(extra);
-                    }
+            cc.addTotal(cr.getProblemCount());
+            if (cr.getExtras() != null) {
+                for (String extra : cr.getExtras()) {
+                    cc.addDescription(extra);
                 }
-                cc.addDescription(
-                        String.format(
-                                reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT),
-                                        "issue.found"),
-                                cc.getTotal(),
-                                cc.getTotal() > 1 ? "s" : ""));
             }
+            cc.addDescription(
+                    String.format(
+                            reportResourceAccessor.getString(ConfRuleFacade.getFeatureI18nBase(Feature.DEFAULT),
+                                    getIssueFoundKey()),
+                            cc.getTotal(),
+                            cc.getTotal() > 1 ? "s" : ""));
             ccs.add(cc);
         }
         return ccs;
@@ -115,7 +118,7 @@ public class HtmlRender extends VelocityTemplateRender {
 
     private List<CategorizedResult> toCategorizedResult(Map<Feature, List<CheckResultContext>> resultMap) {
         List<CategorizedResult> list = new ArrayList<>();
-        Collection<CheckResultContextHolder> holders = useOldTemplate() ? classifyByDir(resultMap) : classifyByIdentifier(resultMap);
+        Collection<CheckResultContextHolder> holders = classifyByIdentifier(resultMap);
         if (holders.isEmpty()) {
             return list;
         }
@@ -127,6 +130,7 @@ public class HtmlRender extends VelocityTemplateRender {
                 for (Feature feature : categorizedCheckResult.getFeatures()) {
                     int detailId = 0;
                     CategorizedResult cr = new CategorizedResult();
+                    cr.setProblemCount(getJavaAndDependencyProblemCount(tmp));
                     cr.desc = holder.sourceInformation.getIdentifier();
                     cr.setExtras(holder.sourceInformation.getExtras());
                     cr.anchorId = "cr-anchor" + holder.sourceInformation.getIdentifier().hashCode();
@@ -165,9 +169,6 @@ public class HtmlRender extends VelocityTemplateRender {
                 }
             }
         });
-        if (useOldTemplate()) {
-            list.sort(Comparator.comparing(CategorizedResult::getDesc));
-        }
         for (int i = 0; i < list.size(); i++) {
             list.get(i).setId(i + 1);
         }
@@ -266,14 +267,14 @@ public class HtmlRender extends VelocityTemplateRender {
 
     @Override
     String getTemplate() {
-        if (useOldTemplate()) {
-            return "html-report-old.vm";
-        }
         return "html-report.vm";
     }
 
-    private static boolean useOldTemplate() {
-        return Boolean.getBoolean("useOldTemplate");
+    protected String getIssueFoundKey() {
+        return "issue.found";
     }
 
+    protected String getIssueFoundTotalKey() {
+        return "issue.foundInTotal";
+    }
 }

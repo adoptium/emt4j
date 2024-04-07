@@ -1,4 +1,4 @@
-## Copyright (c) 2023 Contributors to the Eclipse Foundation
+## Copyright (c) 2023，2024 Contributors to the Eclipse Foundation
 ##
 ## See the NOTICE file(s) distributed with this work for additional
 ## information regarding copyright ownership.
@@ -19,40 +19,121 @@
 #else
 <html>
 <head>
-<title>$title</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text fill='red' x='50%' y='50%' font-size='22px' text-anchor='middle' dominant-baseline='central'>🗒️</text></svg>" type="image/svg+xml" />
-<style>
-  body { margin: 0; color: #262626; font-family: Segoe UI,Roboto,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji }
-  .container { width: 100%; height: 100vh; display: flex; overflow: hidden }
-  #content { flex-shrink: 0; width: 320px; display: flex; flex-direction: column; overflow: hidden;}
-  #resizer { flex-shrink: 0; width: 1px; cursor: ew-resize; background: rgb(240, 241, 244); }
-  #resizer:hover { background: grey }
-  #main { flex-grow: 1; display: flex; flex-direction: column-reverse; overflow: hidden; position: relative }
-  .ce { border-radius: 6px; margin-bottom: 3px; cursor: pointer; padding: 7px 12px;}
-  .ce:hover, .ce.active { background: rgb(229, 230, 230); }
-  .ce.active { font-weight: 700; }
-  .ceh { font-size: 16px; word-break: break-all }
-  .ced { font-size: 14px; color: rgba(0,0,0,.45); }
-  .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tag { display: inline-block; background-color: #fef0f0; border: 1px solid #fde2e2; border-radius: 4px; color: #f56c6c; padding: 0 10px; font-size: 12px; line-height: 26px; height: 28px; box-sizing: border-box }
-  ul { padding-left: 2em; margin-top: 0; margin-bottom: 16px }
-  h1, h2, h3, li { word-break: break-all }
-</style>
+  <title>$title</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text fill='red' x='50%' y='50%' font-size='22px' text-anchor='middle' dominant-baseline='central'>🗒️</text></svg>"
+        type="image/svg+xml"/>
+  <style>
+    body {
+      margin: 0;
+      color: #262626;
+      font-family: Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif, Apple Color Emoji
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      overflow: hidden
+    }
+
+    #content {
+      flex-shrink: 0;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #resizer {
+      flex-shrink: 0;
+      width: 1px;
+      cursor: ew-resize;
+      background: rgb(240, 241, 244);
+    }
+
+    #resizer:hover {
+      background: grey
+    }
+
+    #main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column-reverse;
+      overflow: hidden;
+      position: relative
+    }
+
+    .ce {
+      border-radius: 6px;
+      margin-bottom: 3px;
+      cursor: pointer;
+      padding: 7px 12px;
+    }
+
+    .ce:hover, .ce.active {
+      background: rgb(229, 230, 230);
+    }
+
+    .ce.active {
+      font-weight: 700;
+    }
+
+    .ceh {
+      font-size: 16px;
+      word-break: break-all
+    }
+
+    .ced {
+      font-size: 14px;
+      color: rgba(0, 0, 0, .45);
+    }
+
+    .ellipsis {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-block;
+      background-color: #fef0f0;
+      border: 1px solid #fde2e2;
+      border-radius: 4px;
+      color: #f56c6c;
+      padding: 0 10px;
+      font-size: 12px;
+      line-height: 26px;
+      height: 28px;
+      box-sizing: border-box
+    }
+
+    ul {
+      padding-left: 2em;
+      margin-top: 0;
+      margin-bottom: 16px
+    }
+
+    h1, h2, h3, li {
+      word-break: break-all
+    }
+  </style>
 </head>
 <body>
 <div class="container">
   <div id="content">
     <div style="flex-grow: 1; overflow-y: auto; direction: rtl">
       <div style="padding: 5px; direction: ltr">
-      #foreach ($item in $content)
-        <div class="ce #if ($foreach.index == 0) active #end" id="ce$foreach.index" onclick="clickCE('$foreach.index')">
-          <div class="ceh">$item.title</div>
-          #foreach($description in $item.descriptions)
-          <div class="ced ellipsis">${description}</div>
-          #end
-        </div>
-      #end
+        #foreach ($item in $content)
+          <div class="ce #if ($foreach.index == 0) active #end" id="ce$foreach.index"
+               onclick="clickCE('$foreach.index')">
+            <div class="ceh">$item.title</div>
+            #foreach($description in $item.descriptions)
+              <div class="ced ellipsis">${description}</div>
+            #end
+          </div>
+        #end
       </div>
     </div>
     <div style="flex-shrink: 0; margin: 5px; padding: 7px 12px; border-top: 1px solid hsla(210, 18%, 87%, 1);
@@ -69,133 +150,159 @@
         Eclipse Migration Toolkit for Java
       </a>
     </div>
-    <div style="position: absolute; top:0; bottom: 45px; left: 0; width: 25px;; display: flex; justify-content: center; align-items: center;">
+    <div
+      style="position: absolute; top:0; bottom: 45px; left: 0; width: 25px;; display: flex; justify-content: center; align-items: center;">
       <span style="font-size: 14px; cursor: pointer; user-select: none" onclick="toggleSubContent()">📎</span>
     </div>
     #foreach ($item in $content)
-    <div id="sc$foreach.index"
+      <div id="sc$foreach.index"
            style="position: absolute; top: 0; bottom: 45px; left: 41px; display: none;
                   justify-content: center; align-items: center;">
-      <div style="position: relative; padding: 0 15px; background: rgb(229, 230, 230); border-radius: 6px; z-index: 1024"
-           onmouseleave="hiddenSubContent()">
+        <div
+          style="position: relative; padding: 0 15px; background: rgb(229, 230, 230); border-radius: 6px; z-index: 1024"
+          onmouseleave="hiddenSubContent()">
         <span style="position: absolute; right: 7px; font-size: 14px; user-select: none; cursor: pointer"
               onclick="hiddenSubContent()">x</span>
-        #foreach ($subitem in $item.subContents)
-          <p><a href="#${subitem.anchorId}">${foreach.count}. $subitem.title</a> (${subitem.priority}) (${subitem.total})</p>
-        #end
+          #foreach ($subitem in $item.subContents)
+            <p><a href="#${subitem.anchorId}">${foreach.count}. $subitem.title</a> (${subitem.priority})
+              (${subitem.total})</p>
+          #end
+        </div>
       </div>
-    </div>
     #end
     #foreach( $subdata in $data )
-    <div id="me$foreach.index" style="padding: 5px 25px; flex-grow: 1; overflow-y: auto; display: #if ($foreach.index == 0) block #else none #end">
-      <h1 style="margin-top: 0; padding-bottom: 7px; border-bottom: 1px solid hsla(210, 18%, 87%, 1);">$subdata.desc</h1>
-      #foreach( $detail in $subdata.resultDetailList)
-        <h2><a name="${detail.anchorId}">${detail.detailId}. ${detail.title}</a></h2>
-      <div style="padding: 0 16px; position: relative;">
-        <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 6px; background: #cfd1d0"></div>
-        <h3>${detail.descriptionTitle}</h3>
-        <span class="tag">${priority}: ${detail.priority}</span>
-        <span class="tag" style="margin-left: 10px">${count}: ${detail.context.size()}</span>
-        <p>${detail.description}</p>
-        <h3>${detail.solutionTitle}</h3>
-        #foreach ($solution in $detail.solution)
-        <p>$solution</p>
+      <div id="me$foreach.index"
+           style="padding: 5px 25px; flex-grow: 1; overflow-y: auto; display: #if ($foreach.index == 0) block #else none #end">
+        <h1
+          style="margin-top: 0; padding-bottom: 7px; border-bottom: 1px solid hsla(210, 18%, 87%, 1);">$subdata.desc</h1>
+        #if($subdata.dependencyTree)
+          ${subdata.dependencyTree}
         #end
-        <h3>${detail.contextTitle}</h3>
-        #foreach ($context in $detail.context)
-        <ul>
-        #foreach ($contextDesc in $context.contextDesc)
-          <li>$contextDesc</li>
-        #end
-        </ul>
-        #if ($context.stackTrace.isEmpty())
-        #else
-        <pre>
-        #foreach ($stackTrace in $context.stackTrace)
+        #foreach( $detail in $subdata.resultDetailList)
+          <h2><a name="${detail.anchorId}">${detail.detailId}. ${detail.title}</a></h2>
+          <div style="padding: 0 16px; position: relative;">
+            <div
+              style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 6px; background: #cfd1d0">
+            </div>
+            #if(${detail.descriptionTitle})
+              <h3>${detail.descriptionTitle}</h3>
+            #end
+            #if(${detail.priority})
+              <span class="tag">${priority}: ${detail.priority}</span>
+            #end
+            #if(${detail.description})
+              <p>${detail.description}</p>
+            #end
+            #if(${detail.solution})
+              <h3>${detail.solutionTitle}</h3>
+              #foreach ($solution in $detail.solution)
+                #if($solution.startsWith("http"))
+                  <p><a href=${solution}>$solution</a></p>
+                #else
+                  <p>$solution</p>
+                #end
+              #end
+            #end
+            #if(${detail.context})
+              <h3>${detail.contextTitle}</h3>
+              #foreach ($context in $detail.context)
+                <ul>
+                  #foreach ($contextDesc in $context.contextDesc)
+                    <li>$contextDesc</li>
+                  #end
+                </ul>
+                #if ($context.stackTrace.isEmpty())
+                #else
+                  <pre>
+                    #foreach ($stackTrace in $context.stackTrace)
           $stackTrace.replaceAll("<", "&lt;")
         #end
-        </pre>
-        #end
+                  </pre>
+                #end
+              #end
+            #end
+          </div>
         #end
       </div>
-      #end
-    </div>
     #end
   </div>
 </div>
 </body>
 <script>
-// resize content
-const resizer = document.getElementById('resizer')
-const content = document.getElementById('content')
-const main = document.getElementById('main')
-let x = 0
-let contentWidth = 0
-const mouseDownHandler = function (e) {
-  x = e.clientX
-  contentWidth = content.getBoundingClientRect().width
-  resizer.style.background = 'grey'
-  document.addEventListener('mousemove', mouseMoveHandler)
-  document.addEventListener('mouseup', mouseUpHandler)
-}
-const mouseMoveHandler = function (e) {
-  resizer.style.cursor = document.body.style.cursor = 'col-resize'
-  const width = contentWidth + e.clientX - x
-  if (width < 100) {
-    return
+  // resize content
+  const resizer = document.getElementById('resizer')
+  const content = document.getElementById('content')
+  const main = document.getElementById('main')
+  let x = 0
+  let contentWidth = 0
+  const mouseDownHandler = function (e) {
+    x = e.clientX
+    contentWidth = content.getBoundingClientRect().width
+    resizer.style.background = 'grey'
+    document.addEventListener('mousemove', mouseMoveHandler)
+    document.addEventListener('mouseup', mouseUpHandler)
   }
-  content.style.width = width + 'px'
-  content.style.userSelect = 'none';
-  content.style.pointerEvents = 'none';
-  main.style.userSelect = 'none';
-  main.style.pointerEvents = 'none';
-}
-const mouseUpHandler = function () {
-  resizer.style.removeProperty('cursor')
-  resizer.style.removeProperty('background')
-  content.style.removeProperty('user-select');
-  content.style.removeProperty('pointer-events');
-  main.style.removeProperty('user-select');
-  main.style.removeProperty('pointer-events');
-  document.body.style.removeProperty('cursor')
-  document.removeEventListener('mousemove', mouseMoveHandler);
-  document.removeEventListener('mouseup', mouseUpHandler);
-}
-resizer.addEventListener('mousedown', mouseDownHandler);
+  const mouseMoveHandler = function (e) {
+    resizer.style.cursor = document.body.style.cursor = 'col-resize'
+    const width = contentWidth + e.clientX - x
+    if (width < 100) {
+      return
+    }
+    content.style.width = width + 'px'
+    content.style.userSelect = 'none';
+    content.style.pointerEvents = 'none';
+    main.style.userSelect = 'none';
+    main.style.pointerEvents = 'none';
+  }
+  const mouseUpHandler = function () {
+    resizer.style.removeProperty('cursor')
+    resizer.style.removeProperty('background')
+    content.style.removeProperty('user-select');
+    content.style.removeProperty('pointer-events');
+    main.style.removeProperty('user-select');
+    main.style.removeProperty('pointer-events');
+    document.body.style.removeProperty('cursor')
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+  }
+  resizer.addEventListener('mousedown', mouseDownHandler);
 
-// active content entry
-const activeClass = 'active'
-const ceIdPrefix = 'ce'
-const meIdPrefix = 'me'
-const scIdPrefix = 'sc'
-let activeId = '0'
-function clickCE(id) {
-  if (id === activeId) {
-    return
-  }
-  document.getElementById(ceIdPrefix + activeId).classList.remove(activeClass)
-  let me = document.getElementById(meIdPrefix + activeId)
-  me.lastScrollTop = main.scrollTop
-  me.style.display = 'none'
-  document.getElementById(scIdPrefix + activeId).style.display = 'none'
+  // active content entry
+  const activeClass = 'active'
+  const ceIdPrefix = 'ce'
+  const meIdPrefix = 'me'
+  const scIdPrefix = 'sc'
+  let activeId = '0'
 
-  activeId = id
-  document.getElementById(ceIdPrefix + activeId).classList.add(activeClass)
-  me = document.getElementById(meIdPrefix + activeId)
-  me.style.display = 'block'
-  if (me.lastScrollTop) {
-    main.scrollTop = me.lastScrollTop
-  } else {
-    main.scrollTop = 0
+  function clickCE(id) {
+    if (id === activeId) {
+      return
+    }
+    document.getElementById(ceIdPrefix + activeId).classList.remove(activeClass)
+    let me = document.getElementById(meIdPrefix + activeId)
+    me.lastScrollTop = main.scrollTop
+    me.style.display = 'none'
+    document.getElementById(scIdPrefix + activeId).style.display = 'none'
+
+    activeId = id
+    document.getElementById(ceIdPrefix + activeId).classList.add(activeClass)
+    me = document.getElementById(meIdPrefix + activeId)
+    me.style.display = 'block'
+    if (me.lastScrollTop) {
+      main.scrollTop = me.lastScrollTop
+    } else {
+      main.scrollTop = 0
+    }
   }
-}
-function toggleSubContent() {
-  let sc = document.getElementById(scIdPrefix + activeId)
-  sc.style.display = (sc.style.display === 'flex') ? 'none' : 'flex'
-}
-function hiddenSubContent() {
-  document.getElementById(scIdPrefix + activeId).style.display = 'none'
-}
+
+  function toggleSubContent() {
+    let sc = document.getElementById(scIdPrefix + activeId)
+    sc.style.display = (sc.style.display === 'flex') ? 'none' : 'flex'
+  }
+
+  function hiddenSubContent() {
+    document.getElementById(scIdPrefix + activeId).style.display = 'none'
+  }
 </script>
 <html>
 #end

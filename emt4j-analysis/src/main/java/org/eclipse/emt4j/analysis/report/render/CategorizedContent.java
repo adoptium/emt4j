@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -47,9 +47,12 @@ public class CategorizedContent {
         return subContents;
     }
 
-    void addSubContent(Content content) {
+    public void addSubContent(Content content) {
         subContents.add(content);
-        total += content.getTotal();
+    }
+
+    public void addTotal(int n) {
+        total += n;
     }
 
     public void setSubContents(List<Content> subContents) {
@@ -72,7 +75,7 @@ public class CategorizedContent {
         return descriptions;
     }
 
-    void addDescription(String desc) {
+    public void addDescription(String desc) {
         descriptions.add(desc);
     }
 }

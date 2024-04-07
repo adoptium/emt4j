@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2023 Contributors to the Eclipse Foundation
+    Copyright (c) 2023, 2024 Contributors to the Eclipse Foundation
 
     See the NOTICE file(s) distributed with this work for additional
     information regarding copyright ownership.
@@ -52,6 +52,16 @@
            <configuration>
                <jdkHome>path-to-jdk11-home</jdkHome>
            </configuration>
+          <toolchain>
+           <type>jdk</type>
+           <provides>
+               <version>17</version>
+               <vendor>openjdk</vendor>
+           </provides>
+           <configuration>
+               <jdkHome>path-to-jdk17-home</jdkHome>
+           </configuration>
+       </toolchain>
        </toolchain>
    </toolchains>
    ```
@@ -67,10 +77,10 @@
 ### Integration Test
 
 ```
-$ mvn clean verify -Ptest
+$ mvn clean install && mvn clean verify -Ptest
 ```
 
-## Modify an existing rule
+## Modify an existing check rule
 
 ### Incompatible jar
 
@@ -115,7 +125,7 @@ If you want to change the implementation of this rule, you can modify the implem
     </rule>
 ```
 
-## Add a new rule
+## Add a new check rule
 
 ### Add rule description
 
@@ -167,3 +177,28 @@ Suppose the result code is "BAR", add a new resource bundle named "BAR" at "emt4
     2. The "verify" method test if the check result matches the expected.
 
 3. Add "org.eclipse.emt4j.test.common.TestConf" annotation for the new test case.
+
+## Add a autofix rule
+
+### Add rule implementation
+
+EMT4J employs [OpenRewrite](https://github.com/openrewrite/rewrite) for the implementation of autofixing compatability issues. Read [OpenRewrite's Guide for Authoring Recipes](https://docs.openrewrite.org/authoring-recipes) for how to implement a rule(recipe).
+
+### Rule registration
+Add the rule to "getRecipe" method of "org.eclipse.emt4j.analysis.autofix.FullAutofixExecutor"
+
+### Report autofix result
+The recipe should implement "org.eclipse.emt4j.analysis.autofix.recipe.ReportingRecipe" interface and implement "getReporter" method. Then add description of the rule to the "AUTOFIX" resource bundle.
+
+### Add test case
+If a simple unit test is enough to test your rule, just add a unit test.
+
+If the rule relies on a complicated project, then add an integration test to "emt4j-test-maven-plugin" module:
+
+1. Create a test project in "resources/projects" directory of the "emt4j-test-maven-plugin" module
+
+2. Add the test case. The test case class name must end with "Test" and extend 'org.eclipse.emt4j.test.common.BaseMavenPluginSITCase', then implement "getTestProject" and "verify" methods. 
+   1. The "getTestProject" should return the name of test project.
+
+   2. The "verify" method test if the check result matches the expected.
+3. Add "org.eclipse.emt4j.test.common.TestConf" annotation for the new test case. Its mode should be "ModeEnum.MAVEN_PLUGIN" and option should be the options to run the maven plugin.

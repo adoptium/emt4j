@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -38,7 +38,7 @@ public class ApiRender extends AbstractRender implements Render {
     }
 
     @Override
-    public void doRender(Map<Feature, List<CheckResultContext>> resultMap) {
+    public void render(Map<Feature, List<CheckResultContext>> resultMap) {
         CategorizedCheckResult categorizedCheckResult = categorize(resultMap);
         for (Feature feature : categorizedCheckResult.getFeatures()) {
             String i18nBase = ConfRuleFacade.getFeatureI18nBase(feature);

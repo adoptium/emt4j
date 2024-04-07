@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2022, 2023 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -31,14 +31,14 @@ import java.lang.annotation.Target;
 public @interface TestConf {
     ModeEnum[] mode();
 
-    RELEASE from();
+    RELEASE from() default RELEASE.JDK8;
 
-    RELEASE to();
+    RELEASE to() default RELEASE.JDK11;
 
     String option() default "";
 
     enum ModeEnum {
-        AGENT, CLASS, DYNAMIC
+        AGENT, CLASS, DYNAMIC, MAVEN_PLUGIN
     }
 
     enum RELEASE {
