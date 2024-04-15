@@ -294,6 +294,7 @@ public abstract class BaseAutofixExecutor {
             try (BufferedWriter sourceFileWriter = Files.newBufferedWriter(result.getAfter().getSourcePath(), charset)) {
                 sourceFileWriter.write(result.getAfter().printAll(new PrintOutputCapture<>(0, new SanitizedMarkerPrinter())));
             } catch (IOException e) {
+                String failedFileName = result.getAfter().getSourcePath().toFile().getName();
                 // rollback changes
                 for (int rollBackIndex = 0; rollBackIndex <= i; rollBackIndex++) {
                     result = results.get(rollBackIndex).result;
@@ -302,10 +303,10 @@ public abstract class BaseAutofixExecutor {
                     try (BufferedWriter sourceFileWriter = Files.newBufferedWriter(result.getBefore().getSourcePath(), charset)) {
                         sourceFileWriter.write(result.getBefore().printAll(new PrintOutputCapture<>(0, new SanitizedMarkerPrinter())));
                     } catch (IOException rollbackError) {
-                        throw new UncheckedIOException("Unable to rewrite source files and unable to rollback changes", e);
+                        throw new UncheckedIOException("Unable to write result to "+ failedFileName +" and unable to rollback changes", e);
                     }
                 }
-                throw new UncheckedIOException("Unable to rewrite source files", e);
+                throw new UncheckedIOException("Unable to write result to " + failedFileName, e);
             }
         }
     }
