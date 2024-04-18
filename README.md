@@ -28,6 +28,9 @@ supports running as a Java agent to perform runtime checking. During the checkin
 problems and outputs a report finally. It currently supports HTML, TEXT, and JSON formats. Users transform the project
 according to the report and finally complete the migration of the Java version.
 
+***Support for Java 21 and Autofix are introduced by version 0.9 which has not been released yet.
+If you want to use these two features, you need to manually install EMT4J to your local Maven repository.***
+
 ## How to use
 
 ### Maven Plugin
