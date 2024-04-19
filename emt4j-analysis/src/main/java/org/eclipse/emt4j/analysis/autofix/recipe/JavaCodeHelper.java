@@ -56,4 +56,69 @@ public class JavaCodeHelper {
         return PRIMITIVE_2_BOXING.get(primitive);
     }
 
+    // return if "from" type needs explicit type conversion to "to" type
+    // e.g. needExplicitTypeConversion("int", "long") -> false
+    //      needExplicitTypeConversion("double", "float") -> true
+    public static boolean needExplicitTypeConversion(String from, String to) {
+        if (from == null || to == null) {
+            return false;
+        }
+        switch (to) {
+            case "byte":
+                switch (from) {
+                    case "short":
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                    case "char":
+                        return true;
+                }
+                break;
+            case "short":
+                switch (from) {
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                    case "char":
+                        return true;
+                }
+                break;
+            case "int":
+                switch (from) {
+                    case "long":
+                    case "float":
+                    case "double":
+                        return true;
+                }
+                break;
+            case "long":
+                switch (from) {
+                    case "float":
+                    case "double":
+                        return true;
+                }
+                break;
+            case "float":
+                switch (from) {
+                    case "double":
+                        return true;
+                }
+                break;
+            case "char":
+                switch (from) {
+                    case "byte":
+                    case "short":
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                        return true;
+                }
+                break;
+        }
+        return false;
+    }
+
 }

@@ -71,11 +71,29 @@ public class TernaryUnboxingGenericRecipe extends Recipe implements ReportingRec
                     return ternary;
                 }
 
-                String primitiveType = ((JavaType.Primitive) primitivePart.getType()).getKeyword();
-                String boxingType = JavaCodeHelper.getBoxingFromPrimitive(primitiveType);
-                String templateString = String.format("%s.valueOf(#{any(%s)})", boxingType.substring(boxingType.lastIndexOf(".") + 1), primitiveType);
+                // always convert the type of prmitive part to boxing type of final result
+                String targetPrimitiveType;
+                if (ternary.getType() instanceof JavaType.Primitive
+                        && JavaCodeHelper.isPrimitive(((JavaType.Primitive) ternary.getType()).getKeyword())) {
+                    targetPrimitiveType = ((JavaType.Primitive) ternary.getType()).getKeyword();
+                } else if (ternary.getType() instanceof JavaType.Class
+                        && JavaCodeHelper.isBoxing((((JavaType.Class) ternary.getType()).getFullyQualifiedName()))) {
+                    targetPrimitiveType = JavaCodeHelper.getPrimitiveFromBoxing(((JavaType.Class) ternary.getType()).getFullyQualifiedName());
+                } else {
+                    // should not reach here?
+                    return ternary;
+                }
+
+                String currentPrimitiveType = ((JavaType.Primitive) primitivePart.getType()).getKeyword();
+                String boxingTypeFullName = JavaCodeHelper.getBoxingFromPrimitive(targetPrimitiveType);
+                String boxingTypeName = boxingTypeFullName.substring(boxingTypeFullName.lastIndexOf(".") + 1);
+                // add explicit conversion if necessary
+                String explicitTypeConversion = JavaCodeHelper.needExplicitTypeConversion(currentPrimitiveType, targetPrimitiveType)
+                        ? "(" + targetPrimitiveType + ")" : "";
+                String templateString = String.format("%s.valueOf(%s#{any(%s)})",
+                        boxingTypeName, explicitTypeConversion, currentPrimitiveType);
                 JavaTemplate template = JavaTemplate.builder(templateString)
-                        .imports(boxingType)
+                        .imports(boxingTypeFullName)
                         .build();
                 J.MethodInvocation conversion = template.apply(new Cursor(getCursor(), primitivePart), primitivePart.getCoordinates().replace(), primitivePart);
                 if (primitivePart == ternary.getTruePart()) {
