@@ -56,4 +56,48 @@ public class JavaCodeHelper {
         return PRIMITIVE_2_BOXING.get(primitive);
     }
 
+    // return if "from" type needs explicit type conversion to "to" type
+    // e.g. needExplicitTypeConversion("int", "long") -> false
+    //      needExplicitTypeConversion("double", "float") -> true
+    public static boolean needExplicitTypeConversion(String from, String to) {
+        if (from == null || to == null) {
+            return false;
+        }
+        switch (to) {
+            case "byte":
+                if (from.equals("short") || from.equals("int") || from.equals("long") ||
+                        from.equals("float") || from.equals("double") || from.equals("char")) {
+                    return true;
+                }
+                break;
+            case "short":
+                if (from.equals("int") || from.equals("long") || from.equals("float") || from.equals("double") || from.equals("char")) {
+                    return true;
+                }
+                break;
+            case "int":
+                if (from.equals("long") || from.equals("float") || from.equals("double")) {
+                    return true;
+                }
+                break;
+            case "long":
+                if (from.equals("float") || from.equals("double")) {
+                    return true;
+                }
+                break;
+            case "float":
+                if (from.equals("double")) {
+                    return true;
+                }
+                break;
+            case "char":
+                if (from.equals("byte") || from.equals("short") || from.equals("int") ||
+                        from.equals("long") || from.equals("float") || from.equals("double")) {
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
 }

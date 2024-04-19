@@ -41,6 +41,10 @@ public class TestTernaryUnboxingGenericRecipe implements RewriteTest {
                                 "        Integer integer1 = true ? new HashMap<Integer,Integer>().get(1) : 2;\n" +
                                 "        Integer integer2 = true ? 2 : new HashMap<Integer,Integer>().get(1);\n" +
                                 "        Long long1 = true ? 2L : new HashMap<Integer,Long>().get(1);\n" +
+                                "        Byte byte1 = true ? 1 : new HashMap<Integer,Byte>().get(1);\n" +
+                                "        byte byte2 = true ? 1 : new HashMap<Integer,Byte>().get(1);\n" +
+                                "        long long2 = true ? 1L : new HashMap<Integer,Integer>().get(1);\n" +
+                                "        Long long3 = true ? 1L : new HashMap<Integer,Integer>().get(1);\n" +
                                 "    }\n" +
                                 "}",
                         "import java.util.HashMap;\n" +
@@ -50,6 +54,10 @@ public class TestTernaryUnboxingGenericRecipe implements RewriteTest {
                                 "        Integer integer1 = true ? new HashMap<Integer,Integer>().get(1) : Integer.valueOf(2);\n" +
                                 "        Integer integer2 = true ? Integer.valueOf(2) : new HashMap<Integer,Integer>().get(1);\n" +
                                 "        Long long1 = true ? Long.valueOf(2L) : new HashMap<Integer,Long>().get(1);\n" +
+                                "        Byte byte1 = true ? Byte.valueOf((byte) 1) : new HashMap<Integer,Byte>().get(1);\n" +
+                                "        byte byte2 = true ? Byte.valueOf((byte) 1) : new HashMap<Integer,Byte>().get(1);\n" +
+                                "        long long2 = true ? Long.valueOf(1L) : new HashMap<Integer,Integer>().get(1);\n" +
+                                "        Long long3 = true ? Long.valueOf(1L) : new HashMap<Integer,Integer>().get(1);\n" +
                                 "    }\n" +
                                 "}")
         );
@@ -65,6 +73,7 @@ public class TestTernaryUnboxingGenericRecipe implements RewriteTest {
                         "        Integer integer1 = false ? 1 : 2;\n" +
                         "        Integer integer2 = false ? 1 : new HashMap<>().size() + 1;\n" +
                         "        Integer integer3 = false ? Integer.valueOf(1) : Integer.valueOf(2);\n" +
+                        "        Long long1 = true ? Long.valueOf(1) : new HashMap<Integer,Long>().get(1);\n" +
                         "    }\n" +
                         "}")
         );
