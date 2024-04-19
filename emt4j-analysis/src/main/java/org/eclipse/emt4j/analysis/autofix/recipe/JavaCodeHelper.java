@@ -65,35 +65,56 @@ public class JavaCodeHelper {
         }
         switch (to) {
             case "byte":
-                if (from.equals("short") || from.equals("int") || from.equals("long") ||
-                        from.equals("float") || from.equals("double") || from.equals("char")) {
-                    return true;
+                switch (from) {
+                    case "short":
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                    case "char":
+                        return true;
                 }
                 break;
             case "short":
-                if (from.equals("int") || from.equals("long") || from.equals("float") || from.equals("double") || from.equals("char")) {
-                    return true;
+                switch (from) {
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                    case "char":
+                        return true;
                 }
                 break;
             case "int":
-                if (from.equals("long") || from.equals("float") || from.equals("double")) {
-                    return true;
+                switch (from) {
+                    case "long":
+                    case "float":
+                    case "double":
+                        return true;
                 }
                 break;
             case "long":
-                if (from.equals("float") || from.equals("double")) {
-                    return true;
+                switch (from) {
+                    case "float":
+                    case "double":
+                        return true;
                 }
                 break;
             case "float":
-                if (from.equals("double")) {
-                    return true;
+                switch (from) {
+                    case "double":
+                        return true;
                 }
                 break;
             case "char":
-                if (from.equals("byte") || from.equals("short") || from.equals("int") ||
-                        from.equals("long") || from.equals("float") || from.equals("double")) {
-                    return true;
+                switch (from) {
+                    case "byte":
+                    case "short":
+                    case "int":
+                    case "long":
+                    case "float":
+                    case "double":
+                        return true;
                 }
                 break;
         }
