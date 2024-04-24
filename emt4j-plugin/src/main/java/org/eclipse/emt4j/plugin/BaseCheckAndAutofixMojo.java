@@ -82,6 +82,8 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
     @Parameter(property = "check", defaultValue = "true")
     protected boolean check;
 
+    private static boolean isPrepared = false;
+
     private void prepareForAutofix() {
         AutofixConfig config = AutofixConfig.getInstance();
         MavenHelper.setSession(session);
@@ -107,7 +109,7 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
         // if necessary
         List<MavenProject> projects = session.getProjects();
         initFiles();
-        if (project.equals(projects.get(0))) {
+        if (!isPrepared) {
             prepare();
         } else {
             load();
@@ -192,6 +194,7 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
         modulesFile.createNewFile();
         dependenciesFile.createNewFile();
         dependencyTreeFile.createNewFile();
+        isPrepared = true;
     }
 
     private void load() throws IOException {
