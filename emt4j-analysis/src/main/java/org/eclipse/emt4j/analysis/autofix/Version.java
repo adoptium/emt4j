@@ -82,6 +82,10 @@ public class Version {
         return compare < 0;
     }
 
+    public static boolean shouldUpdate(String from, String to) {
+        return new Version(from).shouldUpdateTo(new Version(to));
+    }
+
     private int compareVersionNumbers(int[] a, int[] b) {
         int commonLength = Math.min(a.length, b.length);
         for (int i = 0; i < commonLength; i++) {

@@ -111,6 +111,14 @@ public class AutofixRecipeTest extends BaseMavenPluginSITCase {
                 "</dependency>"
         ));
 
+        assertContainsInContinuousLines(pom, Arrays.asList(
+                "<dependency>",
+                "<groupId>org.projectlombok</groupId>",
+                "<artifactId>lombok-mapstruct-binding</artifactId>",
+                "<version>0.2.0</version>",
+                "</dependency>"
+        ));
+
         String lombokAnnotation = getFileContent("sub/src/main/java/org/eclipse/emt4j/test/LombokAnnotation.java");
         assertTrue(!lombokAnnotation.contains("lombok.experimental"));
         assertTrue(lombokAnnotation.contains("lombok.Builder"));
