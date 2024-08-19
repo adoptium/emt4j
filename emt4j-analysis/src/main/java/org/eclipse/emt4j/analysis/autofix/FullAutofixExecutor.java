@@ -31,6 +31,7 @@ import org.openrewrite.java.migrate.CastArraysAsListToList;
 import org.openrewrite.java.migrate.UseJavaUtilBase64;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 // This executor contains most recipes that we support
@@ -47,9 +48,11 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
             "javax.annotation:javax.annotation-api:jar:1.3.2",
     };
 
+    public static final String LOMBOK_TARGET_VERSION = "1.18.22";
+
     private static final DependencyUpdateRule[] FAMOUS_DEPENDENCY_UPDATE_RULES = {
             new GATChangeDependencyUpdateRule("net.sourceforge.pinyin4j:pinyin4j:jar", "io.github.tokenjan:pinyin4j:jar:2.6.1"),
-            new GADontChangeDependencyUpdateRule("org.projectlombok:lombok:jar:1.18.22"),
+            new GADontChangeDependencyUpdateRule("org.projectlombok:lombok:jar:" + LOMBOK_TARGET_VERSION),
             new GADontChangeDependencyUpdateRule("org.apache.commons:commons-lang3:jar:3.12.0"),
             new GADontChangeDependencyUpdateRule("org.asynchttpclient:async-http-client:jar:2.12.3"),
             new GATChangeDependencyUpdateRule("org.mapstruct:mapstruct-jdk8:jar", "org.mapstruct:mapstruct:jar:1.5.5.Final"),
@@ -78,6 +81,19 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
         for (String dependency : JAVAEE_DEPENDENCIES) {
             pomUpdateGenerator.addDependency(dependency);
         }
+        // see https://projectlombok.org/changelog v1.18.16 change
+        AtomicBoolean updateLombok = new AtomicBoolean(false);
+        MavenHelper.iterateDependencyTree((artifact, project) -> {
+            if ("org.projectlombok".equals(artifact.getGroupId()) &&
+                    "lombok".equals(artifact.getArtifactId()) &&
+                    artifact.getVersion() != null && Version.shouldUpdate(artifact.getVersion(), LOMBOK_TARGET_VERSION)) {
+                updateLombok.set(true);
+            }
+        });
+        if (updateLombok.get()) {
+            pomUpdateGenerator.addDependency("org.projectlombok:lombok-mapstruct-binding:jar:0.2.0");
+        }
+
         // we need this to decide if a check can be autofixed
         setFromGatv2toGatv(pomUpdateGenerator.getFromGatv2toGatv());
 
