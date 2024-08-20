@@ -114,6 +114,7 @@ public class FullAutofixExecutor extends BaseAutofixExecutor {
                     (recipe) -> new AbstractRecipeFixReporter.CountByFileRecipeFixReporter("autofix.java.lombokExperimental"));
             recipes.add(new MigrateSecurityManagerCheck());
             recipes.add(new TernaryUnboxingGenericRecipe());
+            recipes.add(new StreamCountRecipe());
             recipes.add(new CastArraysAsListToList());
             recipes.add(new UseJavaUtilBase64("sun.misc", true));
         }
