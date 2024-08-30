@@ -19,11 +19,9 @@
 package org.eclipse.emt4j.common;
 
 public enum IssuePriority {
-    P0("p0"),
     P1("p1"),
     P2("p2"),
-    P3("p3"),
-    P4("p4");
+    P3("p3");
     private String id;
 
     IssuePriority(String id) {

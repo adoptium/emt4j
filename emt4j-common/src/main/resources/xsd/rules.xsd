@@ -36,11 +36,9 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="p0"/>
             <xs:enumeration value="p1"/>
             <xs:enumeration value="p2"/>
             <xs:enumeration value="p3"/>
-            <xs:enumeration value="p4"/>
         </xs:restriction>
     </xs:simpleType>
 

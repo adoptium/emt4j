@@ -22,7 +22,7 @@
 
     <rule desc="JDK internal API" type="reference-class" match-type="by-package" class-package-file="jdk_internals.cfg"
           result-code="JDK_INTERNAL"
-          must-contain-in-bytecode="true" sub-result-code="@{subResultCode}" priority="p4">
+          must-contain-in-bytecode="true" sub-result-code="@{subResultCode}" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -44,7 +44,7 @@
     </rule>
 
     <rule desc="Get java version" type="get-java-version" result-code="GET_JDK_VERSION"
-          priority="p1">
+          priority="p2">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
@@ -53,7 +53,7 @@
     <rule desc="JPMS require add-exports" type="add-exports" packages-file="jdk11packages.cfg"
           module-to-package-file="jdk11moduleexport.cfg"
           default-exports-file="jdk_default_export_to_unnamed.cfg" result-code="MODULE_ADD_EXPORTS"
-          priority="p3">
+          priority="p2">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -62,28 +62,28 @@
 
     <rule desc="JPMS require add-opens" type="add-opens" packages-file="jdk11packages.cfg"
           module-to-package-file="jdk11moduleexport.cfg" result-code="MODULE_ADD_OPENS"
-          priority="p3">
+          priority="p2">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
     </rule>
 
     <rule desc="DateFormat incompatible when default locale data to CLDR"
-          type="cldr-date-format" result-code="CLDR_CLDR_DATE_FORMAT" priority="p3">
+          type="cldr-date-format" result-code="CLDR_CLDR_DATE_FORMAT" priority="p2">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
     </rule>
 
     <rule desc="NumberFormat incompatible when default locale data to CLDR"
-          type="cldr-number-format" result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p3">
+          type="cldr-number-format" result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p2">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
     </rule>
 
     <rule desc="Calendar#getFirstDayOfWeek incompatible when default locale data to CLDR"
-          type="cldr-calendar-getfirstdayofweek" result-code="CLDR_CLDR_FIRSTDAY_OF_WEEK" priority="p3">
+          type="cldr-calendar-getfirstdayofweek" result-code="CLDR_CLDR_FIRSTDAY_OF_WEEK" priority="p2">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
@@ -106,7 +106,7 @@
     </rule>
 
     <rule desc="Remove CORBA from JDK" type="reference-class" match-type="by-package" class-package-file="corba.cfg"
-          result-code="REMOVED_CORBA" must-contain-in-bytecode="true" priority="p4">
+          result-code="REMOVED_CORBA" must-contain-in-bytecode="true" priority="p1">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -122,16 +122,15 @@
     </rule>
 
     <rule desc="Incompatible Jar" type="incompatible-jar" jar-rule-file="incompatible_jar.cfg"
-          result-code="INCOMPATIBLE_JAR" sub-result-code="@{artifact}" priority="p1">
+          result-code="INCOMPATIBLE_JAR" sub-result-code="@{artifact}" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
         </support-modes>
     </rule>
 
-
     <rule desc="Deprecated API" type="deprecated-api" class-list-file="deprecated_api_jdk11.cfg"
-          result-code="DEPRECATED_API" priority="p4">
+          result-code="DEPRECATED_API" priority="p3">
         <support-modes>
             <mode>class</mode>
             <mode>agent</mode>
@@ -139,7 +138,7 @@
     </rule>
 
     <rule desc="Get java version for classfile " type="whole-class" mvel2-rule-file="mvel2-rule-getjavaversion.cfg"
-          result-code="GET_JDK_VERSION" priority="p1">
+          result-code="GET_JDK_VERSION" priority="p2">
         <support-modes>
             <mode>class</mode>
         </support-modes>
@@ -171,7 +170,7 @@
 
     <rule desc="DateFormat incompatible when default locale data to CLDR" type="whole-class"
           mvel2-rule-file="mvel2-rule-cldrdateformat.cfg" static-analysis-rule="cldr-date-format"
-          result-code="CLDR_CLDR_DATE_FORMAT" priority="p3">
+          result-code="CLDR_CLDR_DATE_FORMAT" priority="p2">
         <support-modes>
             <mode>class</mode>
         </support-modes>
@@ -179,7 +178,7 @@
 
     <rule desc="Calendar#getFirstDayOfWeek incompatible when default locale data to CLDR" type="whole-class"
           mvel2-rule-file="mvel2-rule-cldrcalendarfirstdayofweek.cfg" static-analysis-rule="cldr-calendar-getfirstdayofweek"
-          result-code="CLDR_CLDR_FIRSTDAY_OF_WEEK" priority="p3">
+          result-code="CLDR_CLDR_FIRSTDAY_OF_WEEK" priority="p2">
         <support-modes>
             <mode>class</mode>
         </support-modes>
@@ -187,7 +186,7 @@
 
     <rule desc="NumberFormat incompatible when default locale data to CLDR" type="whole-class"
           mvel2-rule-file="mvel2-rule-cldrnumberformat.cfg" static-analysis-rule="cldr-number-format"
-          result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p3">
+          result-code="CLDR_CLDR_NUMBER_FORMAT" priority="p2">
         <support-modes>
             <mode>class</mode>
         </support-modes>

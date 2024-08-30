@@ -61,7 +61,7 @@ abstract class BaseMojo extends AbstractMojo {
     protected int toVersion;
 
     /**
-     * Indicate the priority. p1, p2, p3 and p4 are supported.
+     * Indicate the priority. p1, p2, p3 are supported.
      */
     @Parameter(property = "priority")
     protected String priority;
