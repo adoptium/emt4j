@@ -97,7 +97,7 @@ public class AnalysisExecutor {
                                     return;
                                 }
                                 for (ExecutableRule rule : InstanceRuleManager.getRuleInstanceList()) {
-                                    if (rule.accept(d)) {
+                                    if (rule.shouldAccept(d)) {
                                         ReportCheckResult checkResult = rule.execute(d);
                                         if (!checkResult.isPass()) {
                                             if (checkResult.getPropagated().isEmpty()) {

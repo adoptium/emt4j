@@ -19,6 +19,7 @@
 package org.eclipse.emt4j.common.rule;
 
 import org.eclipse.emt4j.common.Feature;
+import org.eclipse.emt4j.common.IssuePriority;
 import org.eclipse.emt4j.common.JdkMigrationException;
 import org.eclipse.emt4j.common.rule.model.ConfRuleItem;
 import org.eclipse.emt4j.common.rule.model.ConfRules;
@@ -124,7 +125,7 @@ public class ConfRuleRepository {
                 confRuleItem.setType(attributes.getValue("type"));
                 confRuleItem.setResultCode(attributes.getValue("result-code"));
                 confRuleItem.setSubResultCode(attributes.getValue("sub-result-code"));
-                confRuleItem.setPriority(attributes.getValue("priority"));
+                confRuleItem.setPriority(IssuePriority.toIntPriority(attributes.getValue("priority")));
                 List<String[]> userDefineAttrs = new ArrayList<>(attributes.getLength());
                 for (int i = 0; i < attributes.getLength(); i++) {
                     String attrName = attributes.getQName(i);

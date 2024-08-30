@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.eclipse.emt4j.common.IssuePriority.toIntPriority;
+
 /**
  * Create ExecutableRule instances by the given feature.
  * It should be called when application startup, then get rule by call getRuleInstanceList() method,
@@ -59,9 +61,11 @@ public class InstanceRuleManager {
             List<ConfRules> confRulesList = ConfRuleFacade.load(features, modes, fromVersion, toVersion);
             Map<String, Class> ruleMap = RuleSelector.select(classList);
             int priorityLimit = toIntPriority(priority);
+            ExecutableRule.dependencyPriorityLimit = toIntPriority(System.getProperty("dependencyCheckPriority"));
+
             for (ConfRules confRules : confRulesList) {
                 for (ConfRuleItem ruleItem : confRules.getRuleItems()) {
-                    if (toIntPriority(ruleItem.getPriority()) > priorityLimit) {
+                    if (ruleItem.getPriority() > priorityLimit) {
                         continue;
                     }
                     Class c = ruleMap.get(ruleItem.getType());
@@ -128,14 +132,4 @@ public class InstanceRuleManager {
         return ruleInstanceList;
     }
 
-    private static int toIntPriority(String priority) {
-        if (priority == null) {
-            return Integer.MAX_VALUE;
-        }
-        try {
-            return Integer.parseInt(priority.substring(1));
-        } catch (Throwable t) {
-            return Integer.MAX_VALUE;
-        }
-    }
 }

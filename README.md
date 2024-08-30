@@ -136,6 +136,8 @@ Configurations:
 
 - `fixedReportFileName`: the destination of the HTML report file for issues that are already fixed. The default is emt4j-autofix-fixed.html.
 
+- `dependencyCheckPriority`: the minimum priority of the dependency check rules. p1, p2 and p3 are supported. The default is p1.
+
 As mentioned earlier, EMT4J supports running as a Java agent. To leverage it in the test process you need to add the
 following configuration:
 
