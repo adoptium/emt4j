@@ -118,7 +118,7 @@ Configurations:
 
 - `outputFile`: the destination of EMT4J's report. The default is emt4j-report.html.
 
-- `priority`: the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set. 
+- `priority`: the minimum rule priority. p1, p2 and p3 are supported. The default is to enable all rules. 
 
 - `verbose`: print more detailed messages if true.
 
@@ -224,7 +224,7 @@ Java agent options:
 
 - `to` : the target JDK version.
 
-- `priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set.
+- `priority` : the minimum rule priority. p1, p2 and p3 are supported. The default is to enable all rules.
 
 #### Use CLI
 
@@ -251,7 +251,7 @@ Options:
 
 - `-t` : the target JDK version. 11, 17, 21 are supported.
 
-- `-priority` : the minimum rule priority. p1, p2, p3 and p4 are supported. The default is not set.
+- `-priority` : the minimum rule priority. p1, p2 and p3 are supported. The default is to enable all rules.
 
 - `-p` : the report format, HTML, TXT, and JSON are supported. Default is HTML
 

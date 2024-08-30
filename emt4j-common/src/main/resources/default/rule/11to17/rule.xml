@@ -22,14 +22,14 @@
     <rule desc="Remove Nashorn" type="reference-class" match-type="by-package" class-package-file="nashorn.cfg"
           must-contain-in-bytecode="false"
           result-code="REMOVED_NASHORN"
-          priority="p3">
+          priority="p1">
         <support-modes>
             <mode>agent</mode>
         </support-modes>
     </rule>
 
     <rule desc="Remove Nashorn for classfile " type="whole-class" result-code="REMOVED_NASHORN"
-          mvel2-rule-file="mvel2-nashorn.cfg" priority="p3">
+          mvel2-rule-file="mvel2-nashorn.cfg" priority="p1">
         <support-modes>
             <mode>class</mode>
         </support-modes>
@@ -37,7 +37,7 @@
 
     <rule desc="Deprecate the Applet API for Removal" type="reference-class" match-type="by-class"
           class-package-file="remove_applet.cfg" must-contain-in-bytecode="true"
-          result-code="REMOVAL_APPLET_API" priority="p4">
+          result-code="REMOVAL_APPLET_API" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -46,7 +46,7 @@
 
     <rule desc="Remove RMI Activation" type="reference-class" must-contain-in-bytecode="false"
           match-type="by-package" class-package-file="rmi_activation.cfg"
-          result-code="REMOVE_ACTIVATION" priority="p4">
+          result-code="REMOVE_ACTIVATION" priority="p1">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -69,7 +69,7 @@
     </rule>
 
     <rule desc="Incompatible Jar" type="incompatible-jar" jar-rule-file="incompatible_jar.cfg"
-          result-code="INCOMPATIBLE_JAR" priority="p1">
+          result-code="INCOMPATIBLE_JAR" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>
@@ -77,7 +77,7 @@
     </rule>
 
     <rule desc="Deprecated API" type="deprecated-api" class-list-file="deprecated_api_jdk17.cfg"
-          result-code="DEPRECATED_API" priority="p4">
+          result-code="DEPRECATED_API" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>

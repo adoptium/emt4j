@@ -27,7 +27,7 @@
 
 ### How to Build
 
-1. Install JDK 8 and 11 and configure them properly  in the Maven's toolchains.xml:
+1. Install JDK 8, 11 and 17 and configure them properly in the Maven's toolchains.xml:
 
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
@@ -141,6 +141,10 @@ The "rule" node contains:
 4. The "result-code" makes a connection with the report file. Each result code contains a corresponding resource bundle with the same name.
 
 5. The "priority" decides the sequence of check results in the report file.
+
+- p1 is the highest priority, indicating that if not fixed, it is very likely to cause issues and must be resolved.
+- p2 indicates potential issues or cases where the tool cannot make an accurate judgment; it is recommended that users pay attention to these.
+- p3 indicates no current issues, but there may be problems in the future; it is better to fix them now.
 
 6. The "support-modes" tell this rule is suitable for javaagent or static analysis.
 

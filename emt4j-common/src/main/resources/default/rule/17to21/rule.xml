@@ -36,7 +36,7 @@
     </rule>
 
     <rule desc="Deprecated API" type="deprecated-api" class-list-file="deprecated_api_jdk21.cfg"
-          result-code="DEPRECATED_API" priority="p4">
+          result-code="DEPRECATED_API" priority="p3">
         <support-modes>
             <mode>agent</mode>
             <mode>class</mode>

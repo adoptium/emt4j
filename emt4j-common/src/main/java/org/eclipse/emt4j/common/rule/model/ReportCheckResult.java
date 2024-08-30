@@ -26,7 +26,7 @@ import org.eclipse.emt4j.common.IssuePriority;
 public class ReportCheckResult extends CheckResult {
     private String resultCode;
     private String subResultCode;
-    private String priority = IssuePriority.P4.getId();
+    private String priority = IssuePriority.P3.getId();
 
     public static final ReportCheckResult PASS = new ReportCheckResult(true);
 
