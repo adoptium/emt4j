@@ -82,6 +82,12 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
     @Parameter(property = "check", defaultValue = "true")
     protected boolean check;
 
+    /**
+     * Indicate the priority applied for dependencies. p1, p2, p3 are supported.
+     */
+    @Parameter(property = "dependencyCheckPriority", defaultValue = "p1")
+    protected String dependencyCheckPriority;
+
     private static boolean isPrepared = false;
 
     private void prepareForAutofix() {
@@ -90,6 +96,7 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
         rebuildDependencyTreesFromFile();
         prepareAutofixConfig(config);
         BaseAutofixExecutor.setInstance(getAutofixExecutor());
+        System.setProperty("dependencyCheckPriority", dependencyCheckPriority);
     }
 
     protected void prepareAutofixConfig(AutofixConfig config) {

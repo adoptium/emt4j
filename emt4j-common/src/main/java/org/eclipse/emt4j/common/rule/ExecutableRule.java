@@ -36,6 +36,8 @@ import java.util.Map;
  * to a ExecutableRule when runtime.
  */
 public abstract class ExecutableRule {
+    public static int dependencyPriorityLimit;
+
     protected final ConfRuleItem confRuleItem;
     protected final ConfRules confRules;
 
@@ -72,13 +74,21 @@ public abstract class ExecutableRule {
             return ReportCheckResult.PASS;
         } else {
             ReportCheckResult reportCheckResult = new ReportCheckResult(false);
-            reportCheckResult.setPriority(confRuleItem.getPriority());
+            reportCheckResult.setPriority("p" + confRuleItem.getPriority());
             reportCheckResult.setContext(checkResult.getContext());
             reportCheckResult.setResultCode(evalIfNeed(confRuleItem.getResultCode(), checkResult.getContext()));
             reportCheckResult.setSubResultCode(evalIfNeed(confRuleItem.getSubResultCode(), checkResult.getContext()));
             reportCheckResult.setPropagated(checkResult.getPropagated());
             return reportCheckResult;
         }
+    }
+
+    public boolean shouldAccept(Dependency dependency) {
+        if (confRuleItem != null && confRuleItem.getPriority() > dependencyPriorityLimit
+                && dependency.isFromDependency()) {
+            return false;
+        }
+        return accept(dependency);
     }
 
     private String evalIfNeed(String maybeMvel2Expr, Map<String, Object> context) {
@@ -91,7 +101,7 @@ public abstract class ExecutableRule {
 
     protected abstract CheckResult check(Dependency dependency);
 
-    public abstract boolean accept(Dependency dependency);
+    protected abstract boolean accept(Dependency dependency);
 
     public ConfRuleItem getConfRuleItem() {
         return confRuleItem;

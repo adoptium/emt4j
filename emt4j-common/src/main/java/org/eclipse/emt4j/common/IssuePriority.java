@@ -31,4 +31,16 @@ public enum IssuePriority {
     public String getId() {
         return id;
     }
+
+    public static int toIntPriority(String priority) {
+        if (priority == null) {
+            return 3;
+        }
+        try {
+            int parsed = Integer.parseInt(priority.substring(1));
+            return Math.min(Math.max(parsed, 1), 3);
+        } catch (Throwable t) {
+            return 3;
+        }
+    }
 }

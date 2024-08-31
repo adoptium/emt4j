@@ -120,7 +120,7 @@ public class ReportRecorder implements Recorder {
         }
         List<ExecutableRule> ruleList = InstanceRuleManager.getRuleInstanceList();
         for (ExecutableRule rule : ruleList) {
-            if (rule.accept(dependency)) {
+            if (rule.shouldAccept(dependency)) {
                 ReportCheckResult checkResult = rule.execute(dependency);
                 if (!checkResult.isPass()) {
                     if (checkResult.getPropagated().isEmpty()) {
@@ -143,7 +143,7 @@ public class ReportRecorder implements Recorder {
         List<ExecutableRule> ruleList = InstanceRuleManager.getRuleInstanceList();
         for (Dependency dependency : more) {
             for (ExecutableRule rule : ruleList) {
-                if (rule.accept(dependency)) {
+                if (rule.shouldAccept(dependency)) {
                     ReportCheckResult checkResult = rule.execute(dependency);
                     if (!checkResult.isPass()) {
                         if (checkResult.getPropagated().isEmpty()) {

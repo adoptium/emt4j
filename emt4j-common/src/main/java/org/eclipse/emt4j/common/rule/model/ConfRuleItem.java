@@ -28,7 +28,7 @@ public class ConfRuleItem {
     private String subResultCode;
     private List<String> supportModes = new ArrayList<>();
     private List<String[]> userDefineAttrs;
-    private String priority;
+    private int priority;
 
     public String getDesc() {
         return desc;
@@ -78,11 +78,11 @@ public class ConfRuleItem {
         this.userDefineAttrs = userDefineAttrs;
     }
 
-    public String getPriority() {
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 }

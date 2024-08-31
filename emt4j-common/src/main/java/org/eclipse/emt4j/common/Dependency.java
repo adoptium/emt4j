@@ -220,4 +220,15 @@ public class Dependency implements Serializable, Cloneable {
         String[] GAV = sourceInformation.getExtras()[0].split(":");
         return GAV[0] + ":" + GAV[1] + ":" + type + ":" + GAV[2];
     }
+
+    public boolean isFromDependency() {
+        if (sourceInformation != null) {
+            return sourceInformation.isDependency();
+        }
+        // sometimes the sourceInformation is not available, so we also check the locationExternalForm
+        if (locationExternalForm != null) {
+            return locationExternalForm.contains(".jar!");
+        }
+        return false;
+    }
 }
