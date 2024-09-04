@@ -201,4 +201,12 @@
         </support-modes>
     </rule>
 
+    <rule desc="ContextClassLoader of common FJP is AppClassloader" type="name-based-touched-method" method-list-file="fjp_context.cfg" result-code="FJP_CONTEXT"
+          priority="p2">
+        <support-modes>
+            <!--agent mode is not supported now-->
+            <mode>class</mode>
+        </support-modes>
+    </rule>
+
 </rules>
