@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.eclipse.emt4j.test.common.RunJavaUtil.getJavaExePath;
-import static org.eclipse.emt4j.test.common.RunJavaUtil.runProcess;
+import static org.eclipse.emt4j.test.common.RunJavaUtil.*;
 
 
 /**
@@ -36,6 +35,10 @@ import static org.eclipse.emt4j.test.common.RunJavaUtil.runProcess;
  * acts as a bridge between these java processes.
  */
 class TestCaseSuite {
+
+    private static final boolean MAVEN_INSTALLED = checkCommandSuccess("mvn --version");
+    private static final boolean GIT_INSTALLED = checkCommandSuccess("git --version");
+
     public static final String JDK_VERSION_RUN_ANALYSIS = "8";
     public static final String ANALYSIS_MAIN = "org.eclipse.emt4j.analysis.AnalysisMain";
     public static final String DYNAMIC_TARGET_MAIN = "org.eclipse.emt4j.test.common.RunWithDynamicTestTargetMain";
@@ -136,6 +139,11 @@ class TestCaseSuite {
     }
 
     private void runWithMavenPlugin(RunningTestParam testParam, TestCase testCase, File testcasePlayground) throws IOException, InterruptedException {
+        if (!GIT_INSTALLED || !MAVEN_INSTALLED) {
+            System.out.println("Skip " + testCase.className + " because maven or git is not installed");
+            return;
+        }
+
         File stdout = null;
 
         //1. generate dynamic test target
@@ -146,6 +154,7 @@ class TestCaseSuite {
             stdout = Paths.get(testcasePlayground.getPath(), "stdout").toFile();
             Map<String, String> environment = new HashMap<>();
             environment.put("MAVEN_OPTS", "-Duser.language=en -Duser.country=US -Dfile.encoding=UTF-8");
+            environment.put("JAVA_HOME", testParam.jdkVersionToHome.get(testCase.from.getValue()));
             runProcess(buildCallMavenPluginParams(testParam, testCase, testcasePlayground), testcasePlayground, stdout, environment);
         } catch (Exception e) {
             if (stdout != null && stdout.exists()) {

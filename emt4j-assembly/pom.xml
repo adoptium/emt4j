@@ -38,7 +38,7 @@
         <build.maven.plugin.dir>${project.build.directory}/maven-plugin</build.maven.plugin.dir>
         <build.test.common>${project.build.directory}/test/common</build.test.common>
         <build.test.testcases>${project.build.directory}/test/testcase</build.test.testcases>
-        <testcases.artifactId>emt4j-test-jdk8,emt4j-test-jdk11,emt4j-test-jdk17</testcases.artifactId>
+        <testcases.artifactId>emt4j-test-jdk8,emt4j-test-jdk11,emt4j-test-jdk17,emt4j-test-maven-plugin</testcases.artifactId>
         <agent.artifactId>emt4j-agent-jdk8,emt4j-agent-jdk11,emt4j-agent-jdk17</agent.artifactId>
     </properties>
 

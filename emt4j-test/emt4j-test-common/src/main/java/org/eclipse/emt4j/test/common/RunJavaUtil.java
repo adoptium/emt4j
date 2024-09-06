@@ -20,6 +20,7 @@ package org.eclipse.emt4j.test.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,15 @@ public class RunJavaUtil {
         int ret = p.waitFor();
         if (ret != 0) {
             throw new RuntimeException("Return code: [" + ret + "] with " + String.join(" ", arguments));
+        }
+    }
+
+    public static boolean checkCommandSuccess(String command) {
+        try {
+            runProcess(Arrays.asList(command.split(" +")));
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
