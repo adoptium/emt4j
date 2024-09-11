@@ -88,7 +88,6 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
     @Parameter(property = "dependencyCheckPriority", defaultValue = "p1")
     protected String dependencyCheckPriority;
 
-    private static boolean isPrepared = false;
 
     private void prepareForAutofix() {
         AutofixConfig config = AutofixConfig.getInstance();
@@ -112,11 +111,11 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
     @Override
     boolean preCheck() throws Exception {
         // Notice: the context classloader of current thread may change when preCheck() is called by different project.
-        // So we MUST NOT save any data in class field before the last project arrives. Data should be saved in file
-        // if necessary
+        // So we MUST NOT save any state among projects in any class field before the last project arrives.
+        // Data can be saved in file or system property if necessary
         List<MavenProject> projects = session.getProjects();
         initFiles();
-        if (!isPrepared) {
+        if (!Boolean.getBoolean("BaseCheckAndAutofixMojo.prepared")) {
             prepare();
         } else {
             load();
@@ -201,7 +200,7 @@ public abstract class BaseCheckAndAutofixMojo extends BaseCheckMojo {
         modulesFile.createNewFile();
         dependenciesFile.createNewFile();
         dependencyTreeFile.createNewFile();
-        isPrepared = true;
+        System.setProperty("BaseCheckAndAutofixMojo.prepared", "true");
     }
 
     private void load() throws IOException {
