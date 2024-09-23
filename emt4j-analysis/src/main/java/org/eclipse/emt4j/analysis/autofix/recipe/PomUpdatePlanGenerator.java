@@ -116,6 +116,7 @@ public class PomUpdatePlanGenerator {
     }
 
     public PomUpdatePlan generatePlan() {
+        decidePropertiesSharedByDifferentGA();
         generateUpdateDependencyPlan();
         generateAddDependencyPlan();
         return pomUpdatePlan;
@@ -328,22 +329,20 @@ public class PomUpdatePlanGenerator {
             return false;
         }
         Xml.Tag tag = tagOptional.get();
+
+        Xml.Tag tagThatWillBeChanged = MavenHelper.findTagThatMaybeUpdated(project, tag, false);
+        Xml.Tag tagThatDefinesValue = MavenHelper.findTagRecursivelyThatDefinesValue(project, tag, false);
+        String from = tagThatDefinesValue.getValue().orElse("");
+
+        if (pomUpdatePlan.getTagUpdatePlan().containsKey(tagThatWillBeChanged) || to.equals(from)) {
+            return false;
+        }
         boolean isVersionTag = POM_VERSION.equals(tag.getName());
-        Xml.Tag tagToUpdate = MavenHelper.findTagRecursivelyThatDefinesValue(project, tag, false);
-        return saveTagUpdatePlan(tagToUpdate, to, isVersionTag);
-    }
-
-    // return if any change is made
-    private boolean saveTagUpdatePlan(Xml.Tag tag, String to, boolean isVersionUpdate) {
-        String from = tag.getValue().orElse("");
-        if (pomUpdatePlan.getTagUpdatePlan().containsKey(tag) || to.equals(from)) {
-            return false;
-        }
-        if (isVersionUpdate && !isForceUpdate && !new Version(from).shouldUpdateTo(new Version(to))) {
+        if (isVersionTag && !isForceUpdate && !new Version(from).shouldUpdateTo(new Version(to))) {
             return false;
         }
 
-        pomUpdatePlan.getTagUpdatePlan().put(tag, new ChangeTagValueVisitor<>(tag, to));
+        pomUpdatePlan.getTagUpdatePlan().put(tagThatWillBeChanged, new ChangeTagValueVisitor<>(tagThatWillBeChanged, to));
         return true;
     }
 
@@ -368,5 +367,41 @@ public class PomUpdatePlanGenerator {
             Set<MavenProject> projects = gatv2projects.computeIfAbsent(gatv, (k) -> new HashSet<>());
             projects.add(project);
         });
+    }
+
+    private void decidePropertiesSharedByDifferentGA() {
+        List<Xml.Tag> tagsThatMayUseVersion = new ArrayList<>();
+        for (MavenProject project : MavenHelper.getProjects()) {
+            PomResolution pomResolution = MavenHelper.getPomResolution(project);
+            tagsThatMayUseVersion.addAll(pomResolution.getDependencies());
+            tagsThatMayUseVersion.addAll(pomResolution.getPlugins());
+            tagsThatMayUseVersion.addAll(pomResolution.getManagedDependencies());
+        }
+        Map<String, String> property2ga = new HashMap<>();
+        Set<String> result = new HashSet<>();
+        for (Xml.Tag tag : tagsThatMayUseVersion) {
+            Optional<String> version = tag.getChildValue(POM_VERSION);
+            if (!version.isPresent() || !version.get().startsWith("${")) {
+                continue;
+            }
+            String propertyName = version.get().substring(2, version.get().length() - 1);
+            if (result.contains(propertyName)){
+                continue;
+            }
+            Optional<String> g = tag.getChildValue(POM_GROUP_ID);
+            Optional<String> a = tag.getChildValue(POM_ARTIFACT_ID);
+            if (!a.isPresent()) {
+                continue;
+            }
+            String ga = g.orElse("*") + ":" + a.get();
+            if (property2ga.containsKey(propertyName)) {
+                if (!Objects.equals(ga, property2ga.get(propertyName))) {
+                    result.add(propertyName);
+                }
+            } else {
+                property2ga.put(propertyName, ga);
+            }
+        }
+        MavenHelper.setPropertiesSharedByDifferentGA(result);
     }
 }

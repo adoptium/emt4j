@@ -114,7 +114,7 @@ public abstract class MyMavenVisitor<P> extends XmlVisitor<P> {
         Optional<Xml.Tag> optionalVersionTag = tag.getChild(POM_VERSION);
         if (optionalVersionTag.isPresent()) {
             // currently we don't support changing tag in different pom
-            Xml.Tag tagThatWillBeChanged = MavenHelper.findTagRecursivelyThatDefinesValue(project, optionalVersionTag.get(), true);
+            Xml.Tag tagThatWillBeChanged = MavenHelper.findTagThatMaybeUpdated(project, optionalVersionTag.get(), true);
             Xml.Tag tagThatDefinedValue = MavenHelper.findTagRecursivelyThatDefinesValue(project, optionalVersionTag.get(), false);
             String currentVersion = tagThatDefinedValue.getValue().orElse("");
             if (currentVersion.startsWith("${") || new Version(currentVersion).shouldUpdateTo(new Version(targetVersion))) {
