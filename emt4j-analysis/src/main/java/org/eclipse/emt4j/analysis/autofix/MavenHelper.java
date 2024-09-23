@@ -25,13 +25,12 @@ import org.eclipse.emt4j.analysis.autofix.recipe.PomResolution;
 import org.openrewrite.SourceFile;
 import org.openrewrite.xml.tree.Xml;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static org.eclipse.emt4j.analysis.common.Constant.POM_VERSION;
 
 public class MavenHelper {
     private MavenHelper() {
@@ -39,6 +38,8 @@ public class MavenHelper {
 
     private static MavenSession session;
     private static Map<MavenProject, MavenProjectLocalData> projectLocalData = new HashMap<>();
+
+    private static Set<String> propertiesSharedByDifferentGA = new HashSet<>();
 
     public static void setProjectDependencyRoot(MavenProject project, DTNode root) {
         getProjectData(project).setDependencyRoot(root);
@@ -172,6 +173,28 @@ public class MavenHelper {
         return getProjectData(project).getResolution();
     }
 
+    /**
+     * Finds a tag that might be updated.
+     * If the tag is a version tag and uses a property (like ${version}), checks if the property is shared across different GAs.
+     * If the property is shared across different GAs, returns the original tag; otherwise, recursively finds the tag that defines the property value.
+     */
+    public static Xml.Tag findTagThatMaybeUpdated(MavenProject project, Xml.Tag tag, boolean mustInSameProject) {
+        if (tag == null) {
+            return null;
+        }
+        boolean isVersionTag = Objects.equals(tag.getName(), POM_VERSION);
+        String value = tag.getValue().orElse("");
+        boolean usingProperty = value.startsWith("${") && value.endsWith("}");
+        if (isVersionTag && usingProperty) {
+            String propertyName = value.substring(2, value.length() - 1);
+            // the version is shared by different ga, we must just update version itself
+            if (MavenHelper.isPropertySharedByDifferentGA(propertyName)) {
+                return tag;
+            }
+        }
+        return findTagRecursivelyThatDefinesValue(project, tag, mustInSameProject);
+    }
+
     // if this tag is using a property like ${version}, return the tag that defines the value of this tag
     // (but still return tag itself if such property definition can not be found)
     // return tag itself if not using property
@@ -230,5 +253,13 @@ public class MavenHelper {
 
     public static MavenProject findProject(Predicate<MavenProject> predicate) {
         return session.getProjects().stream().filter(predicate).findFirst().orElse(null);
+    }
+
+    public static void setPropertiesSharedByDifferentGA(Set<String> properties) {
+        propertiesSharedByDifferentGA = properties;
+    }
+
+    public static boolean isPropertySharedByDifferentGA(String propertyName) {
+        return propertiesSharedByDifferentGA.contains(propertyName);
     }
 }
