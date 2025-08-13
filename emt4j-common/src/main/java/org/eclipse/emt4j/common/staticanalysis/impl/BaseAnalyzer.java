@@ -96,7 +96,7 @@ abstract class BaseAnalyzer implements Analyzer {
         return units;
     }
 
-    private static Set<Value> globalTarget(StaticFieldRef fieldRef) {
+    public static Set<Value> globalTarget(StaticFieldRef fieldRef) {
         SootClass declaringClass = fieldRef.getField().getDeclaringClass();
         Optional<SootMethod> clinit = declaringClass.getMethods().stream().filter(m -> "<clinit>".equals(m.getName())).findFirst();
         if (!clinit.isPresent()) {
@@ -104,20 +104,52 @@ abstract class BaseAnalyzer implements Analyzer {
         }
         SootMethod method = clinit.get();
         JimpleBody body = (JimpleBody) method.retrieveActiveBody();
-        Local targetLocal = null;
-        Unit targetUnit = null;
-        for (Unit unit : body.getUnits()) {
-            if (unit instanceof JAssignStmt) {
-                JAssignStmt assignStmt = (JAssignStmt) unit;
-                if (assignStmt.getLeftOp().equivTo(fieldRef)) {
-                    if (assignStmt.getRightOp() instanceof Local) targetLocal = (Local) assignStmt.getRightOp();
-                    targetUnit = unit;
-                    break;
+        try {
+            Local targetLocal = null;
+            Unit targetUnit = null;
+            for (Unit unit : body.getUnits()) {
+                if (unit instanceof JAssignStmt) {
+                    JAssignStmt assignStmt = (JAssignStmt) unit;
+                    if (assignStmt.getLeftOp().equivTo(fieldRef)) {
+                        if (assignStmt.getRightOp() instanceof Local) targetLocal = (Local) assignStmt.getRightOp();
+                        targetUnit = unit;
+                        break;
+                    }
                 }
             }
+            ExceptionalUnitGraph graph = ExceptionalUnitGraphFactory.createExceptionalUnitGraph(body);
+            SimpleLocalDefs localDefs = new SimpleLocalDefs(graph);
+            return getDefValues(localDefs, targetUnit, targetLocal);
+        } finally {
+            method.releaseActiveBody();
         }
-        ExceptionalUnitGraph graph = ExceptionalUnitGraphFactory.createExceptionalUnitGraph(body);
-        SimpleLocalDefs localDefs = new SimpleLocalDefs(graph);
-        return getDefValues(localDefs, targetUnit, targetLocal);
+    }
+
+
+    public static Set<Value> globalTargetNoRelease(StaticFieldRef fieldRef) {
+        SootClass declaringClass = fieldRef.getField().getDeclaringClass();
+        Optional<SootMethod> clinit = declaringClass.getMethods().stream().filter(m -> "<clinit>".equals(m.getName())).findFirst();
+        if (!clinit.isPresent()) {
+            return Collections.emptySet();
+        }
+        SootMethod method = clinit.get();
+        JimpleBody body = (JimpleBody) method.retrieveActiveBody();
+
+            Local targetLocal = null;
+            Unit targetUnit = null;
+            for (Unit unit : body.getUnits()) {
+                if (unit instanceof JAssignStmt) {
+                    JAssignStmt assignStmt = (JAssignStmt) unit;
+                    if (assignStmt.getLeftOp().equivTo(fieldRef)) {
+                        if (assignStmt.getRightOp() instanceof Local) targetLocal = (Local) assignStmt.getRightOp();
+                        targetUnit = unit;
+                        break;
+                    }
+                }
+            }
+            ExceptionalUnitGraph graph = ExceptionalUnitGraphFactory.createExceptionalUnitGraph(body);
+            SimpleLocalDefs localDefs = new SimpleLocalDefs(graph);
+            return getDefValues(localDefs, targetUnit, targetLocal);
+
     }
 }
